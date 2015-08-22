@@ -56,6 +56,9 @@
         </nav>
       </section>
     </header>
+    <div class="pure-g" id="titular">
+      <h1>¡ Bienvenido ! busca entre nuestra selección de productos</h1>
+    </div>
     <div class="pure-g" id="container">
       <div class='pure-u-1-4' id='menu_categorias'><ul class='centrado borde' id='categorias'></ul></div>
       <div class='pure-u-1-2' id='contenido'><ul id='productos'></ul></div>
@@ -71,21 +74,11 @@
       <li><%= nombre %></li>
     </script>
     <!-- Plantilla con los productos de la página de inicio -->
-    <script type="text/template" id="listado_productos_inicio">
+    <script type="text/template" id="listado_productos">
       <li><img class='item' src="<%= imagen %>" alt="<%= titulo %>" width="110" height="110" data-isbn="<%= isbn %>"/></li>
     </script>
 
     <!-- scripts con la lógica de la página -->
-    <!--
-    <script type="text/javascript" src="js/models/Categoria.js"></script>
-    <script type="text/javascript" src="js/models/Producto.js"></script>
-    <script type="text/javascript" src="js/collections/Categorias.js"></script>
-    <script type="text/javascript" src="js/collections/Productos.js"></script>
-    <script type="text/javascript" src="js/views/VistaCategoria.js"></script>
-    <script type="text/javascript" src="js/views/VistaMenuCategorias.js"></script>
-    <script type="text/javascript" src="js/views/VistaProductosInicio.js"></script>
-    <script type="text/javascript" src="js/Router.js"></script>
-    -->
     <script type="text/javascript" src="js/App.js"></script>
 
   </body>

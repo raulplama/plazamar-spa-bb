@@ -119,9 +119,22 @@ h1 {
 
 /* end of header */
 
+/* titular previo al contenido principal */
+
+#titular h1 {
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.5em;
+  text-align: center;
+  letter-spacing: 0;
+}
+
+/* end of titular de la página */
+
 /* container */
 
 #container {
+  margin-top: 10px;
   height: 430px;
   letter-spacing: 0;
 }
