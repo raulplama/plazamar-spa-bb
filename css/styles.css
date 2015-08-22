@@ -1,0 +1,148 @@
+/* global */
+
+body {
+  min-width: 960px;
+  background-color: rgb(35, 106, 98); /* 236a62ff */
+  color: white;
+  font-family: Candara, Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+
+.pure-g {
+  margin-left: auto;
+  margin-right: auto;
+  width: 960px;
+}
+
+a {
+  text-decoration: none;
+  color: white;
+  font-family: Candara;
+}
+
+li {
+  font-family: Candara;
+  list-style: none;
+}
+
+h1 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.borde {
+  border: 3px dotted;
+  border-radius: 1em;
+}
+
+.centrado {
+  text-align: center;
+}
+
+.ancho-completo {
+  width: 100%;
+}
+
+.resetear-espaciado-letra {
+  letter-spacing: 0;
+}
+
+/* header part */
+
+#logo {
+  padding-left: 33%;
+  padding-top: 5%;
+  font-family: "Bradley Hand ITC", Candara, Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+
+#name {
+  font-weight: bold;
+}
+
+#phrase {
+  color: red;
+  font-size: 1.5em;
+  font-weight: bold;
+  font-style: italic;
+  padding-left: 20px;
+}
+
+#store-title {
+  padding-top: 15%;
+  text-align: center;
+}
+
+#buscador {
+  padding-top: 10%;
+}
+
+#buscador-input {
+  border-color: orange;
+  border-radius: 1em;
+  font-size: 0.8em;
+  padding-left: 1em;
+  width: 300px;
+  height: 25px;
+  color: black;
+  font-family: Candara;
+}
+
+#icons {
+  padding-top: 20%;
+  padding-left: 15%;
+}
+
+#icons ul {
+  width: 80px;
+}
+
+#icons ul li {
+  display: inline;
+  float: left;
+}
+
+#little-box {
+  text-align: center;
+  width: 100px;
+  height: 80px;
+  float: left;
+  margin-top: -40px;
+  margin-left: 15px;
+}
+
+#little-box ul {
+  padding-top: 4px;
+}
+
+#little-box ul li {
+  line-height: 1.1em;
+}
+
+/* end of header */
+
+/* container */
+
+#container {
+  height: 430px;
+  letter-spacing: 0;
+}
+
+#categorias {
+  width: 150px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.item {
+  margin: 5px;
+  float: left;
+}
+
+/* end of container */
+
+/* footer */
+
+footer {
+  text-align: center;
+  height: 30px;
+  padding-top: 10px;
+}
