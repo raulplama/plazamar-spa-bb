@@ -26,7 +26,7 @@
     <header class='pure-g'>
       <section class="pure-u-1-3">
         <div id="logo">
-          <a href="#" class="rotation"><img src="img/logo_tienda.png" alt="logo plazamar" width="100"></a>
+          <a href="" class="rotation"><img src="img/logo_tienda.png" alt="logo plazamar" width="100"></a>
           <h1 id="name">plazamar</h1>
           <p id="phrase">selected books</p>
         </div>
@@ -34,7 +34,7 @@
       <section class="pure-u-1-3">
         <h1 id="store-title">Catálogo de libros</h1>
         <form name="buscador" id="buscador" action="search" method="post">
-          <input type="text" id="buscador-input" name="buscador" placeholder="buscar...">
+          <input type="text" id="buscador-input" name="buscador" placeholder="buscar en el catálogo">
         </form>
       </section>
       <section class="pure-u-1-3">
@@ -51,13 +51,13 @@
               <li><a href="#acceso">ingresar</a></li>
               <li><a href="#perfil">perfil</a></li>
               <li><a href="#carrito">carrito</a></li>
-              <li><a href="#ayuda">ayuda</a></li>
+              <li><a href="#ayuda/1">ayuda</a></li>
           </ul>
         </nav>
       </section>
     </header>
     <div class="pure-g" id="titular">
-      <h1>¡ Bienvenido ! busca entre nuestra selección de productos</h1>
+      <h1>¡ Bienvenido ! estos son algunos productos de nuestro catálogo</h1>
     </div>
     <div class="pure-g" id="container">
       <div class='pure-u-1-4' id='menu_categorias'><ul class='centrado borde' id='categorias'></ul></div>
@@ -71,11 +71,74 @@
     </footer>
     <!-- Plantilla (template) del menú de categorías -->
     <script type="text/template" id="listado_categorias">
-      <li><%= nombre %></li>
+      <li><a href="#categoria/<%= nombre %>"><%= nombre %></a></li>
     </script>
     <!-- Plantilla con los productos de la página de inicio -->
     <script type="text/template" id="listado_productos">
-      <li><img class='item' src="<%= imagen %>" alt="<%= titulo %>" width="110" height="110" data-isbn="<%= isbn %>"/></li>
+      <li><a href="#catalogo/<%= titulo %>"><img class='item' id="<%= isbn %>" src="<%= imagen %>" alt="<%= titulo %>" width="110" height="110" data-isbn="<%= isbn %>"/></a></li>
+    </script>
+    <!-- Plantilla de detalle de producto -->
+    <script type="text/template" id="detalle_de_producto">
+      <div id='detalleProducto'>
+        <img class="detalle" src="<%= imagen %>" alt="<%= titulo %>" width="220" height="220">
+        <h2 id="titulo_detalle"><%= titulo %></h2>
+        <h3 class="subtitulo_detalle">Autor: <%= autor %></h3>
+        <h3 class="subtitulo_detalle">Editorial: <%= editorial %></h3>
+        <h3 class="subtitulo_detalle">Precio: <%= precio %> € </h3>
+        <br/>
+        <h3 class="resenya">Reseña:</h3>
+        <p class="paragraph">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. In arcu dui,
+            pulvinar rutrum fringilla elementum, sodales id tellus.
+            Duis pellentesque dolor in neque volutpat mattis.
+            Fusce tempus metus non quam pellentesque, vitae porta mauris malesuada.
+            Nullam mi lorem, sagittis vitae nulla quis, cursus tincidunt erat.
+            Aenean a mi sed nulla vehicula cursus. Nullam vitae hendrerit metus,
+            lobortis commodo est. Etiam eleifend eleifend orci at malesuada.
+        </p>
+      </div>
+    </script>
+    <!-- Plantillas con el contenido de la ayuda -->
+    <script type="text/template" id='ayuda_1'>
+      <div class="ayuda">
+        <h3 class="little_title_ayuda">Cuestión 1</h3>
+        <p class="paragraph">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In arcu dui, pulvinar rutrum fringilla elementum, sodales id tellus. Duis pellentesque dolor in neque volutpat mattis. Fusce tempus metus non quam pellentesque, vitae porta mauris malesuada. Nullam mi lorem, sagittis vitae nulla quis, cursus tincidunt erat. Aenean a mi sed nulla vehicula cursus. Nullam vitae hendrerit metus, lobortis commodo est. Etiam eleifend eleifend orci at malesuada.</p>
+        <h3 class="little_title_ayuda">Cuestión 2</h3>
+        <p class="paragraph">Donec quis orci ultrices tortor volutpat eleifend nec vel felis. Donec id quam vel lectus tristique laoreet non vitae ex. Proin auctor justo a convallis convallis. Etiam semper laoreet odio et mollis. Ut a sem tempor, consectetur orci faucibus, ultricies tellus. Duis in tortor libero. Duis ut erat vulputate ligula sodales consectetur. Vivamus auctor, leo et viverra ultricies, elit massa efficitur mi, vel efficitur dolor urna a ex. Nunc ac pulvinar felis. Vestibulum vehicula auctor faucibus.</p>
+      </div>
+      <div id='menu_pag_ayuda'>
+        <ul>
+          <li><a href='#ayuda/1'>1</a></li>
+          <li><a href='#ayuda/2'>2</a></li>
+          <li><a href='#ayuda/3'>3</a></li>
+        </ul>
+      </div>
+    </script>
+    <script type="text/template" id='ayuda_2'>
+      <div class="ayuda">
+        <h3 class="little_title_ayuda">Cuestión 3</h3>
+        <p class="paragraph">Quisque vulputate massa a iaculis ornare. Nam at odio nec tortor mollis volutpat. Aenean sit amet lectus eget eros malesuada sollicitudin sed ac ex. Etiam fringilla ultrices ligula sed efficitur. Etiam eget porttitor massa, at eleifend massa. Suspendisse massa nulla, porta in turpis vel, lobortis egestas odio. Aenean lorem ex, blandit non est vitae, blandit molestie purus. Duis viverra justo ut quam hendrerit, quis blandit metus dignissim. Pellentesque consectetur rutrum lorem ac aliquam. Duis rhoncus lacus quis felis pretium, ac bibendum dolor faucibus. Ut mollis nunc vitae dapibus dictum. Aliquam metus sem, aliquet ac augue nec, scelerisque tristique ipsum. Aliquam in nulla diam. Pellentesque vel libero sit amet mi dapibus rhoncus. Sed libero diam, blandit sit amet felis sit amet, ornare aliquam lectus. Aenean et diam volutpat, tristique diam euismod, tincidunt quam.</p>
+      </div>
+      <div id='menu_pag_ayuda'>
+        <ul>
+          <li><a href='#ayuda/1'>1</a></li>
+          <li><a href='#ayuda/2'>2</a></li>
+          <li><a href='#ayuda/3'>3</a></li>
+        </ul>
+      </div>
+    </script>
+    <script type="text/template" id='ayuda_3'>
+      <div class="ayuda">
+        <h3 class="little_title_ayuda">Cuestión 4</h3>
+        <p class="paragraph">Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Nunc sed metus eu sapien molestie pharetra. Sed accumsan pulvinar lacus eu cursus. Nunc in cursus ante, nec elementum felis. Integer mauris ipsum, scelerisque nec erat facilisis, ultricies eleifend magna. Nullam tristique, ante vitae vulputate interdum, mi dolor iaculis metus, eu volutpat arcu neque eget massa. Cras in magna at nisi accumsan facilisis non et erat. Quisque sit amet dui in turpis varius consequat. Nam sodales, purus sit amet sollicitudin volutpat, elit mauris placerat magna, ac blandit risus tortor non lorem. Praesent vel risus hendrerit, tincidunt libero a, facilisis felis. Aliquam nec felis at nulla tempus eleifend sit amet eget dolor. Aenean auctor magna sit amet finibus maximus.</p>
+      </div>
+      <div id='menu_pag_ayuda'>
+        <ul>
+          <li><a href='#ayuda/1'>1</a></li>
+          <li><a href='#ayuda/2'>2</a></li>
+          <li><a href='#ayuda/3'>3</a></li>
+        </ul>
+      </div>
     </script>
 
     <!-- scripts con la lógica de la página -->

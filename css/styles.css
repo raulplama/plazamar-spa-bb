@@ -150,6 +150,57 @@ h1 {
   float: left;
 }
 
+/* detalle de producto */
+
+#titulo_detalle {
+  margin-top: -200px;
+  margin-left: 235px;
+  margin-bottom: 20px;
+  font-size: 1.2em;
+
+}
+
+.subtitulo_detalle {
+  margin-left: 235px;
+  margin-bottom: 5px;
+  font-size: 1em;
+}
+
+.resenya {
+  margin-top: 80px;
+  font-size: 1em
+}
+
+/* fin detalle de producto */
+
+.ayuda {
+  height: 370px;
+}
+
+.little_title_ayuda {
+  margin-top: 20px
+}
+
+.paragraph {
+  margin-top: 20px;
+  margin-right:0px;
+}
+
+#menu_pag_ayuda {
+  width: 60px;
+  height: 30px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#menu_pag_ayuda ul li {
+  margin-top: 10px;
+  width: 20px;
+  height: 20px;
+  float: left;
+  text-align: center;
+}
+
 /* end of container */
 
 /* footer */

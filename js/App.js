@@ -153,9 +153,6 @@ var VistaCategoria = Backbone.View.extend({
 
 var VistaMenuCategorias = Backbone.View.extend({
   el: ("#categorias"),
-  events: {
-    "click": "mostrarProductosCategoria" // generar enlace en cada elemento del menú
-  },
   initialize: function() {
     this.render();
   },
@@ -165,27 +162,11 @@ var VistaMenuCategorias = Backbone.View.extend({
   },
   addUnaCategoria: function(data){
     var vistaCategoria = new VistaCategoria({model: data});
-  },
-  mostrarProductosCategoria: function(e) {
-    e.preventDefault();
-
-    var cat = $(e.target).html(); // obtenemos el nombre de la categoria pulsada
-    var arrayProductos = _.where(listaDeProductos.toJSON(), {categoria: cat}); // seleccionamos los productos de dicha categoria
-
-    var productosCategoria = new ListaDeProductos() // creamos la colección de productos de la categoria seleccionada
-    productosCategoria.add(arrayProductos); // añadimos los productos a la colección
-
-    // quitamos los productos en pantalla y pasamos la vista de productos con los nuevos productos
-
-    $('#productos').html('');
-    var vistaProductosCategoria = new VistaListaDeProductos({collection: productosCategoria});
-
-    // desactivamos el click de ese enlace
   }
 });
 
 var VistaProducto = Backbone.View.extend({
-  el: $("#productos"),
+  //el: $("#productos"),
   template: _.template($("#listado_productos").html()),
   initialize: function() {
     this.render();
@@ -205,7 +186,59 @@ var VistaListaDeProductos = Backbone.View.extend({
     return this;
   },
   addUnProducto: function(data) {
-    var vistaProducto = new VistaProducto({model: data});
+    var vistaProducto = new VistaProducto({model: data, el: $('#productos')});
+  }
+});
+
+var VistaDetalleDeProducto = Backbone.View.extend({
+  el: $("#contenido"),
+  template: _.template($("#detalle_de_producto").html()),
+  initialize: function() {
+    console.log('aplicando vista detalle de producto')
+    this.render();
+  },
+  render: function() {
+     this.$el.append(this.template(this.model));
+    return this;
+  }
+});
+
+var VistaAyuda1 = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#ayuda_1').html()),
+
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  }
+});
+
+var VistaAyuda2 = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#ayuda_2').html()),
+
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  }
+});
+
+var VistaAyuda3 = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#ayuda_3').html()),
+
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
   }
 });
 
@@ -213,8 +246,11 @@ var VistaListaDeProductos = Backbone.View.extend({
 
 var Router = Backbone.Router.extend({
   routes: {
-    "": "index"
-  },
+    ""                     : "index",    // la página de inicio
+    "categoria/:categoria" : "mostrarProductosCategoria", // enlaces del menú de categorías para mostrar sus productos
+    "catalogo/:titulo"     : "mostrarProducto", // enlaces en cada imagen de producto para mostrar su detalle
+    "ayuda/:page"          : "mostrarAyuda" // muestra la página de ayuda
+   },
   initialize: function() {
     console.log('aplicando router');
   },
@@ -222,13 +258,80 @@ var Router = Backbone.Router.extend({
     console.log('página del index');
     actualizarCategorias();
     seleccionarProductosDeInicio();
+  },
+  mostrarProductosCategoria: function(categoria) {
+    console.log('página de la categoria ' + categoria);
+    $('#titular').html('<h1>' + 'libros de ' + categoria + '</h1>'); // cambiamos el titular de la página (pte poner la descripción de la BD)
+    actualizarCategorias(); // redibujamos el menú de las categorías
+    mostrarProductosCategoria(categoria); // mostramos los productos de la categoria
+  },
+  mostrarProducto: function(titulo) {
+    console.log('página del producto: ' + titulo);
+    $('#titular').html('<h1>detalle de producto</h1>'); // cambiamos el titular
+    actualizarCategorias(); // redibujamos el menú de las categorías
+    mostrarDetalleDeProducto(titulo); // mostramos el detalle de producto
+  },
+  mostrarAyuda: function(page) {
+    console.log('página de ayuda número ' + page);
+    $('#titular').html('<h1>' + 'ayuda' + '</h1>'); // cambiamos el titular de la página
+    actualizarCategorias(); // redibujamos el menú de las categorías
+    mostrarContenidoAyuda(page); // cambiamos el contenido existente por el de ayuda
   }
 });
+
+// FUNCIONES
+
+// función que muestra el contenido de ayuda
+
+function mostrarContenidoAyuda(page) {
+  $("#contenido").html(""); // limpiamos la pantalla
+  // seleccionamos la vista según la página seleccionada
+
+  switch (page) {
+    case '1' : var vistaAyuda1 = new VistaAyuda1; break;
+    case '2' : var vistaAyuda2 = new VistaAyuda2; break;
+    case '3' : var vistaAyuda3 = new VistaAyuda3; break;
+    default: console.log('test');
+  }
+}
+
+// función que muestra el detalle del producto seleccionado
+
+function mostrarDetalleDeProducto(titulo) {
+  $("#contenido").html(""); // limpiamos la pantalla
+
+  var title = titulo;
+  var prod = _.findWhere(listaDeProductos.toJSON(), {titulo: title}); // obtenemos el producto de la BD
+
+  var vistaDetalleDeProducto = new VistaDetalleDeProducto({model: prod})// mostrar vista de detalle pasando el producto seleccionado
+}
+
+// función que muestra los productos de la categoría seleccionada.
+// pte condicionar que la muestra de productos sea de 12 en 12 y se añada un menú de páginas
+
+function mostrarProductosCategoria(categoria) {
+  $("#contenido").html(""); // limpiamos la pantalla
+  $("#contenido").append("<ul id='productos'></ul>"); // devolvemos el contenido a su estado inicial
+
+  var cat = categoria // obtenemos el nombre de la categoria pulsada
+  var arrayProductos = _.where(listaDeProductos.toJSON(), {categoria: cat}); // seleccionamos los productos de dicha categoria
+
+  var productosCategoria = new ListaDeProductos() // creamos la colección de productos de la categoria seleccionada
+  productosCategoria.add(arrayProductos); // añadimos los productos a la colección
+
+  // pasamos la vista de productos con los nuevos productos
+
+  var vistaProductosCategoria = new VistaListaDeProductos({collection: productosCategoria});
+}
+
+// función que muestra el menú de categorías.
 
 function actualizarCategorias() {
   $('#categorias').html(''); // limpiamos el menu para que no se vuelvan a añadir las categorias
   var vistaMenuCategorias = new VistaMenuCategorias({collection: listaDeCategorias});
 };
+
+// función que muestra una selección de 12 productos aleatorios en la página de inicio
 
 function seleccionarProductosDeInicio() {
   var seleccionProductosPaginaInicio = new ListaDeProductos(); // colección para la muestra de productos en el inicio
