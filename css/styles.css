@@ -173,11 +173,11 @@ h1 {
 
 /* fin detalle de producto */
 
-.ayuda {
+.cuadro_texto {
   height: 370px;
 }
 
-.little_title_ayuda {
+.little_title_gen {
   margin-top: 20px
 }
 
@@ -186,14 +186,14 @@ h1 {
   margin-right:0px;
 }
 
-#menu_pag_ayuda {
+#menu_pag_cuadro_texto {
   width: 60px;
   height: 30px;
   margin-left: auto;
   margin-right: auto;
 }
 
-#menu_pag_ayuda ul li {
+#menu_pag_cuadro_texto ul li {
   margin-top: 10px;
   width: 20px;
   height: 20px;

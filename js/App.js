@@ -206,7 +206,6 @@ var VistaDetalleDeProducto = Backbone.View.extend({
 var VistaAyuda1 = Backbone.View.extend({
   el: ('#contenido'),
   template: _.template($('#ayuda_1').html()),
-
   initialize: function() {
     this.render();
   },
@@ -219,7 +218,6 @@ var VistaAyuda1 = Backbone.View.extend({
 var VistaAyuda2 = Backbone.View.extend({
   el: ('#contenido'),
   template: _.template($('#ayuda_2').html()),
-
   initialize: function() {
     this.render();
   },
@@ -232,7 +230,66 @@ var VistaAyuda2 = Backbone.View.extend({
 var VistaAyuda3 = Backbone.View.extend({
   el: ('#contenido'),
   template: _.template($('#ayuda_3').html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  }
+});
 
+var VistaQuienesSomos = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#quienesSomos').html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  }
+});
+
+var VistaAtencionAlCliente = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#atencionAlCliente').html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  }
+});
+
+var VistaLegal1 = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#legal_1').html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  }
+});
+
+var VistaLegal2 = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#legal_2').html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  }
+});
+
+var VistaLegal3 = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#legal_3').html()),
   initialize: function() {
     this.render();
   },
@@ -246,10 +303,13 @@ var VistaAyuda3 = Backbone.View.extend({
 
 var Router = Backbone.Router.extend({
   routes: {
-    ""                     : "index",    // la página de inicio
-    "categoria/:categoria" : "mostrarProductosCategoria", // enlaces del menú de categorías para mostrar sus productos
-    "catalogo/:titulo"     : "mostrarProducto", // enlaces en cada imagen de producto para mostrar su detalle
-    "ayuda/:page"          : "mostrarAyuda" // muestra la página de ayuda
+    ""                      : "index",    // la página de inicio
+    "categoria/:categoria"  : "mostrarProductosCategoria", // enlaces del menú de categorías para mostrar sus productos
+    "catalogo/:titulo"      : "mostrarProducto", // enlaces en cada imagen de producto para mostrar su detalle
+    "ayuda/:page"           : "mostrarAyuda", // muestra la página de ayuda
+    "quienesSomos"          : "quienesSomos",
+    "atencionAlCliente"     : "atencionAlCliente",
+    "legal/:page" : "legal"
    },
   initialize: function() {
     console.log('aplicando router');
@@ -276,22 +336,69 @@ var Router = Backbone.Router.extend({
     $('#titular').html('<h1>' + 'ayuda' + '</h1>'); // cambiamos el titular de la página
     actualizarCategorias(); // redibujamos el menú de las categorías
     mostrarContenidoAyuda(page); // cambiamos el contenido existente por el de ayuda
+  },
+  quienesSomos: function() {
+    console.log('página quienes somos');
+    $('#titular').html('<h1>' + 'quienes somos' + '</h1>'); // cambiamos el titular de la página
+    actualizarCategorias();
+    mostrarContenidoQuienesSomos();
+  },
+  atencionAlCliente: function() {
+    console.log('página de atención al cliente');
+    $('#titular').html('<h1>' + 'atención al cliente' + '</h1>'); // cambiamos el titular de la página
+    actualizarCategorias();
+    mostrarContenidoAtencionAlCliente();
+  },
+  legal: function(page) {
+    console.log('página de los aspectos legales ' + page);
+    $('#titular').html('<h1>' + 'aspectos legales' + '</h1>'); // cambiamos el titular de la página
+    actualizarCategorias();
+    mostrarContenidoLegal(page);
   }
 });
 
 // FUNCIONES
 
+// función que muestra el contenido de la atención al cliente
+
+function mostrarContenidoLegal(page) {
+  $("#contenido").html(""); // limpiamos la pantalla
+  // seleccionamos la vista según la página seleccionada
+
+  switch (page) {
+    case '1' : var vistaLegal1 = new VistaLegal1; break;
+    case '2' : var vistaLegal2 = new VistaLegal2; break;
+    case '3' : var vistaLegal3 = new VistaLegal3; break;
+    default: var vistaLegal1 = new VistaLegal1;
+  }
+}
+
+// función que muestra el contenido de la atención al cliente
+
+function mostrarContenidoAtencionAlCliente() {
+  $("#contenido").html(""); // limpiamos la pantalla
+  var vistaAtencionAlCliente = new VistaAtencionAlCliente  // seleccionamos la vista
+}
+
+// función que muestra el contenido de quienes somos
+
+function mostrarContenidoQuienesSomos() {
+  $("#contenido").html(""); // limpiamos la pantalla
+  var vistaQuienesSomos = new VistaQuienesSomos  // seleccionamos la vista
+}
+
 // función que muestra el contenido de ayuda
 
 function mostrarContenidoAyuda(page) {
   $("#contenido").html(""); // limpiamos la pantalla
+
   // seleccionamos la vista según la página seleccionada
 
   switch (page) {
     case '1' : var vistaAyuda1 = new VistaAyuda1; break;
     case '2' : var vistaAyuda2 = new VistaAyuda2; break;
     case '3' : var vistaAyuda3 = new VistaAyuda3; break;
-    default: console.log('test');
+    default: var vistaAyuda1 = new VistaAyuda1;
   }
 }
 
