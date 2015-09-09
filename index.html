@@ -48,7 +48,7 @@
         </div>
         <nav id="little-box" class="borde">
           <ul>
-              <li><a href="#acceso">ingresar</a></li>
+              <li id='sesion'><a href="#formAcceso">acceder</a></li>
               <li><a href="#perfil">perfil</a></li>
               <li><a href="#carrito">carrito</a></li>
               <li><a href="#ayuda/1">ayuda</a></li>
@@ -84,7 +84,7 @@
         <h2 id="titulo_detalle"><%= titulo %></h2>
         <h3 class="subtitulo_detalle">Autor: <%= autor %></h3>
         <h3 class="subtitulo_detalle">Editorial: <%= editorial %></h3>
-        <h3 class="subtitulo_detalle">Precio: <%= precio %> € </h3>
+        <h3 class="subtitulo_detalle" id='precio'>Precio: <%= precio %> € </h3>
         <br/>
         <h3 class="resenya">Reseña:</h3>
         <p class="paragraph">
@@ -202,6 +202,58 @@
           <li><a href='#legal/3'>3</a></li>
         </ul>
       </div>
+    </script>
+    <!-- Plantilla con el formulario de acceso -->
+    <script type="text/template" id='formularioDeAcceso'>
+      <div class='cuadro_texto margenSuperior'>
+        <form id='cuadro_texto' name='log-in' action='#acceso' method='POST'>
+          <div class='centrado'>
+            <label class='etiqueta' for='usuario'>usuario</label>
+            <br><br>
+            <input class='cuadro-texto' type='text' id='usuario' name='usuario' size='20'>
+            <br><br>
+            <label class='etiqueta' for='password'>password</label>
+            <br><br>
+            <input class='cuadro-texto' type='password' id='password' name='password' size='20'>
+            <br><br>
+            <input type="submit" class="button" id="acceder" name="acceder" value="acceder">
+          </div>
+        </form>
+         <form id='cuadro_texto' name='accesoARegistro' action='#formRegistro' method='POST'>
+          <div class='centrado'>
+            <br><br>
+            <label class='etiqueta' for='registrar'>¿aún no estás registrado?</label>
+            <br><br>
+            <input type="submit" class="button" id="registrar" name="registrar" value="registrarse">
+          </div>
+        </form>
+      </div>
+    </script>
+    <!-- Plantilla con el formulario de registro -->
+    <script type="text/template" id='formularioDeRegistro'>
+      <div class='cuadro_texto margenSuperior'>
+        <form id='cuadro_texto' name='formRegistro' action='#registro' method='POST'>
+          <div class='centrado'>
+            <label class='etiqueta' for='usuario'>usuario</label>
+            <br><br>
+            <input class='cuadro-texto' type='text' id='usuario' name='usuario' size='20'>
+            <br><br>
+            <label class='etiqueta' for='email'>email</label>
+            <br><br>
+            <input class='cuadro-texto' type='text' id='email' name='email' size='20'>
+            <br><br>
+            <label class='etiqueta' for='password'>password</label>
+            <br><br>
+            <input class='cuadro-texto' type='password' id='password' name='password' size='20'>
+            <br><br>
+            <input type="submit" class="button" id="registrar" name="registrar" value="registrar">
+          </div>
+    </script>
+    <!-- Plantilla con la pagina de error de acceso -->
+    <script type='text/template' id='errorAcceso'>
+        <div class='cuadro_texto margenSuperior'>
+          <h3 class="little_title_gen centrado">credenciales incorrectas</h3>
+        </div>
     </script>
 
     <!-- scripts con la lógica de la página -->

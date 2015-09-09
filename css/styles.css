@@ -201,6 +201,40 @@ h1 {
   text-align: center;
 }
 
+.centrado {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.margenSuperior {
+  margin-top: 40px;
+}
+
+.cuadro-texto {
+  border-radius: 0.8em;
+  color: black;
+  font-size: 1.2em;
+  height: 1.5em;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.button {
+  border-color: white;
+  border-radius: 1em;
+  font-size: 1em;
+  padding-left: 0em;
+  width: 100px;
+  height: 25px;
+  color: black;
+  background-color: orange;
+  font-family: Candara;
+}
+
+.tachado {
+  text-decoration: line-through;
+}
+
 /* end of container */
 
 /* footer */
