@@ -206,7 +206,7 @@
     <!-- Plantilla con el formulario de acceso -->
     <script type="text/template" id='formularioDeAcceso'>
       <div class='cuadro_texto margenSuperior'>
-        <form id='cuadro_texto' name='log-in' action='#acceso' method='POST'>
+        <form id='login' name='log-in' action='#acceso' method='POST'>
           <div class='centrado'>
             <label class='etiqueta' for='usuario'>usuario</label>
             <br><br>
@@ -219,20 +219,43 @@
             <input type="submit" class="button" id="acceder" name="acceder" value="acceder">
           </div>
         </form>
-         <form id='cuadro_texto' name='accesoARegistro' action='#formRegistro' method='POST'>
+        <form id='registro' name='accesoARegistro' action='#formRegistro' method='POST'>
           <div class='centrado'>
             <br><br>
             <label class='etiqueta' for='registrar'>¿aún no estás registrado?</label>
             <br><br>
-            <input type="submit" class="button" id="registrar" name="registrar" value="registrarse">
+            <button type="button" class="button" id="registrar">registrarse</button>
           </div>
         </form>
       </div>
     </script>
-    <!-- Plantilla con el formulario de registro -->
+    <!-- Plantilla con el formulario de registro (INCLUYE VALIDACIÓN HTML5)-->
     <script type="text/template" id='formularioDeRegistro'>
-      <div class='cuadro_texto margenSuperior'>
-        <form id='cuadro_texto' name='formRegistro' action='#registro' method='POST'>
+      <div id='contenedorFormRegistro' class='cuadro_texto margenSuperior'>
+        <form id='formRegistro' name='formRegistro' action='#registro' method='POST'>
+          <div class='centrado'>
+            <label class='etiqueta' for='usuario'>usuario</label>
+            <br><br>
+            <input class='cuadro-texto' type='text' id='usuario' name='usuario' size='20' minlength=4 maxlength=20 autofocus required>
+            <br><br>
+            <label class='etiqueta' for='email'>email</label>
+            <br><br>
+            <input class='cuadro-texto' type='email' id='email' name='email' size='20' maxlength=50 required>
+            <br><br>
+            <label class='etiqueta' for='password'>password</label>
+            <br><br>
+            <input class='cuadro-texto' type='password' id='password' name='password' size='20' minlength=4 maxlength=20 required>
+            <br><br>
+            <input type="submit" class="button" id="registrarUsuario" name="registrar" value="registrar">
+          </div>
+        </form>
+        <h3 id='infoError' class='centrado naranja'></h3>
+      </div>
+    </script>
+    <!-- Plantilla con el formulario de registro [SIN VALIDACIÓN HTML5]
+    <script type="text/template" id='formularioDeRegistro'>
+      <div id='contenedorFormRegistro' class='cuadro_texto margenSuperior'>
+        <form id='formRegistro' name='formRegistro' action='#registro' method='POST'>
           <div class='centrado'>
             <label class='etiqueta' for='usuario'>usuario</label>
             <br><br>
@@ -240,15 +263,18 @@
             <br><br>
             <label class='etiqueta' for='email'>email</label>
             <br><br>
-            <input class='cuadro-texto' type='text' id='email' name='email' size='20'>
+            <input class='cuadro-texto' type='text' id='email' name='email' size='20' >
             <br><br>
             <label class='etiqueta' for='password'>password</label>
             <br><br>
-            <input class='cuadro-texto' type='password' id='password' name='password' size='20'>
+            <input class='cuadro-texto' type='password' id='password' name='password' size='20' >
             <br><br>
             <input type="submit" class="button" id="registrar" name="registrar" value="registrar">
           </div>
-    </script>
+        </form>
+        <h3 id='infoError' class='centrado naranja'></h3>
+      </div>
+    </script> -->
     <!-- Plantilla con la pagina de error de acceso -->
     <script type='text/template' id='errorAcceso'>
         <div class='cuadro_texto margenSuperior'>

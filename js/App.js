@@ -32,11 +32,45 @@ var Producto = Backbone.Model.extend({
 
 var Usuario = Backbone.Model.extend({
   defaults: {
-    id: '0',
-    usuario: 'vacío',
-    email: 'vacío',
-    password: 'secreto',
+    id: '',
+    usuario: '',
+    email: '',
+    password: '',
     type: 'usuario'
+  },
+  validate: function(attributes) {
+    var invalid = []; // creamos un array con los errores que vamos detectando
+
+    // condiciones de validación y sus errores
+
+    if ( !attributes.usuario ) {
+      invalid.push('campo usuario vacío');
+    }
+    if ( attributes.usuario && (attributes.usuario.length < 4 || attributes.usuario.length > 20) ) {
+      invalid.push('el usuario debe tener entre 4 y 20 caracteres');
+    }
+    if ( listaDeUsuarios.where({usuario: attributes.usuario}).length > 0 ) {
+      invalid.push('el nombre de usuario ya existe');
+    }
+    if ( !attributes.email ) {
+      invalid.push('campo email vacío');
+    }
+    if ( attributes.email && !attributes.email.includes('@') ) {
+      invalid.push('email no válido');
+    }
+    if ( attributes.email && attributes.email.includes('@') && attributes.email.length > 50 ) {
+      invalid.push('la dirección de email debe tener menos de 50 caracteres');
+    }
+    if ( !attributes.password ) {
+      invalid.push('campo password vacío');
+    }
+    if (attributes.password && (attributes.password.length < 4 || attributes.password.length >20)) {
+      invalid.push('la contraseña debe tener entre 4 y 20 caracteres');
+    }
+
+    // si el array de errores tiene longitud mayor de cero es que hay errores, los retornamos
+
+    if ( invalid.length > 0 ) { return invalid; };
   }
 });
 
@@ -331,7 +365,8 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
     'formAcceso': _.template($('#formularioDeAcceso').html()),
   },
   events: {
-        'submit': 'onFormSubmit' // evento lanzado al pulsar el botón de acceder
+        'submit'           : 'onFormSubmit', // evento lanzado al pulsar el botón type submit (acceder)
+        'click #registrar' : 'formularioRegistro' // evento lanzado al pulsar el boton de tipo button (formulario registro)
   },
   initialize: function() {
     this.render();
@@ -367,6 +402,11 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
         window.location.href = '#accesoCorrecto';
       }
     }
+  },
+  formularioRegistro: function(e) {
+    e.preventDefault();
+    console.log('accediendo al fomulario de registro');
+    window.location.href = '#formRegistro';
   }
 });
 
@@ -385,12 +425,53 @@ var VistaErrorAcceso = Backbone.View.extend({
 var VistaFormularioDeRegistro = Backbone.View.extend({
   el: ('#contenido'),
   template: _.template($('#formularioDeRegistro').html()),
+  events: {
+        'submit': 'onFormSubmit' // evento lanzado al pulsar el botón type submit (acceder)
+  },
   initialize: function() {
     this.render();
   },
   render: function() {
     this.$el.append(this.template());
     return this;
+  },
+  onFormSubmit: function(e) {
+    console.log('enviando formulario');
+
+    e.preventDefault();
+
+    // obtenemos los valores de los campos
+
+    var nuevoNombreUsuario = this.$el.find('#usuario').val();
+    var nuevoEmail = this.$el.find('#email').val();
+    var nuevoPassword = this.$el.find('#password').val();
+
+    // creamos un nuevo usuario y le asignamos los datos introducidos, también le asignamos un id adecuado
+
+    var nuevoUsuario = new Usuario({id: listaDeUsuarios.length + 1, usuario: nuevoNombreUsuario,
+      email: nuevoEmail, password: nuevoPassword});
+
+    // validar los datos introducidos y mostrar el error en su caso
+    // DESCOMENTAR CUANDO SE IMPLEMENTE UNA BD EXTERNA Y TENGAMOS URL
+    /*
+    nuevoUsuario.on("invalid", function(model, error) {
+      $('#infoError').html('por favor, revisa los siguientes errores: ' + error);
+    });
+
+    // grabar el nuevo registro en la BD
+
+    nuevoUsuario.save();
+    */
+
+    // añadir el nuevo usuario a la colección (SOLO MIENTRAS NO TENGAMOS BD EXTERNA)
+    // comprobar primero si existe el usuario
+
+    if (listaDeUsuarios.where({usuario: nuevoNombreUsuario}).length > 0) {
+      window.location.href="#errorRegistro"; // redireccionamos a la info de error
+    } else {
+      listaDeUsuarios.add(nuevoUsuario); // añadimos el usuario a la colección
+      window.location.href="#nuevoUsuario"; // redireccionamos a la info de registro ok
+    }
   }
 });
 
@@ -410,7 +491,9 @@ var Router = Backbone.Router.extend({
     "errorEnAcceso"         : "infoErrorAcceso", // muestra una página con el error de acceso
     "accesoCorrecto"        : "accesoCorrecto", // gestiona el acceso del usuario a la tienda presentando la página personalizada
     "logout"                : "logout", // gestiona el cierre de sesión por el usuario
-    "formRegistro"          : "formRegistro" // acceso al formulario de registro en la tienda
+    "formRegistro"          : "formRegistro", // acceso al formulario de registro en la tienda
+    "nuevoUsuario"          : "infoNuevoUsuario",
+    "errorRegistro"         : "infoErrorRegistro"
    },
   initialize: function() {
     console.log('aplicando router');
@@ -491,7 +574,14 @@ var Router = Backbone.Router.extend({
   logout: function() {
     console.log('cerrando sesión');
     sessionStorage.setItem('sesionActiva', 'false'); // eliminamos el dato de sesión del sessionstore en el navegador
+    $('#contenido').html("<ul id='productos'></ul>"); // borramos el contenido mostrado (necesario si estamos en la vista 'detalle de producto')
     window.location.href = '#index'; // redireccionamos a la página de inicio sin sesión
+  },
+  infoNuevoUsuario: function() {
+    console.log('registro realizado correctamente');
+  },
+  infoErrorRegistro: function() {
+    console.log('registro no realizado, el usuario ya existe');
   }
 });
 

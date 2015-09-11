@@ -29,6 +29,10 @@ h1 {
   margin-bottom: 0;
 }
 
+.naranja {
+  color: orange;
+}
+
 .borde {
   border: 3px dotted;
   border-radius: 1em;
@@ -219,6 +223,11 @@ h1 {
   padding-right: 15px;
 }
 
+#infoError {
+  height: 80px;
+  padding-top: 10px;
+}
+
 .button {
   border-color: white;
   border-radius: 1em;
@@ -233,6 +242,14 @@ h1 {
 
 .tachado {
   text-decoration: line-through;
+}
+
+input:invalid {
+  box-shadow: 0 0 1px 3px orange;
+}
+
+input:focus:invalid {
+  outline: none;
 }
 
 /* end of container */
