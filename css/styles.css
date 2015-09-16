@@ -139,8 +139,15 @@ h1 {
 
 #container {
   margin-top: 10px;
-  height: 430px;
   letter-spacing: 0;
+}
+
+.containerNormal {
+  height: 430px;
+}
+
+.containerAmpliado {
+  height: 700px;
 }
 
 #categorias {
@@ -179,6 +186,10 @@ h1 {
 
 .cuadro_texto {
   height: 370px;
+}
+
+.cuadro_perfil {
+  height: 620px;
 }
 
 .little_title_gen {

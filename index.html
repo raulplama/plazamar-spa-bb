@@ -49,7 +49,7 @@
         <nav id="little-box" class="borde">
           <ul>
               <li id='sesion'><a href="#formAcceso">acceder</a></li>
-              <li><a href="#perfil">perfil</a></li>
+              <li id='perfil'><a href="#perfil">perfil</a></li>
               <li><a href="#carrito">carrito</a></li>
               <li><a href="#ayuda/1">ayuda</a></li>
           </ul>
@@ -59,7 +59,7 @@
     <div class="pure-g" id="titular">
       <h1>¡ Bienvenido ! estos son algunos productos de nuestro catálogo</h1>
     </div>
-    <div class="pure-g" id="container">
+    <div class="pure-g containerNormal" id="container">
       <div class='pure-u-1-4' id='menu_categorias'><ul class='centrado borde' id='categorias'></ul></div>
       <div class='pure-u-1-2' id='contenido'><ul id='productos'></ul></div>
       <div class='pure-u-1-4' id='carrito'></div>
@@ -279,6 +279,57 @@
     <script type='text/template' id='errorAcceso'>
         <div class='cuadro_texto margenSuperior'>
           <h3 class="little_title_gen centrado">credenciales incorrectas</h3>
+        </div>
+    </script>
+    <!-- Plantilla con la pagina de info de registro -->
+    <script type='text/template' id='infoRegistro'>
+        <div class='cuadro_texto margenSuperior'>
+          <h3 id='inforeg' class="little_title_gen centrado"></h3>
+        </div>
+    </script>
+    <!-- Plantilla con el formulario de perfil de usuario (INCLUYE VALIDACIÓN HTML5)-->
+    <script type="text/template" id='formularioPerfilUsuario'>
+      <div id='contenedorFormRegistro' class='cuadro_perfil margenSuperior'>
+        <form id='formPerfilUsuario' name='formPerfilUsuario' action='#regPerfilUsuario' method='POST'>
+          <div class='centrado'>
+            <label class='etiqueta' for='nombre'>nombre</label>
+            <br><br>
+            <input class='cuadro-texto' type='text' id='nombre' name='nombre' size='20' maxlength=20 autofocus>
+            <br><br>
+            <label class='etiqueta' for='apellidos'>apellidos</label>
+            <br><br>
+            <input class='cuadro-texto' type='text' id='apellidos' name='apellidos' size='20' maxlength=40>
+            <br><br>
+            <label class='etiqueta' for='email'>email</label>
+            <br><br>
+            <input class='cuadro-texto' type='email' id='email' name='email' size='20' maxlength=50 required>
+            <br><br>
+            <label class='etiqueta' for='direccion'>dirección</label>
+            <br><br>
+            <input class='cuadro-texto' type='text' id='direccion' name='direccion' size='20' maxlength=50>
+            <br><br>
+            <label class='etiqueta' for='localidad'>localidad</label>
+            <br><br>
+            <input class='cuadro-texto' type='text' id='localidad' name='localidad' size='20' maxlength=50>
+            <br><br>
+            <label class='etiqueta' for='provincia'>provincia</label>
+            <br><br>
+            <input class='cuadro-texto' type='text' id='provincia' name='provincia' size='20' maxlength=50>
+            <br><br>
+            <label class='etiqueta' for='password'>password</label>
+            <br><br>
+            <input class='cuadro-texto' type='password' id='password' name='password' size='20' minlength=4 maxlength=20 required>
+            <br><br>
+            <input type="submit" class="button" id="registrarUsuario" name="registrar" value="registrar">
+          </div>
+        </form>
+        <h3 id='infoError' class='centrado naranja'></h3>
+      </div>
+    </script>
+    <!-- Plantilla con la pagina de info del perfil de usuario -->
+    <script type='text/template' id='informacionPerfil'>
+        <div class='cuadro_texto margenSuperior'>
+          <h3 id='infoPerfil' class="little_title_gen centrado"></h3>
         </div>
     </script>
 

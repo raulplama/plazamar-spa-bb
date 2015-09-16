@@ -9,24 +9,25 @@ $(document).ready(function() {
 
 var Categoria = Backbone.Model.extend({
   defaults: {
-    id: '0',
-    nombre: 'sin nombre',
-    descripcion: 'sin descripción',
-  }
+    id: '',
+    nombre: '',
+    descripcion: '',
+  },
+  idAttribute: "_id"
 });
 
 var Producto = Backbone.Model.extend({
   defaults: {
-    id: '0',
-    imagen: 'sin imagen',
-    titulo: 'sin título',
-    autor: 'vacío',
-    editorial: 'vacío',
-    precio: '0.00',
-    isbn: '0',
-    categoria: 'vacío',
+    id: '',
+    imagen: '',
+    titulo: '',
+    autor: '',
+    editorial: '',
+    precio: '',
+    isbn: '',
+    categoria: '',
     tieneDescuento: false,
-    descuento: '0.00' // en porcentaje
+    descuento: '' // en porcentaje
   }
 });
 
@@ -74,26 +75,70 @@ var Usuario = Backbone.Model.extend({
   }
 });
 
+var Perfil = Backbone.Model.extend({
+  defaults: {
+    id: '',
+    usuario: '',
+    nombre: '',
+    apellidos: '',
+    email: '',
+    direccion: '',
+    localidad: '',
+    provincia: ''
+  },
+  validate: function(attributes) {
+    var invalid = [];
+
+    // condiciones de validación y sus errores
+
+    if (nombre.length > 20) {
+      invalid.push('el nombre debe tener menos de 20 caracteres');
+    }
+    if (apellidos.length > 40) {
+      invalid.push('los apellidos deben tener menos de 40 caracteres en total');
+    }
+    if (direccion.length > 50) {
+      invalid.push('la dirección debe tener menos de 50 caracteres');
+    }
+    if (localidad.length > 50) {
+      invalid.push('la localidad debe tener menos de 50 caracteres');
+    }
+    if (provincia.length > 50) {
+      invalid.push('la provincia debe tener menos de 50 caracteres');
+    }
+
+    if ( invalid.length > 0 ) { return invalid; };
+  }
+})
+
 // COLECCIONES
 
-var ListaDeCategorias = Backbone.Collection.extend({
-  model: Categoria // modelo del que trata la colección
-});
+/*var ListaDeCategorias = Backbone.Collection.extend({
+  url: '/plazamar-spa-bb/api.php/categorias',
+  model: Categoria,
+  idAttribute: "_id"
+});*/
 
 var ListaDeProductos = Backbone.Collection.extend({
-  model: Producto // modelo del que trata la colección
+  url: '/plazamar-spa-bb/api.php/productos',
+  model: Producto,
+  idAttribute: "_id"
 });
 
 var ListaDeUsuarios = Backbone.Collection.extend({
   model: Usuario
 });
 
-// INSTANCIAMOS LAS COLECCIONES ( DE MOMENTO INCLUYENDO LOS ITEMS )
+var ListaDePerfiles = Backbone.Collection.extend({
+  model: Perfil
+});
 
-var listaDeCategorias = new ListaDeCategorias(
+// INSTANCIAMOS LAS COLECCIONES
+
+// var listaDeCategorias = new ListaDeCategorias();
 
   /* CATEGORIAS DE LA APP [LA BD EXTERNA SE IMPLEMENTARÁ MÁS ADELANTE] */
-
+/*
   [
   {id:"1", nombre: 'arquitectura', descripcion: 'arquitectura y construcción'},
   {id:"2", nombre: 'medicina', descripcion: 'medicina y salud'},
@@ -101,7 +146,7 @@ var listaDeCategorias = new ListaDeCategorias(
   {id:"4", nombre: 'novela gráfica', descripcion: 'novela gráfica y cómics'},
   {id:"5", nombre: 'psicología', descripcion: 'psicología'}
   ]
-);
+);*/
 
 var listaDeProductos = new ListaDeProductos(
 
@@ -196,6 +241,15 @@ var listaDeUsuarios = new ListaDeUsuarios(
   ]
 );
 
+var listaDePerfiles = new ListaDePerfiles(
+
+  [
+  {id:"1", usuario: 'raulplama', nombre: '', apellido: '', direccion: '', localidad: '', provincia: ''},
+  {id:"2", usuario: 'pepito', nombre: '', apellido: '', direccion: '', localidad: '', provincia: ''},
+  ]
+
+);
+
 // VISTAS
 
 var VistaCategoria = Backbone.View.extend({
@@ -206,7 +260,8 @@ var VistaCategoria = Backbone.View.extend({
     this.render();
   },
   render: function() {
-    this.$el.append(this.template(this.model.toJSON()));
+    console.log('renderizando modelo');
+    this.$el.append(this.template(this.model));
     return this;
   }
 });
@@ -214,14 +269,18 @@ var VistaCategoria = Backbone.View.extend({
 var VistaMenuCategorias = Backbone.View.extend({
   el: ("#categorias"),
   initialize: function() {
+    console.log(this.collection);
     this.render();
   },
   render: function() {
+    console.log('renderizando colección');
     this.collection.forEach(this.addUnaCategoria, this);
     return this;
   },
-  addUnaCategoria: function(data){
-    var vistaCategoria = new VistaCategoria({model: data});
+  addUnaCategoria: function(modelo, index, collection) {
+    console.log(collection);
+    console.log('procesando modelo ' + index);
+    var vistaCategoria = new VistaCategoria({model: modelo});
   }
 });
 
@@ -398,6 +457,8 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
         window.location.href = '#errorEnAcceso';
       } else {
         console.log('las contraseñas coinciden')
+        // grabamos en sesión el nombre de usuario
+        sessionStorage.setItem('usuario', usuario);
         // presentamos la página de inicio personalizado
         window.location.href = '#accesoCorrecto';
       }
@@ -470,8 +531,96 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
       window.location.href="#errorRegistro"; // redireccionamos a la info de error
     } else {
       listaDeUsuarios.add(nuevoUsuario); // añadimos el usuario a la colección
-      window.location.href="#nuevoUsuario"; // redireccionamos a la info de registro ok
+      window.location.href="#okRegistroUsuario"; // redireccionamos a la info de registro ok
     }
+  }
+});
+
+var VistaInfoRegistro = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#infoRegistro').html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  }
+});
+
+var VistaPerfilDeUsuario = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#formularioPerfilUsuario').html()),
+  events: {
+        'submit': 'onFormSubmit' // evento lanzado al pulsar el botón type submit (acceder)
+  },
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  },
+  onFormSubmit: function(e) {
+    console.log('actualizando perfil de usuario');
+
+    e.preventDefault();
+
+    // obtenemos los valores de los campos
+
+    var nombre = this.$el.find('#nombre').val();
+    var apellidos = this.$el.find('#apellidos').val();
+    var email = this.$el.find('#email').val();
+    var direccion = this.$el.find('#direccion').val();
+    var localidad = this.$el.find('#localidad').val();
+    var provincia = this.$el.find('#provincia').val();
+    var password = this.$el.find('#password').val();
+
+    // buscamos el perfil del usuario
+
+    var nickname = sessionStorage.getItem('usuario');
+    var usuario = listaDeUsuarios.where({usuario: nickname});
+    var perfilUsuario = listaDePerfiles.where({usuario: nickname});
+
+    // añadir el perfil a la colección, comprobar primero la contraseña
+
+    var contraseñaCorrecta = usuario[0].get('password');
+    if (password === contraseñaCorrecta) {
+      perfilUsuario[0].set({nombre: nombre, apellidos: apellidos, direccion: direccion, localidad: localidad, provincia: provincia});
+      usuario[0].set({email: email});
+
+      // validar los datos introducidos y mostrar el error en su caso
+      // DESCOMENTAR CUANDO SE IMPLEMENTE UNA BD EXTERNA Y TENGAMOS URL
+      /*
+      usuario[0].on("invalid", function(model, error) {
+        $('#infoError').html('por favor, revisa los siguientes errores: ' + error);
+      });
+      perfilUsuario[0].on("invalid", function(model, error) {
+        $('#infoError').html('por favor, revisa los siguientes errores: ' + error);
+      });
+
+      // grabar el nuevo registro en la BD
+
+      usuario[0].save();
+      perfilUsuario[0].save();
+      */
+
+      window.location.href="#infoRegPerfilOk"; // redireccionamos a una página de info
+    } else {
+      window.location.href="#infoRegPerfilError"; // redireccionamos a una página de info
+    }
+  }
+});
+
+var VistaInfoPerfil = Backbone.View.extend({
+  el: ('#contenido'),
+  template: _.template($('#informacionPerfil').html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
   }
 });
 
@@ -492,8 +641,11 @@ var Router = Backbone.Router.extend({
     "accesoCorrecto"        : "accesoCorrecto", // gestiona el acceso del usuario a la tienda presentando la página personalizada
     "logout"                : "logout", // gestiona el cierre de sesión por el usuario
     "formRegistro"          : "formRegistro", // acceso al formulario de registro en la tienda
-    "nuevoUsuario"          : "infoNuevoUsuario",
-    "errorRegistro"         : "infoErrorRegistro"
+    "okRegistroUsuario"     : "infoNuevoUsuario",
+    "errorRegistro"         : "infoErrorRegistro",
+    "perfil"                : "accesoAlPerfil",
+    "infoRegPerfilOk"       : "infoRegPerfilOk",
+    "infoRegPerfilError"    : "infoRegPerfilError"
    },
   initialize: function() {
     console.log('aplicando router');
@@ -579,13 +731,97 @@ var Router = Backbone.Router.extend({
   },
   infoNuevoUsuario: function() {
     console.log('registro realizado correctamente');
+    $('#titular').html('<h1>' + 'registro de usuario' + '</h1>');
+    actualizarCategorias();
+    mostrarInfoNuevoUsuario();
   },
   infoErrorRegistro: function() {
     console.log('registro no realizado, el usuario ya existe');
+    $('#titular').html('<h1>' + 'registro de usuario' + '</h1>');
+    actualizarCategorias();
+    mostrarInfoErrorRegistro();
+  },
+  accesoAlPerfil: function() {
+    console.log('accediendo al pefil de usuario');
+    $('#titular').html('<h1>' + 'perfil de usuario' + '</h1>');
+    actualizarCategorias();
+    mostrarPerfilDeUsuario();
+  },
+  infoRegPerfilOk: function() {
+    console.log('página de información de registro de perfil');
+    $('#titular').html('<h1>' + 'perfil de usuario' + '</h1>');
+    actualizarCategorias();
+    mostrarInfoRegistroPerfil();
+    $('#infoPerfil').html('perfil actualizado correctamente');
+  },
+  infoRegPerfilError: function() {
+    console.log('página de información de registro de perfil');
+    $('#titular').html('<h1>' + 'perfil de usuario' + '</h1>');
+    actualizarCategorias();
+    mostrarInfoRegistroPerfil();
+    $('#infoPerfil').html('perfil no actualizado, la contraseña no coincide');
   }
 });
 
 // FUNCIONES
+
+// función que muestra la vista con la información de la actualización del perfil.
+
+function mostrarInfoRegistroPerfil() {
+  $("#contenido").html(""); // limpiamos la pantalla
+  var vistaInfoPerfil = new VistaInfoPerfil();
+}
+
+// función que muestra el perfil de usuario para usuarios registrados o pide el acceso a usuarios no registrados
+
+function mostrarPerfilDeUsuario() {
+  $("#contenido").html(""); // limpiamos la pantalla
+  $("#container").removeClass('containerNormal');
+  $("#container").addClass('containerAmpliado');
+  if (sessionStorage.getItem('sesionActiva') === 'true') {
+    $("#perfil").html(''); // quitamos el enlace al perfil en esta vista
+    var vistaPerfilDeUsuario = new VistaPerfilDeUsuario(); // mostramos la plantilla
+
+    // rellenamos los campos con los datos de que disponemos en la BD
+
+    var nickname = sessionStorage.getItem('usuario');
+
+    var usuario = listaDeUsuarios.where({usuario: nickname});
+    var perfilUsuario = listaDePerfiles.where({usuario: nickname});
+
+    var email = usuario[0].get('email');
+    var nombre = perfilUsuario[0].get('nombre');
+    var apellidos = perfilUsuario[0].get('apellidos');
+    var direccion = perfilUsuario[0].get('direccion');
+    var localidad = perfilUsuario[0].get('localidad');
+    var provincia = perfilUsuario[0].get('provincia');
+
+    $('#nombre').val();
+    $('#apellidos').val();
+    $('#email').val(email);
+    $('#direccion').val();
+    $('#localidad').val();
+    $('#provincia').val();
+  } else {
+    window.location.href="#formRegistro"; // redireccionamos al formulario de registro
+  }
+}
+
+// función que muestra el ok en el registro de un nuevo usuario
+
+function mostrarInfoNuevoUsuario() {
+  $("#contenido").html(""); // limpiamos la pantalla
+  var vistaInfoRegistro2 = new VistaInfoRegistro;
+  $('#inforeg').html('registro de usuario realizado correctamente');
+}
+
+// función que muestra el error de registro de usuario
+
+function mostrarInfoErrorRegistro() {
+  $("#contenido").html(""); // limpiamos la pantalla
+  var vistainfoRegistro1 = new VistaInfoRegistro;
+  $('#inforeg').html('Error de registro: el usuario ya existe');
+}
 
 // función que muestra en pantalla los productos con descuento para los usuarios registrados
 
@@ -596,7 +832,7 @@ function mostrarProductosConDescuento() {
   // seleccionamos los productos con descuento de la colección
   var arrayProductosConDescuento = _.where(listaDeProductos.toJSON(), {tieneDescuento: true});
 
-  var productosConDescuento = new ListaDeProductos() // creamos la colección de productos con descuento
+  var productosConDescuento = new ListaDeProductos(); // creamos la colección de productos con descuento
   productosConDescuento.add(arrayProductosConDescuento); // añadimos los productos a la colección
 
   // pasamos la vista de productos con los nuevos productos
@@ -608,21 +844,21 @@ function mostrarProductosConDescuento() {
 
 function mostrarInfoErrorAcceso() {
   $("#contenido").html(""); // limpiamos la pantalla
-  var vistaErrorAcceso = new VistaErrorAcceso
+  var vistaErrorAcceso = new VistaErrorAcceso;
 }
 
 // función que muestra el formulario de registro en la tienda
 
 function mostrarFormularioDeRegistro() {
   $("#contenido").html(""); // limpiamos la pantalla
-  var vistaFormularioDeRegistro = new VistaFormularioDeRegistro  // mostramos la vista del formulario
+  var vistaFormularioDeRegistro = new VistaFormularioDeRegistro;  // mostramos la vista del formulario
 }
 
 // función que muestra el formulario de acceso a la tienda
 
 function mostrarFormularioDeAcceso() {
   $("#contenido").html(""); // limpiamos la pantalla
-  var vistaFormularioDeAcceso = new VistaFormularioDeAcceso  // mostramos la vista del formulario
+  var vistaFormularioDeAcceso = new VistaFormularioDeAcceso;  // mostramos la vista del formulario
 }
 
 // función que muestra el contenido de la atención al cliente
@@ -644,14 +880,14 @@ function mostrarContenidoLegal(page) {
 
 function mostrarContenidoAtencionAlCliente() {
   $("#contenido").html(""); // limpiamos la pantalla
-  var vistaAtencionAlCliente = new VistaAtencionAlCliente  // seleccionamos la vista
+  var vistaAtencionAlCliente = new VistaAtencionAlCliente;  // seleccionamos la vista
 }
 
 // función que muestra el contenido de quienes somos
 
 function mostrarContenidoQuienesSomos() {
   $("#contenido").html(""); // limpiamos la pantalla
-  var vistaQuienesSomos = new VistaQuienesSomos  // seleccionamos la vista
+  var vistaQuienesSomos = new VistaQuienesSomos;  // seleccionamos la vista
 }
 
 // función que muestra el contenido de ayuda
@@ -717,8 +953,34 @@ function mostrarProductosCategoria(categoria) {
 // función que muestra el menú de categorías.
 
 function actualizarCategorias() {
-  $('#categorias').html(''); // limpiamos el menu para que no se vuelvan a añadir las categorias
-  var vistaMenuCategorias = new VistaMenuCategorias({collection: listaDeCategorias});
+  // limpiamos el menu para que no se vuelvan a añadir las categorias
+
+  $('#categorias').html('');
+
+  // definimos una colección de categorias
+
+  var ListaDeCategorias = Backbone.Collection.extend({
+    url: '/plazamar-spa-bb/api.php/categorias',
+    model: Categoria,
+    idAttribute: "_id"
+  });
+
+  // instanciamos la colección de categorias
+
+  var listaDeCategorias = new ListaDeCategorias();
+
+  // recogemos las categorias de la BD e instanciamos la vista con la colección recuperada
+
+  listaDeCategorias.fetch({
+    success: function(){
+      console.log('acceso a la BD: recuperando categorías');
+    },
+    error: function(){
+      console.log('error: categorias no importadas');
+    }
+  }).then(function(resp) {
+    var vistaMenuCategorias = new VistaMenuCategorias({collection: resp});
+  })
 };
 
 // función que muestra una selección de 12 productos aleatorios en la página de inicio
