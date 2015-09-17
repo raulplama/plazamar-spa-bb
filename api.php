@@ -8,14 +8,14 @@ $app = new \Slim\Slim();;
 
 // rutas
 
-// ruta de prueba
+/*// ruta de prueba
 $app->get('/hello/:name', function($name) {
   echo 'hello ' . $name;
-});
+});*/
 
 $app->get('/categorias', 'getCategorias');
-$app->get('/categorias2', 'devolverFixtures'); // ruta de prueba con datos fixtures
-$app->get('/productos/:categoria', 'getProductos');
+//$app->get('/categorias2', 'devolverFixtures'); // ruta de prueba con datos fixtures
+$app->get('/productosInicio', 'getProductosInicio');
 
 // Run app
 $app->run();
@@ -34,8 +34,8 @@ function getCategorias() {
   }
   echo json_encode($data);
 }
-
-// function de prueba con datos hardcodeados
+/*
+// function de prueba con datos fixtures
 
 function devolverFixtures() {
   $data = array(
@@ -46,19 +46,30 @@ function devolverFixtures() {
     array('id' => 5, 'nombre' => 'psicología')
   );
   echo json_encode($data);
-}
+}*/
 
-function getProductos() {
+function getProductosInicio() {
   $mongo = new MongoClient();
   $database = $mongo->plazamar;
   $collection = $database->productos;
-  $cursor = $collection->find()->sort(array("nombre" => 1)); // indicamos que queremos recorrer todas las entradas y ordenarlas por nombre
-  // retornamos los valores de la colección
-  $data = [];
-  foreach ($cursor as $categoria) {
-    array_push($data, $categoria);
+
+  $datos = [];
+  $ids = [];
+
+  while(count($ids) < 12) {
+    for ($i = 0; $i < 12; $i++) {
+      do {
+        $cursor = $collection->find()->skip(mt_rand(0, $collection->count()))->getNext();
+        $obj_producto = json_encode($cursor);
+        $array_producto = json_decode($obj_producto, true);
+        $id_producto = $array_producto['id'];
+      } while (in_array($id_producto, $ids));
+      array_push($datos, $cursor);
+      array_push($ids, $id_producto);
+    }
   }
-  echo json_encode($data);
+
+  echo json_encode($datos);
 }
 
 ?>

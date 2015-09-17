@@ -28,7 +28,8 @@ var Producto = Backbone.Model.extend({
     categoria: '',
     tieneDescuento: false,
     descuento: '' // en porcentaje
-  }
+  },
+  idAttribute: "_id"
 });
 
 var Usuario = Backbone.Model.extend({
@@ -119,11 +120,11 @@ var Perfil = Backbone.Model.extend({
   idAttribute: "_id"
 });*/
 
-var ListaDeProductos = Backbone.Collection.extend({
+/*var ListaDeProductos = Backbone.Collection.extend({
   url: '/plazamar-spa-bb/api.php/productos',
   model: Producto,
   idAttribute: "_id"
-});
+});*/
 
 var ListaDeUsuarios = Backbone.Collection.extend({
   model: Usuario
@@ -148,10 +149,10 @@ var ListaDePerfiles = Backbone.Collection.extend({
   ]
 );*/
 
-var listaDeProductos = new ListaDeProductos(
+// var listaDeProductos = new ListaDeProductos(
 
   /* PRODUCTOS DE LA APP [LA BD EXTERNA SE IMPLEMENTARÁ MÁS ADELANTE] */
-
+  /*
   // Sección arquitectura
 
   [
@@ -229,7 +230,7 @@ var listaDeProductos = new ListaDeProductos(
   {id:"60", imagen:"img/GUIA DE TRATAMIENTOS PSICOLOGICOS EFICACES (T. III.png", titulo:"GUIA DE TRATAMIENTOS PSICOLOGICOS EFICACES (T. III", autor:"MARINO PEREZ ALVAREZ", editorial:"PIRAMIDE", precio:"29.00", isbn:"9788436818161", categoria:"psicología", tieneDescuento: false, descuento: "0.00"}
 
   ]
-);
+);*/
 
 var listaDeUsuarios = new ListaDeUsuarios(
 
@@ -291,7 +292,7 @@ var VistaProducto = Backbone.View.extend({
     this.render();
   },
   render: function(eventName) {
-    this.$el.append(this.template(this.model.toJSON()));
+    this.$el.append(this.template(this.model));
     return this;
   }
 });
@@ -978,39 +979,43 @@ function actualizarCategorias() {
     error: function(){
       console.log('error: categorias no importadas');
     }
-  }).then(function(resp) {
-    var vistaMenuCategorias = new VistaMenuCategorias({collection: resp});
+  }).then(function(response) {
+    var vistaMenuCategorias = new VistaMenuCategorias({collection: response});
   })
 };
 
 // función que muestra una selección de 12 productos aleatorios en la página de inicio
 
 function seleccionarProductosDeInicio() {
-  var seleccionProductosPaginaInicio = new ListaDeProductos(); // colección para la muestra de productos en el inicio
-
-  // seleccionar 12 productos de entre todos los existentes en un momento dado
-
-  var posicionUltimoProducto = listaDeProductos.length; // lá última posición de la colección
-  var idUltimoProductoColeccion =  listaDeProductos.at(posicionUltimoProducto - 1).get('id');// el id del ultimo articulo de la colección (no tiene porqué coincidir con la posición);
-
-  var pos, idPos, productoSeleccionado;
-
-  for (var i = 0; i < 12; i++) {
-
-    // generar un producto al azar y añadirlo al array colección de productos seleccionados siempre y cuando no se haya incluido ya
-
-    do {
-      pos = getRandomIntInclusive(1, idUltimoProductoColeccion); // seleccionar una posición al azar de entre los productos existentes
-      idPos = listaDeProductos.at(pos - 1).get('id'); // obtener el id del producto en dicha posición
-      productoSeleccionado = listaDeProductos.get(idPos); // seleccionar el producto con ese id
-      seleccionProductosPaginaInicio.add(productoSeleccionado);
-    } while (_.contains(seleccionProductosPaginaInicio, productoSeleccionado));
-  }
-
-  // limpiamos los productos en pantalla y mostramos la nueva selección
+  // limpiamos los productos en pantalla para mostrar la nueva selección
 
   $('#productos').html('');
-  var vistaProductosInicio = new VistaListaDeProductos({collection: seleccionProductosPaginaInicio});
+
+  // definimos la colección de productos
+
+  var ListaDeProductosInicio = Backbone.Collection.extend({
+    url: '/plazamar-spa-bb/api.php/productosInicio',
+    model: Producto,
+    idAttribute: "_id"
+  });
+
+  // instanciamos una colección de productos de inicio
+
+  var seleccionProductosPaginaInicio = new ListaDeProductosInicio();
+
+  // sincronizamos con la BD y mostramos la vista
+
+  seleccionProductosPaginaInicio.fetch({
+    wait: true,
+    success: function(){
+      console.log('acceso a la BD: recuperando selección de productos');
+    },
+    error: function(){
+      console.log('error: productos no recuperados');
+    }
+  }).then(function(response) {
+    var vistaListaDeProductos = new VistaListaDeProductos({collection: response});
+  })
 }
 
 // Función que retorna un número entero aleatorio entre min y max ambos incluidos
