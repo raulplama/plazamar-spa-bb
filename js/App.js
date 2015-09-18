@@ -940,15 +940,40 @@ function mostrarProductosCategoria(categoria) {
   $("#contenido").html(""); // limpiamos la pantalla
   $("#contenido").append("<ul id='productos'></ul>"); // devolvemos el contenido a su estado inicial
 
-  var cat = categoria // obtenemos el nombre de la categoria pulsada
-  var arrayProductos = _.where(listaDeProductos.toJSON(), {categoria: cat}); // seleccionamos los productos de dicha categoria
+  // definir la colección de productos
+
+  var ListaDeProductos = Backbone.Collection.extend({
+    url: '/plazamar-spa-bb/api.php/productos',
+    model: Producto,
+    idAttribute: "_id"
+  });
+
+  // instanciamos una colección de productos de inicio
+
+  var productosCategoria = new ListaDeProductos(categoria);
+
+  // sincronizamos con la BD y mostramos la vista
+
+  productosCategoria.fetch({
+    data: $.param({ categoria: categoria}), // incluimos una query string en la url con la categoria seleccionada
+    success: function(){
+      console.log('acceso a la BD: recuperando productos de la categoria ' + categoria);
+    },
+    error: function(){
+      console.log('error: productos no recuperados');
+    }
+  }).then(function(response) {
+    var vistaListaDeProductos = new VistaListaDeProductos({collection: response});
+  })
+
+  /*var arrayProductos = _.where(listaDeProductos.toJSON(), {categoria: categoria}); // seleccionamos los productos de dicha categoria
 
   var productosCategoria = new ListaDeProductos() // creamos la colección de productos de la categoria seleccionada
   productosCategoria.add(arrayProductos); // añadimos los productos a la colección
 
   // pasamos la vista de productos con los nuevos productos
 
-  var vistaProductosCategoria = new VistaListaDeProductos({collection: productosCategoria});
+  var vistaProductosCategoria = new VistaListaDeProductos({collection: productosCategoria});*/
 }
 
 // función que muestra el menú de categorías.
@@ -1018,8 +1043,9 @@ function seleccionarProductosDeInicio() {
   })
 }
 
+/*
 // Función que retorna un número entero aleatorio entre min y max ambos incluidos
 
 function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+}*/
