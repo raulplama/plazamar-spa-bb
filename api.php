@@ -54,25 +54,37 @@ $app->get('/productosInicio', function () {
 
 $app->get('/productos', function () use ($app) {
 
-  // recoger la query string de la url pasada por backbone con la categoria
-
-  $req = $app->request();
-  $categoria = $req->get('categoria');
-
   // conectar con la BD y seleccionar la colección
 
   $mongo = new MongoClient();
   $database = $mongo->plazamar;
   $collection = $database->productos;
 
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $categoria = $req->get('categoria');
+  $descuento = $req->get('tieneDescuento');
+
   // recoger los productos y enviarlos de vuelta a BAckbone
 
-  $cursor = $collection->find(array('categoria' => $categoria));
-  $datos = [];
-  foreach ($cursor as $producto) {
-    array_push($datos, $producto);
+  if ($categoria) {
+    $cursor = $collection->find(array('categoria' => $categoria));
+    $datos = [];
+    foreach ($cursor as $producto) {
+      array_push($datos, $producto);
+    }
+    echo json_encode($datos);
   }
-  echo json_encode($datos);
+
+  if ($descuento) {
+    $cursor = $collection->find(array('tieneDescuento' => 'true'));
+    $datos = [];
+    foreach ($cursor as $producto) {
+      array_push($datos, $producto);
+    }
+    echo json_encode($datos);
+  }
 
 });
 

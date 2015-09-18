@@ -831,15 +831,24 @@ function mostrarProductosConDescuento() {
   $("#contenido").html(""); // limpiamos la pantalla
   $("#contenido").append("<ul id='productos'></ul>"); // añadimos la lista vacía
 
-  // seleccionamos los productos con descuento de la colección
-  var arrayProductosConDescuento = _.where(listaDeProductos.toJSON(), {tieneDescuento: true});
+  // instanciamos una colección de productos
 
-  var productosConDescuento = new ListaDeProductos(); // creamos la colección de productos con descuento
-  productosConDescuento.add(arrayProductosConDescuento); // añadimos los productos a la colección
+  var productosConDescuento = new ListaDeProductos();
 
-  // pasamos la vista de productos con los nuevos productos
+  // sincronizamos con la BD y mostramos la vista
 
-  var vistaProductosConDescuento = new VistaListaDeProductos({collection: productosConDescuento});
+  productosConDescuento.fetch({
+    data: $.param({ tieneDescuento: true}), // incluimos una query string en la url con la categoria seleccionada
+    success: function(){
+      console.log('acceso a la BD: recuperando productos con descuento');
+    },
+    error: function(){
+      console.log('error: productos no recuperados');
+    }
+  }).then(function(response) {
+    var vistaListaDeProductos = new VistaListaDeProductos({collection: response});
+  })
+  console.log(productosConDescuento);
 }
 
 // función que muestra el error de credenciales incorrectas para el acceso a la tienda
@@ -931,10 +940,9 @@ function mostrarDetalleDeProducto(id) {
   })
 
   if (sessionStorage.getItem('sesionActiva') === 'true') {
+  // añadimos el detalle del descuento a la vista:
 
-    // añadimos el detalle del descuento a la vista:
-
-    if (producto.tieneDescuento) {
+    if (producto.get('tieneDescuento') === 'true') {
       $('#precio').addClass('tachado'); // tachamos el precio sin descuento
        // añadimos el nuevo precio
       var nuevoPrecio = prod.precio * ( (100 - prod.descuento) / 100);
@@ -945,6 +953,7 @@ function mostrarDetalleDeProducto(id) {
       $('#precio').after(nuevoHtml);
     }
   }
+
 }
 
 // función que muestra los productos de la categoría seleccionada.
