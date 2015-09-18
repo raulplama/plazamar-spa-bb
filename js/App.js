@@ -17,6 +17,7 @@ var Categoria = Backbone.Model.extend({
 });
 
 var Producto = Backbone.Model.extend({
+  url: '/plazamar-spa-bb/api.php/producto',
   defaults: {
     id: '',
     imagen: '',
@@ -114,17 +115,17 @@ var Perfil = Backbone.Model.extend({
 
 // COLECCIONES
 
-/*var ListaDeCategorias = Backbone.Collection.extend({
+var ListaDeCategorias = Backbone.Collection.extend({
   url: '/plazamar-spa-bb/api.php/categorias',
   model: Categoria,
   idAttribute: "_id"
-});*/
+});
 
-/*var ListaDeProductos = Backbone.Collection.extend({
+var ListaDeProductos = Backbone.Collection.extend({
   url: '/plazamar-spa-bb/api.php/productos',
   model: Producto,
   idAttribute: "_id"
-});*/
+});
 
 var ListaDeUsuarios = Backbone.Collection.extend({
   model: Usuario
@@ -632,7 +633,7 @@ var Router = Backbone.Router.extend({
     ""                      : "index",    // la página de inicio
     "index"                 : "index",    // la página de inicio
     "categoria/:categoria"  : "mostrarProductosCategoria", // enlaces del menú de categorías para mostrar sus productos
-    "catalogo/:titulo"      : "mostrarProducto", // enlaces en cada imagen de producto para mostrar su detalle
+    "catalogo/:id"          : "mostrarProducto", // enlaces en cada imagen de producto para mostrar su detalle
     "ayuda/:page"           : "mostrarAyuda", // muestra la página de ayuda
     "quienesSomos"          : "quienesSomos",
     "atencionAlCliente"     : "atencionAlCliente",
@@ -668,11 +669,11 @@ var Router = Backbone.Router.extend({
     actualizarCategorias(); // redibujamos el menú de las categorías
     mostrarProductosCategoria(categoria); // mostramos los productos de la categoria
   },
-  mostrarProducto: function(titulo) {
-    console.log('página del producto: ' + titulo);
+  mostrarProducto: function(id) {
+    console.log('página del producto: ' + id);
     $('#titular').html('<h1>detalle de producto</h1>'); // cambiamos el titular
     actualizarCategorias(); // redibujamos el menú de las categorías
-    mostrarDetalleDeProducto(titulo); // mostramos el detalle de producto
+    mostrarDetalleDeProducto(id); // mostramos el detalle de producto
   },
   mostrarAyuda: function(page) {
     console.log('página de ayuda número ' + page);
@@ -908,19 +909,32 @@ function mostrarContenidoAyuda(page) {
 
 // función que muestra el detalle del producto seleccionado
 
-function mostrarDetalleDeProducto(titulo) {
+function mostrarDetalleDeProducto(id) {
   $("#contenido").html(""); // limpiamos la pantalla
 
-  var title = titulo;
-  var prod = _.findWhere(listaDeProductos.toJSON(), {titulo: title}); // obtenemos el producto de la BD
+  // instanciamos el producto
 
-  var vistaDetalleDeProducto = new VistaDetalleDeProducto({model: prod}); // mostrar vista de detalle pasando el producto seleccionado
+  var producto = new Producto();
+
+  // sincronizamos con la BD y mostramos la vista
+
+  producto.fetch({
+    data: $.param({ identificador: id }), // incluimos una query string en la url con el id del producto seleccionado
+    success: function(){
+      console.log('acceso a la BD: recuperando producto de la BD');
+    },
+    error: function(){
+      console.log('error: producto no recuperado');
+    }
+  }).then(function(response) {
+    var vistaDetalleDeProducto = new VistaDetalleDeProducto({model: response});
+  })
 
   if (sessionStorage.getItem('sesionActiva') === 'true') {
 
     // añadimos el detalle del descuento a la vista:
 
-    if (prod.tieneDescuento) {
+    if (producto.tieneDescuento) {
       $('#precio').addClass('tachado'); // tachamos el precio sin descuento
        // añadimos el nuevo precio
       var nuevoPrecio = prod.precio * ( (100 - prod.descuento) / 100);
@@ -940,17 +954,9 @@ function mostrarProductosCategoria(categoria) {
   $("#contenido").html(""); // limpiamos la pantalla
   $("#contenido").append("<ul id='productos'></ul>"); // devolvemos el contenido a su estado inicial
 
-  // definir la colección de productos
+  // instanciamos una colección de productos
 
-  var ListaDeProductos = Backbone.Collection.extend({
-    url: '/plazamar-spa-bb/api.php/productos',
-    model: Producto,
-    idAttribute: "_id"
-  });
-
-  // instanciamos una colección de productos de inicio
-
-  var productosCategoria = new ListaDeProductos(categoria);
+  var productosCategoria = new ListaDeProductos();
 
   // sincronizamos con la BD y mostramos la vista
 
@@ -966,14 +972,6 @@ function mostrarProductosCategoria(categoria) {
     var vistaListaDeProductos = new VistaListaDeProductos({collection: response});
   })
 
-  /*var arrayProductos = _.where(listaDeProductos.toJSON(), {categoria: categoria}); // seleccionamos los productos de dicha categoria
-
-  var productosCategoria = new ListaDeProductos() // creamos la colección de productos de la categoria seleccionada
-  productosCategoria.add(arrayProductos); // añadimos los productos a la colección
-
-  // pasamos la vista de productos con los nuevos productos
-
-  var vistaProductosCategoria = new VistaListaDeProductos({collection: productosCategoria});*/
 }
 
 // función que muestra el menú de categorías.
@@ -982,14 +980,6 @@ function actualizarCategorias() {
   // limpiamos el menu para que no se vuelvan a añadir las categorias
 
   $('#categorias').html('');
-
-  // definimos una colección de categorias
-
-  var ListaDeCategorias = Backbone.Collection.extend({
-    url: '/plazamar-spa-bb/api.php/categorias',
-    model: Categoria,
-    idAttribute: "_id"
-  });
 
   // instanciamos la colección de categorias
 
@@ -1042,10 +1032,3 @@ function seleccionarProductosDeInicio() {
     var vistaListaDeProductos = new VistaListaDeProductos({collection: response});
   })
 }
-
-/*
-// Función que retorna un número entero aleatorio entre min y max ambos incluidos
-
-function getRandomIntInclusive(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}*/
