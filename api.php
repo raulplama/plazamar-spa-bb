@@ -114,6 +114,36 @@ $app->get('/producto', function () use ($app) {
 });
 
 
+$app->get('/usuario', function () use ($app) {
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $usuario = $req->get('usuario');
+
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->usuarios;
+
+  // Buscamos el usuario en la BD y lo enviamos de vuelta a BAckbone o retornamos false
+
+  $cursor = $collection->find(array('usuario' => $usuario));
+  $datos = [];
+  foreach ($cursor as $producto) {
+    array_push($datos, $producto);
+  }
+  if (count($datos) === 0) {
+    $info = "false";
+    echo json_encode($info);
+  } else {
+    echo json_encode($datos[0]);
+  }
+
+});
+
+
 // Run app
 
 $app->run();
