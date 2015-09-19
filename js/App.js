@@ -925,7 +925,9 @@ function mostrarDetalleDeProducto(id) {
 
   var producto = new Producto();
 
-  // sincronizamos con la BD y mostramos la vista
+  // sincronizamos con la BD y mostramos la vista,
+  // Comprobamos si estamos en sesión de usuario registrado y en es caso
+  // en la vista sustituimos el precio del producto por el nuevo precio con descuento
 
   producto.fetch({
     data: $.param({ identificador: id }), // incluimos una query string en la url con el id del producto seleccionado
@@ -937,23 +939,19 @@ function mostrarDetalleDeProducto(id) {
     }
   }).then(function(response) {
     var vistaDetalleDeProducto = new VistaDetalleDeProducto({model: response});
-  })
-
-  if (sessionStorage.getItem('sesionActiva') === 'true') {
-  // añadimos el detalle del descuento a la vista:
-
-    if (producto.get('tieneDescuento') === 'true') {
-      $('#precio').addClass('tachado'); // tachamos el precio sin descuento
-       // añadimos el nuevo precio
-      var nuevoPrecio = prod.precio * ( (100 - prod.descuento) / 100);
-      var nuevoHtml = '<br>' +
-                      '<h3 class="subtitulo_detalle" id="precioConDescuento">Precio con descuento: ' +
-                      nuevoPrecio +
-                      ' €</h3>';
-      $('#precio').after(nuevoHtml);
+    if (sessionStorage.getItem('sesionActiva') === 'true') {
+      if (producto.get('tieneDescuento') === 'true') {
+        $('#precio').addClass('tachado'); // tachamos el precio sin descuento
+         // añadimos el nuevo precio
+        var nuevoPrecio = producto.get('precio') * ( (100 - producto.get('descuento')) / 100);
+        var nuevoHtml = '<br>' +
+                        '<h3 class="subtitulo_detalle" id="precioConDescuento">Precio con descuento: ' +
+                        nuevoPrecio +
+                        ' €</h3>';
+        $('#precio').after(nuevoHtml);
+      }
     }
-  }
-
+  })
 }
 
 // función que muestra los productos de la categoría seleccionada.
