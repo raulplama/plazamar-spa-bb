@@ -90,17 +90,16 @@ $app->get('/productos', function () use ($app) {
 
 
 $app->get('/producto', function () use ($app) {
-
-  // recoger la query string de la url pasada por backbone
-
-  $req = $app->request();
-  $id = $req->get('identificador');
-
   // conectar con la BD y seleccionar la colección
 
   $mongo = new MongoClient();
   $database = $mongo->plazamar;
   $collection = $database->productos;
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $id = $req->get('identificador');
 
   // recoger los productos y enviarlos de vuelta a BAckbone
 
@@ -142,6 +141,29 @@ $app->get('/usuario', function () use ($app) {
   }
 
 });
+
+
+$app->post('/usuario', function() use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->usuarios;
+
+  // recuperar los datos enviados por backbone
+
+  $request = $app->request()->getBody();
+  $datos = json_decode($request);
+
+  // grabar los datos en mongodb
+
+  $collection->save($datos);
+
+  echo json_encode($datos);
+
+});
+
+
 
 
 // Run app

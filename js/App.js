@@ -36,7 +36,6 @@ var Producto = Backbone.Model.extend({
 var Usuario = Backbone.Model.extend({
   url: '/plazamar-spa-bb/api.php/usuario',
   defaults: {
-    id: '',
     usuario: '',
     email: '',
     password: '',
@@ -55,9 +54,6 @@ var Usuario = Backbone.Model.extend({
     }
     if ( attributes.usuario && (attributes.usuario.length < 4 || attributes.usuario.length > 20) ) {
       invalid.push('el usuario debe tener entre 4 y 20 caracteres');
-    }
-    if ( listaDeUsuarios.where({usuario: attributes.usuario}).length > 0 ) {
-      invalid.push('el nombre de usuario ya existe');
     }
     if ( !attributes.email ) {
       invalid.push('campo email vacío');
@@ -83,7 +79,6 @@ var Usuario = Backbone.Model.extend({
 
 var Perfil = Backbone.Model.extend({
   defaults: {
-    id: '',
     usuario: '',
     nombre: '',
     apellidos: '',
@@ -92,6 +87,7 @@ var Perfil = Backbone.Model.extend({
     localidad: '',
     provincia: ''
   },
+  idAttribute: "_id",
   validate: function(attributes) {
     var invalid = [];
 
@@ -392,7 +388,7 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
   el: ('#contenido'),
   template: _.template($('#formularioDeRegistro').html()),
   events: {
-        'submit': 'onFormSubmit' // evento lanzado al pulsar el botón type submit (acceder)
+        'submit': 'onSubmit' // evento lanzado al pulsar el botón type submit
   },
   initialize: function() {
     this.render();
@@ -401,7 +397,7 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
     this.$el.append(this.template());
     return this;
   },
-  onFormSubmit: function(e) {
+  onSubmit: function(e) {
     console.log('enviando formulario');
 
     e.preventDefault();
@@ -412,32 +408,51 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
     var nuevoEmail = this.$el.find('#email').val();
     var nuevoPassword = this.$el.find('#password').val();
 
-    // creamos un nuevo usuario y le asignamos los datos introducidos, también le asignamos un id adecuado
+    // creamos una instancia del nuevo usuario y comprobamos si existe en la BD
 
-    var nuevoUsuario = new Usuario({id: listaDeUsuarios.length + 1, usuario: nuevoNombreUsuario,
-      email: nuevoEmail, password: nuevoPassword});
+    var usuarioRegistro = new Usuario();
 
-    // validar los datos introducidos y mostrar el error en su caso
-    // DESCOMENTAR CUANDO SE IMPLEMENTE UNA BD EXTERNA Y TENGAMOS URL
-    /*
-    nuevoUsuario.on("invalid", function(model, error) {
-      $('#infoError').html('por favor, revisa los siguientes errores: ' + error);
-    });
-
-    // grabar el nuevo registro en la BD
-
-    nuevoUsuario.save();
-    */
-
-    // añadir el nuevo usuario a la colección (SOLO MIENTRAS NO TENGAMOS BD EXTERNA)
-    // comprobar primero si existe el usuario
-
-    if (listaDeUsuarios.where({usuario: nuevoNombreUsuario}).length > 0) {
-      window.location.href="#errorRegistro"; // redireccionamos a la info de error
-    } else {
-      listaDeUsuarios.add(nuevoUsuario); // añadimos el usuario a la colección
-      window.location.href="#okRegistroUsuario"; // redireccionamos a la info de registro ok
-    }
+    usuarioRegistro.fetch({
+      data: $.param({ usuario: nuevoNombreUsuario }), // incluimos una query string en la url con el identificador introducido en el formulario
+      success: function(){
+        console.log('accediendo a la BD');
+      },
+      error: function(){
+        console.log('error en la conexión con la BD');
+      }
+    }).then(function(response) {
+      if (response.valueOf() === 'false') {
+        // no existe el usuario
+        console.log('el usuario no existe');
+        // validamos los datos introducidos
+        usuarioRegistro.on("invalid", function(model, error) {
+          $('#infoError').html('por favor, revisa los siguientes errores: ' + error);
+        });
+        // creamos un usuario nuevo con los datos introducidos en el formulario
+        var nuevoUsuario = new Usuario({
+          usuario : nuevoNombreUsuario,
+          email : nuevoEmail,
+          password : nuevoPassword
+        });
+        // grabar el nuevo registro en la BD
+        nuevoUsuario.save({}, {
+          success : function(model, response) {
+            console.log('ok');
+            console.log(response);
+          },
+          error : function(model, response) {
+            console.log('error');
+            console.log(response);
+          }
+        })
+        // redirigir a la página de info registro ok
+        window.location.href = '#okRegistroUsuario';
+      } else {
+        // tenemos un usuario con ese nommbre
+        console.log('ya existe un usuario con ese nickname');
+        window.location.href = '#errorRegistro';
+      }
+    })
   }
 });
 
@@ -468,7 +483,6 @@ var VistaPerfilDeUsuario = Backbone.View.extend({
   },
   onFormSubmit: function(e) {
     console.log('actualizando perfil de usuario');
-
     e.preventDefault();
 
     // obtenemos los valores de los campos
@@ -683,30 +697,33 @@ function mostrarPerfilDeUsuario() {
   $("#contenido").html(""); // limpiamos la pantalla
   $("#container").removeClass('containerNormal');
   $("#container").addClass('containerAmpliado');
+
   if (sessionStorage.getItem('sesionActiva') === 'true') {
     $("#perfil").html(''); // quitamos el enlace al perfil en esta vista
+
     var vistaPerfilDeUsuario = new VistaPerfilDeUsuario(); // mostramos la plantilla
 
     // rellenamos los campos con los datos de que disponemos en la BD
 
     var nickname = sessionStorage.getItem('usuario');
+    var usuario = new Usuario();
+    var perfilUsuario = new Perfil();
+    usuario.fetch({ data: $.param({ usuario: nickname}) });
+    perfilUsuario.fetch({ data: $.param({ usuario: nickname}) });
 
-    var usuario = listaDeUsuarios.where({usuario: nickname});
-    var perfilUsuario = listaDePerfiles.where({usuario: nickname});
+    var email = usuario.get('email');
+    var nombre = perfilUsuario.get('nombre');
+    var apellidos = perfilUsuario.get('apellidos');
+    var direccion = perfilUsuario.get('direccion');
+    var localidad = perfilUsuario.get('localidad');
+    var provincia = perfilUsuario.get('provincia');
 
-    var email = usuario[0].get('email');
-    var nombre = perfilUsuario[0].get('nombre');
-    var apellidos = perfilUsuario[0].get('apellidos');
-    var direccion = perfilUsuario[0].get('direccion');
-    var localidad = perfilUsuario[0].get('localidad');
-    var provincia = perfilUsuario[0].get('provincia');
-
-    $('#nombre').val();
-    $('#apellidos').val();
+    $('#nombre').val(nombre);
+    $('#apellidos').val(apellidos);
     $('#email').val(email);
-    $('#direccion').val();
-    $('#localidad').val();
-    $('#provincia').val();
+    $('#direccion').val(direccion);
+    $('#localidad').val(localidad);
+    $('#provincia').val(provincia);
   } else {
     window.location.href="#formRegistro"; // redireccionamos al formulario de registro
   }
