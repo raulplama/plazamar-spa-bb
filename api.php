@@ -164,6 +164,123 @@ $app->post('/usuario', function() use ($app) {
 });
 
 
+$app->put('/usuario', function() use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->usuarios;
+
+  // recuperar los datos enviados por backbone
+
+  $request = $app->request()->getBody();
+  $datos = json_decode($request, true);
+
+  $nuevosDatos = [
+    'usuario' => $datos['usuario'],
+    'password' => $datos['password'],
+    'email' => $datos['email'],
+    'type' => $datos['type']
+  ];
+
+  // establecemos la clave de búsqueda en la BD
+
+  $claveBusqueda = [ 'usuario' => $datos['usuario'] ];
+
+  // grabar los datos en mongodb
+
+  $collection->update($claveBusqueda, $nuevosDatos);
+
+  echo json_encode($datos);
+
+});
+
+
+$app->post('/perfil', function() use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->perfiles;
+
+  // recuperar los datos enviados por backbone
+
+  $request = $app->request()->getBody();
+  $datos = json_decode($request);
+
+  // grabar los datos en mongodb
+
+  $collection->save($datos);
+
+  echo json_encode($datos);
+
+});
+
+
+$app->get('/perfil', function () use ($app) {
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $usuario = $req->get('usuario');
+
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->perfiles;
+
+  // Buscamos el perfil en la BD y lo enviamos de vuelta a BAckbone o retornamos false
+
+  $cursor = $collection->find(array('usuario' => $usuario));
+  $datos = [];
+  foreach ($cursor as $producto) {
+    array_push($datos, $producto);
+  }
+  if (count($datos) === 0) {
+    $info = "false";
+    echo json_encode($info);
+  } else {
+    echo json_encode($datos[0]);
+  }
+
+});
+
+
+
+$app->put('/perfil', function() use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->perfiles;
+
+  // recuperar los datos enviados por backbone
+
+  $request = $app->request()->getBody();
+  $datos = json_decode($request, true);
+
+  $nuevosDatos = [
+    'usuario' => $datos['usuario'],
+    'nombre' => $datos['nombre'],
+    'apellidos' => $datos['apellidos'],
+    'email' => $datos['email'],
+    'direccion' => $datos['direccion'],
+    'localidad' => $datos['localidad'],
+    'provincia' => $datos['provincia']
+  ];
+
+  // establecemos la clave de búsqueda en la BD
+
+  $claveBusqueda = [ 'usuario' => $datos['usuario'] ];
+
+  // grabar los datos en mongodb
+
+  $collection->update($claveBusqueda, $nuevosDatos);
+
+  echo json_encode($datos);
+
+});
 
 
 // Run app

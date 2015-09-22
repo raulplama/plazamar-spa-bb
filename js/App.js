@@ -78,6 +78,7 @@ var Usuario = Backbone.Model.extend({
 });
 
 var Perfil = Backbone.Model.extend({
+  url: '/plazamar-spa-bb/api.php/perfil',
   defaults: {
     usuario: '',
     nombre: '',
@@ -88,29 +89,6 @@ var Perfil = Backbone.Model.extend({
     provincia: ''
   },
   idAttribute: "_id",
-  validate: function(attributes) {
-    var invalid = [];
-
-    // condiciones de validación y sus errores
-
-    if (nombre.length > 20) {
-      invalid.push('el nombre debe tener menos de 20 caracteres');
-    }
-    if (apellidos.length > 40) {
-      invalid.push('los apellidos deben tener menos de 40 caracteres en total');
-    }
-    if (direccion.length > 50) {
-      invalid.push('la dirección debe tener menos de 50 caracteres');
-    }
-    if (localidad.length > 50) {
-      invalid.push('la localidad debe tener menos de 50 caracteres');
-    }
-    if (provincia.length > 50) {
-      invalid.push('la provincia debe tener menos de 50 caracteres');
-    }
-
-    if ( invalid.length > 0 ) { return invalid; };
-  }
 })
 
 // COLECCIONES
@@ -445,6 +423,12 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
             console.log(response);
           }
         })
+        // crear un perfil vacío para el nuevo usuario y grabarlo en la BD
+        var perfilNuevoUsuario = new Perfil({
+          usuario: nuevoNombreUsuario,
+          email: nuevoEmail
+        });
+        perfilNuevoUsuario.save();
         // redirigir a la página de info registro ok
         window.location.href = '#okRegistroUsuario';
       } else {
@@ -495,39 +479,70 @@ var VistaPerfilDeUsuario = Backbone.View.extend({
     var provincia = this.$el.find('#provincia').val();
     var password = this.$el.find('#password').val();
 
-    // buscamos el perfil del usuario
+    // buscamos el perfil del usuario y trabajamos a partir de el.
 
     var nickname = sessionStorage.getItem('usuario');
-    var usuario = listaDeUsuarios.where({usuario: nickname});
-    var perfilUsuario = listaDePerfiles.where({usuario: nickname});
 
-    // añadir el perfil a la colección, comprobar primero la contraseña
+    var usuario = new Usuario();
+    usuario.fetch({ data: $.param({ usuario: nickname}) }).then(function(response) {
 
-    var contraseñaCorrecta = usuario[0].get('password');
-    if (password === contraseñaCorrecta) {
-      perfilUsuario[0].set({nombre: nombre, apellidos: apellidos, direccion: direccion, localidad: localidad, provincia: provincia});
-      usuario[0].set({email: email});
-
-      // validar los datos introducidos y mostrar el error en su caso
-      // DESCOMENTAR CUANDO SE IMPLEMENTE UNA BD EXTERNA Y TENGAMOS URL
-      /*
-      usuario[0].on("invalid", function(model, error) {
-        $('#infoError').html('por favor, revisa los siguientes errores: ' + error);
-      });
-      perfilUsuario[0].on("invalid", function(model, error) {
+      // validar los datos introducidos (email y contra) y mostrar el error en su caso
+      usuario.on("invalid", function(model, error) {
         $('#infoError').html('por favor, revisa los siguientes errores: ' + error);
       });
 
-      // grabar el nuevo registro en la BD
+      // comprobamos la contraseña y pasamos a grabar la info introducida en los campos
+      var contrasenyaCorrecta = usuario.get("password");
 
-      usuario[0].save();
-      perfilUsuario[0].save();
-      */
+      if (password.valueOf() === contrasenyaCorrecta.valueOf()) {
 
-      window.location.href="#infoRegPerfilOk"; // redireccionamos a una página de info
-    } else {
-      window.location.href="#infoRegPerfilError"; // redireccionamos a una página de info
-    }
+        usuario.save(
+          { email: email },
+          { success: function(model, response) {
+              console.log('test ok')
+              console.log(model);
+              console.log(response);
+            },
+            error: function(model, response) {
+              console.log('test error')
+              console.log(model);
+              console.log(response);
+            }
+          });
+
+        var perfilUsuario = new Perfil();
+
+        perfilUsuario.fetch({
+          data: $.param({ usuario: nickname})
+        }).then(function (response) {
+          perfilUsuario.save(
+          {
+            nombre: nombre,
+            apellidos: apellidos,
+            email: email,
+            direccion: direccion,
+            localidad: localidad,
+            provincia: provincia
+          },
+          { success: function(model, response) {
+              console.log('perfil ok')
+              console.log(model);
+              console.log(response);
+            },
+            error: function(model, response) {
+              console.log('perfil error')
+              console.log(model);
+              console.log(response);
+            }
+          });
+          window.location.href="#infoRegPerfilOk"; // redireccionamos a una página de info
+        });
+      } else {
+        window.location.href="#infoRegPerfilError"; // redireccionamos a una página de info
+      }
+
+    });
+
   }
 });
 
@@ -706,24 +721,28 @@ function mostrarPerfilDeUsuario() {
     // rellenamos los campos con los datos de que disponemos en la BD
 
     var nickname = sessionStorage.getItem('usuario');
-    var usuario = new Usuario();
+
+    var user = new Usuario();
     var perfilUsuario = new Perfil();
-    usuario.fetch({ data: $.param({ usuario: nickname}) });
-    perfilUsuario.fetch({ data: $.param({ usuario: nickname}) });
 
-    var email = usuario.get('email');
-    var nombre = perfilUsuario.get('nombre');
-    var apellidos = perfilUsuario.get('apellidos');
-    var direccion = perfilUsuario.get('direccion');
-    var localidad = perfilUsuario.get('localidad');
-    var provincia = perfilUsuario.get('provincia');
+    user.fetch({ data: $.param({ usuario: nickname}) }).then(function(response) {
+      var email = response.email;
+      $('#email').val(email);
+    });
 
-    $('#nombre').val(nombre);
-    $('#apellidos').val(apellidos);
-    $('#email').val(email);
-    $('#direccion').val(direccion);
-    $('#localidad').val(localidad);
-    $('#provincia').val(provincia);
+    perfilUsuario.fetch({ data: $.param({ usuario: nickname}) }).then(function(response) {
+      var nombre = response.nombre;
+      var apellidos = response.apellidos;
+      var direccion = response.direccion;
+      var localidad = response.localidad;
+      var provincia = response.provincia;
+      $('#nombre').val(nombre);
+      $('#apellidos').val(apellidos);
+      $('#direccion').val(direccion);
+      $('#localidad').val(localidad);
+      $('#provincia').val(provincia);
+    });
+
   } else {
     window.location.href="#formRegistro"; // redireccionamos al formulario de registro
   }
