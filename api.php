@@ -15,12 +15,15 @@ $app->get('/categorias', function () {
   $mongo = new MongoClient(); // conectamos con la BD
   $database = $mongo->plazamar; // seleccionamos la BD
   $collection = $database->categorias; // seleccionamos la colección de datos (categorias)
+
   $cursor = $collection->find()->sort(array("nombre" => 1)); // indicamos que queremos recorrer todas las entradas y ordenarlas por nombre
+
   // retornamos los valores de la colección
   $data = [];
   foreach ($cursor as $categoria) {
     array_push($data, $categoria);
   }
+
   echo json_encode($data);
 });
 
@@ -85,6 +88,27 @@ $app->get('/productos', function () use ($app) {
     }
     echo json_encode($datos);
   }
+
+});
+
+$app->delete('/productos', function () use ($app) {
+
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->productos;
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $categoria = $req->get('categoria');
+
+  // recoger los productos y enviarlos de vuelta a BAckbone
+
+  $cursor = $collection->remove(array('categoria' => $categoria));
+
+  echo json_encode('productos borrados');
 
 });
 
@@ -282,6 +306,117 @@ $app->put('/perfil', function() use ($app) {
 
 });
 
+$app->get('/categoria', function () use ($app) {
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $categoria = $req->get('nombre');
+
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->categorias;
+
+  // Buscamos el categoria en la BD y lo enviamos de vuelta a BAckbone o retornamos false
+
+  $cursor = $collection->find(array('nombre' => $categoria));
+  $datos = [];
+  foreach ($cursor as $categoria) {
+    array_push($datos, $categoria);
+  }
+  if (count($datos) === 0) {
+    $info = "false";
+    echo json_encode($info);
+  } else {
+    echo json_encode($datos[0]);
+  }
+
+});
+
+$app->post('/categoria', function() use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->categorias;
+
+  // recuperar los datos enviados por backbone
+
+  $request = $app->request()->getBody();
+  $body = json_decode($request, true);
+
+  $datos = [
+    'nombre' => $body['nombre'],
+    'descripcion' => $body['descripcion']
+  ];
+
+  // grabar los datos en mongodb
+
+  $collection->save($datos);
+
+  echo json_encode($datos);
+
+});
+
+$app->put('/categoria/:nombre', function($nombre) use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->categorias;
+
+  /*
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $categoriaAntigua = $req->get('nombreAntiguo');
+  $cat = json_decode($categoriaAntigua);
+  */
+
+  // recuperar los datos enviados por backbone
+
+  $request = $app->request()->getBody();
+  $datos = json_decode($request, true);
+
+  $nuevosDatos = [
+    'nombre' => $datos['nombre'],
+    'descripcion' => $datos['descripcion'],
+  ];
+
+  // establecemos la clave de búsqueda en la BD
+
+  $claveBusqueda = [ 'nombre' => $nombre ];
+
+  // grabar los datos en mongodb
+
+  $collection->update($claveBusqueda, $nuevosDatos);
+
+  echo json_encode($claveBusqueda);
+
+});
+
+$app->delete('/categoria', function () use ($app) {
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $categoria = $req->get('nombre');
+
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->categorias;
+
+  // Buscamos el categoria en la BD y lo enviamos de vuelta a BAckbone o retornamos false
+
+  $cursor = $collection->remove(array('nombre' => $categoria));
+
+  echo json_encode('categoria borrada');
+
+});
 
 // Run app
 

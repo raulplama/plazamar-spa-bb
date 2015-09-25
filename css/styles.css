@@ -29,6 +29,10 @@ h1 {
   margin-bottom: 0;
 }
 
+.black {
+  color: black;
+}
+
 .naranja {
   color: orange;
 }
@@ -261,6 +265,20 @@ input:invalid {
 
 input:focus:invalid {
   outline: none;
+}
+
+#subpaneles {
+  margin-top: 15px;
+}
+
+.margen-sup {
+  margin-top: 10px;
+}
+
+#mensajeCategorias {
+  margin-top: 30px;
+  color: orange;
+  font-size: 1.1em;
 }
 
 /* end of container */

@@ -328,9 +328,121 @@
     </script>
     <!-- Plantilla con la pagina de info del perfil de usuario -->
     <script type='text/template' id='informacionPerfil'>
-        <div class='cuadro_texto margenSuperior'>
-          <h3 id='infoPerfil' class="little_title_gen centrado"></h3>
+      <div class='cuadro_texto margenSuperior'>
+        <h3 id='infoPerfil' class="little_title_gen centrado"></h3>
+      </div>
+    </script>
+    <!-- Plantilla con el panel primario de administrador -->
+    <script type='text/template' id='panelAdministracion'>
+      <div class="pure-g">
+        <div id="botonesGestion" class="pure-u-1">
+          <form class="pure-form">
+            <legend>gestionar: </legend>
+            <button id="botonCategorias" class="pure-button">categorías</button>
+            <button id="botonProductos" class="pure-button">productos</button>
+            <button id="botonUsuarios" class="pure-button">usuarios</button>
+          </form>
         </div>
+        <div id="subpaneles" class="pure-u-1">
+        </div>
+      </div>
+    </script>
+    <!-- Plantilla con el subpanel de categorias para el administrador-->
+    <script type='text/template' id='subPanelCategorias'>
+      <form class="pure-form">
+        <fieldset>
+          <legend>categorías</legend>
+          <div>
+            <label for="nuevaCategoria">nueva categoría</label>
+            <input id="nombreNuevaCategoria" class="black" type="text" placeholder="nombre">
+            <input id="descripcionNuevaCategoria" class="black" type="text" placeholder="descripción">
+            <button id='botonNuevaCategoria' class="pure-button pure-button-primary">ok</button>
+          </div>
+          <div class="margen-sup">
+            <label for="modificarCategoria">modificar categoría</label>
+            <select id="modificarCategoria" class="black">
+            </select>
+            <input id="nuevoNombreCategoriaModif" class="black" type="text" placeholder="nuevo nombre">
+            <input id="nuevaDescripcionCategoriaModif" class="black" type="text" placeholder="nueva descripción">
+            <button id='botonModificarNombreCategoria' class="pure-button pure-button-primary">ok</button>
+          </div>
+          <div class="margen-sup">
+            <label for="borrarCategoria">borrar categoría</label>
+            <select id="borrarCategoria" class="black">
+            </select>
+            <button id='botonBorrarCategoria' class="pure-button pure-button-primary">borrar</button>
+            <span>(cuidado: la categoría se borrará junto con todos sus productos)</span>
+          </div>
+          <div id='mensajeCategorias'>
+          </div>
+        </fieldset>
+      </form>
+    </script>
+    <!-- Plantilla con el subpanel de productos para el administrador-->
+    <script type='text/template' id='subPanelProductos'>
+      <form class="pure-form">
+        <fieldset>
+          <legend>productos</legend>
+          <div class='pure-g'>
+            <div class="pure-u-1-8">
+              <button id="botonAltaProducto" class="pure-button">nuevo</button>
+              <button id="botonModificacionProducto" class="pure-button margen-sup">modificar</button>
+              <button id="botonBorrarProducto" class="pure-button margen-sup">borrar</button>
+            </div>
+            <div id="subsubpanel" class='pure-u-7-8'>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </script>
+    <!--Plantilla con el subpanel de alta de producto para el administrador -->
+    <script type='text/template' id='subPanelAltaProducto'>
+      <form class="pure-form">
+        <div class='pure-u-3-8'>
+          <fieldset class="pure-group">
+            <input type="text" class="pure-input-1" placeholder="id">
+            <input type="text" class="pure-input-1" placeholder="título">
+            <input type="text" class="pure-input-1" placeholder="autor">
+            <input type="text" class="pure-input-1" placeholder="editorial">
+            <input type="text" class="pure-input-1" placeholder="precio">
+          </fieldset>
+        </div>
+        <div class='pure-u-3-8'>
+          <fieldset class="pure-group">
+            <input type="text" class="pure-input-1" placeholder="isbn">
+            <input type="text" class="pure-input-1" placeholder="categoria">
+            <input type="text" class="pure-input-1" placeholder="¿tiene descuento?: 'true'/'false'">
+            <input type="text" class="pure-input-1" placeholder="descuento: porcentaje">
+            <input type='file' class="pure-input-1" accept=".png">
+          </fieldset>
+          <button id="altaProducto" class="button-large pure-button pure-button-primary">dar de alta el producto</button>
+        </div>
+      </form>
+    </script>
+    <!--Plantilla con el subpanel de alta de producto para el administrador -->
+    <script type='text/template' id='subPanelModificacionProducto'>
+      <form class="pure-form pure-form-stacked">
+        <fieldset>
+          <legend>localizar producto</legend>
+          <div>
+            <label for="selecCategoria">seleccionar categoría</label>
+              <select id="selecCategoria" class="black">
+                <option>arquitectura</option>
+                <option>medicina</option>
+                <option>música</option>
+              </select>
+              <button class="pure-button pure-button-primary">seleccionar</button>
+          </div>
+          <div id="subpanelProductos">
+          </div>
+        </fieldset>
+      </form>
+    </script>
+    <!-- plantilla con los divs genéricos del container -->
+    <script type='text/template' id='divsContainer'>
+      <div class='pure-u-1-4' id='menu_categorias'><ul class='centrado borde' id='categorias'></ul></div>
+      <div class='pure-u-1-2' id='contenido'><ul id='productos'></ul></div>
+      <div class='pure-u-1-4' id='carrito'></div>
     </script>
 
     <!-- scripts con la lógica de la página -->
