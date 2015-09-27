@@ -791,22 +791,321 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
   template: _.template($('#subPanelAltaProducto').html()),
   initialize: function() {
     this.render();
+    this.completarDesplegableCategorias();
+    this.infoTotalProductosEnBD();
+    this.infoUltimoIDenBD();
   },
   render: function() {
     this.$el.append(this.template());
     return this;
+  },
+  completarDesplegableCategorias: function() {
+    // recuperamos de la BD las categorias existentes
+    var listaDeCategoriasEnBD = new ListaDeCategorias();
+    listaDeCategoriasEnBD.fetch({
+      success: function(collection, response) {
+        // borramos el listado existente
+        $('.cat').remove();
+        // creamos un elemento del listado por cada categoria y lo incorporamos al desplegable
+        _.each(response, function(element, index, list) {
+          var nombreCat = element.nombre;
+          $("#categoria").append("<option class='cat'>" + nombreCat + "</option>");
+        });
+      }
+    });
+  },
+  infoTotalProductosEnBD : function() {
+    var productosTotales = new ListaDeProductos();
+    productosTotales.fetch({
+      data: $.param({ total: 'totalProductos' }),
+      success: function(model, response) {
+        $('#info').append("<span>número total de artículos en la BD: " + response + "</span></br>")
+      },
+      error: function(model, response) {
+        console.log(response);
+      }
+    })
+  },
+  infoUltimoIDenBD: function() {
+    var ultimoProducto = new ListaDeProductos();
+    ultimoProducto.fetch({
+      data: $.param({ ultimoProductoEnBD: 'ultimoProductoEnBD' }),
+      success: function(model, response) {
+        $('#info').append("<span>ID del último producto: " + response[0].id + "</span>")
+      },
+      error: function(model, response) {
+        console.log(response);
+      }
+    });
+  },
+  events: {
+    'click #altaProducto' : 'altaProductoEnBD',
+  },
+  altaProductoEnBD: function(e) {
+    e.preventDefault;
+    // limpiamos la zona de info
+    $("#mensajeProducto").html('');
+    // recogemos los datos introducidos
+    var idProducto = $("#id").val();
+    var tituloProducto = $("#titulo").val();
+    var autorProducto = $("#autor").val();
+    var editorialProducto = $("#editorial").val();
+    var precioProducto = $("#precio").val();
+    var isbnProducto = $("#isbn").val();
+    var categoriaProducto = $("#categoria").val();
+    var tieneDescuentoProducto = $("#tieneDescuento").val();
+    var descuentoProducto = $("#descuento").val();
+    if ($('#file')[0].files[0]) {
+      var archivoImagenProducto = $('#file')[0].files[0].name;
+    } else {
+      $('#mensajeProducto').html('error: selecciona un archivo de imagen para el producto');
+    }
+    // validamos los datos y los pasamos a la BD
+    if (idProducto !== '' && tituloProducto !== '' && autorProducto !== '' && editorialProducto !== '' &&
+      precioProducto !== '' && isbnProducto !== '' && categoriaProducto !== '' && tieneDescuentoProducto !== '' &&
+      descuentoProducto !== '' && archivoImagenProducto !== '') {
+      // crear modelo producto
+      var nuevoProducto = new Producto({
+        id: idProducto,
+        titulo: tituloProducto,
+        autor: autorProducto,
+        editorial: editorialProducto,
+        precio: precioProducto,
+        isbn: isbnProducto,
+        categoria: categoriaProducto,
+        tieneDescuento: tieneDescuentoProducto,
+        descuento: descuentoProducto,
+        imagen: archivoImagenProducto
+      });
+      // comprobar si existe en la BD
+      nuevoProducto.fetch({
+        data: $.param({ identificador: idProducto }),
+        success: function(model, response) {
+          if (response === 'false') {
+            // no existe el producto (id), procedemos a grabar los datos en la BD
+            nuevoProducto.save({},{
+              success: function(model, response) {
+                // informamos al admin
+                $('#mensajeProducto').html('creado nuevo producto en la BD: ' + tituloProducto + ' con id: ' + idProducto);
+              },
+              error: function() {
+                // informamos
+                $('#mensajeProducto').html('no ha podido crearse o ya exite el producto (id) en la BD');
+              }
+            });
+          } else {
+            // el producto (id) existe, lo notificamos
+            $('#mensajeProducto').html('error: el nuevo Producto (id) ya existe en la BD');
+          }
+        }
+      });
+      // si no existe lo añadimos a la BD
+    } else {
+      // los campos están vacíos, lo notificamos
+      $('#mensajeProducto').html('error: se deben rellenar todos los campos incluído la imagen de producto');
+    }
+    // limpiamos los campos de texto
+    $('input').val('');
   }
 });
+
+var VistaDetalleDeProductoAdministrador = Backbone.View.extend({
+  el: ('#subpanelProductos'),
+  template: _.template($('#subPanelDetalleProducto').html()),
+  initialize: function() {
+    this.render();
+    this.completarDesplegableCategorias();
+  },
+  render: function() {
+    this.$el.html(this.template(this.model.toJSON()));
+    return this;
+  },
+  completarDesplegableCategorias: function() {
+    // recuperamos de la BD las categorias existentes
+    var listaDeCategoriasEnBD = new ListaDeCategorias();
+    listaDeCategoriasEnBD.fetch({
+      success: function(collection, response) {
+        // borramos el listado existente
+        $('.categ').remove();
+        // creamos un elemento del listado por cada categoria y lo incorporamos al desplegable
+        _.each(response, function(element, index, list) {
+          var nombreCat = element.nombre;
+          $("#categorias").append("<option class='categ'>" + nombreCat + "</option>");
+        });
+      }
+    });
+  },
+  events: {
+    'click #modificarProducto' : 'modificarProductoEnBD',
+    'click #borrarProducto' : 'borrarProductoEnBD'
+  },
+  modificarProductoEnBD: function(e) {
+    e.preventDefault;
+    // recogemos los datos del producto
+    var id = $("#id").val();
+    var titulo = $("#titulo").val();
+    var autor = $("#autor").val();
+    var editorial = $("#editorial").val();
+    var precio = $("#precio").val();
+    var isbn = $("#isbn").val();
+    var categoria = $("#categorias").val();
+    var tieneDescuento = $("#tieneDescuento").val();
+    var descuento = $("#descuento").val();
+    if ($('#file')[0].files[0]) {
+      var imagen = $('#file')[0].files[0].name;
+    } else {
+      $('#mensajeProducto').html('error: selecciona un archivo de imagen para el producto');
+    }
+    // limpiamos todo los subsubpaneles
+    $("#subpanelProductos").html('');
+    $("#mensajeProducto").html('');
+    // validamos los datos, creamos el modelo y lo actualizamos en la BD
+    if (id !== '' && titulo !== '' && autor !== '' && editorial !== '' && precio !== '' && isbn !== '' &&
+      categoria !== '' && tieneDescuento !== '' && descuento !== '') {
+      var prodModifcar = new Producto();
+      prodModifcar.fetch({
+        data: $.param({ identificador: id }),
+        success: function(model, response) {
+          prodModifcar.save({
+            id: id,
+            titulo: titulo,
+            autor: autor,
+            editorial: editorial,
+            precio: precio,
+            isbn: isbn,
+            categoria: categoria,
+            tieneDescuento: tieneDescuento,
+            descuento: descuento,
+            imagen: imagen
+            }, {
+            url: '/plazamar-spa-bb/api.php/producto',
+            patch: true,
+            beforeSend: function(xhr) {
+              xhr.setRequestHeader('X-HTTP-Method-Override', 'put');
+            },
+            success: function(model, response) {
+              // informamos al admin
+              $('#mensajeProducto').html('producto modificado en la BD');
+
+            },
+            error: function() {
+              // informamos al admin
+              $('#mensajeProducto').html('error: no ha podido modificarse el producto en la BD');
+            }
+          })
+        }
+      })
+    } else {
+      // los campos están vacíos, lo notificamos
+      $('#mensajeProducto').html('error: deben rellenarse todos los campos');
+    }
+  },
+  borrarProductoEnBD: function(e) {
+    e.preventDefault;
+    // recogemos el producto
+    var id = $("#id").val();
+    // limpiamos todo los subsubpaneles
+    $("#subpanelProductos").html('');
+    $("#mensajeProducto").html('');
+    // borramos el modelo de la bd
+    var productoSelecc = new Producto({ identificador: id });
+    productoSelecc.fetch({
+      data: $.param({ identificador: id }),
+      success: function(model, response) {
+        productoSelecc.fetch({
+          data: $.param({ identificador: id }),
+          patch: true,
+          beforeSend: function(xhr) {
+            xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
+          },
+          success: function(model, response) {
+            $('#mensajeProducto').append('producto borrado de la BD');
+            console.log(response);
+          },
+          error: function(model, response) {
+            $('#mensajeProducto').append('error: producto no borrado de la BD');
+            console.log(response);
+          }
+        })
+      }
+    });
+  }
+})
 
 var VistaSubpanelModificacionProducto = Backbone.View.extend({
   el: ('#subsubpanel'),
   template: _.template($('#subPanelModificacionProducto').html()),
   initialize: function() {
     this.render();
+    this.completarDesplegableCategorias();
   },
   render: function() {
     this.$el.append(this.template());
     return this;
+  },
+  completarDesplegableCategorias: function() {
+    // recuperamos de la BD las categorias existentes
+    var listaDeCategoriasEnBD = new ListaDeCategorias();
+    listaDeCategoriasEnBD.fetch({
+      success: function(collection, response) {
+        // borramos el listado existente
+        $('.cat').remove();
+        // creamos un elemento del listado por cada categoria y lo incorporamos al desplegable
+        _.each(response, function(element, index, list) {
+          var nombreCat = element.nombre;
+          $("#categoria").append("<option class='cat'>" + nombreCat + "</option>");
+        });
+      }
+    });
+  },
+  events: {
+    'click #buscarProductos' : 'buscarProductosCategoria',
+    'click .prod' : 'seleccionarProducto'
+  },
+  buscarProductosCategoria: function(e) {
+    e.preventDefault;
+    // limpiamos todo los subsubpaneles
+    $("#subpanelProductos").html('');
+    $("#mensajeProducto").html('');
+    // recogemos los datos introducidos
+    var categoria = $("#categoria").val();
+    // recogemos los productos de la categoria desde la bd
+    var productosCategoria = new ListaDeProductos();
+    productosCategoria.fetch({
+      data: $.param({ categoria: categoria, ordenar: 'si' }),
+      success: function(collection, response) {
+        if (response.length === 0) {
+          $("#listaProductos").remove();
+          // info para el admin
+          $('#mensajeProducto').html('no existen productos en esa categoría');
+        } else {
+          // creamos la lista de productos con los datos de la bd
+          $("#listaProductos").remove();
+          $("#subpanelProductos").append("<ul id='listaProductos'></ul>");
+          _.each(response, function(element, index, list) {
+            var tituloProducto = element.titulo;
+            $("#listaProductos").append("<li class='prod'>" + tituloProducto + "</li>");
+          });
+        }
+      }
+    });
+  },
+  seleccionarProducto: function(e) {
+    e.preventDefault;
+    // obtener el titulo del elemento pulsado
+    var titulo = e.target.innerHTML;
+    // limpiamos todo los subsubpaneles
+    $("#subpanelProductos").html('');
+    $("#mensajeProducto").html('');
+    // recuperamos el modelo
+    var productoSeleccionado = new Producto();
+    productoSeleccionado.fetch({
+      data: $.param({ titulo: titulo }),
+      success: function(model, response) {
+        // mostramos en el subpanel los detalles del producto
+      var vistaDetallesDelProducto = new VistaDetalleDeProductoAdministrador({model: productoSeleccionado});
+      }
+    })
   }
 });
 
@@ -823,7 +1122,7 @@ var VistaSubpanelProductos = Backbone.View.extend({
   events: {
         'click #botonAltaProducto' : 'mostrarSubpanelAltaProducto',
         'click #botonModificacionProducto' : 'mostrarSubpanelModificacionProducto',
-        'click #botonBorrarProducto' : 'mostrarSubpanelBorrarProducto'
+        'click #botonBorrarProducto' : 'mostrarSubpanelModificacionProducto'
   },
   mostrarSubpanelAltaProducto: function(e) {
     e.preventDefault;
@@ -834,11 +1133,6 @@ var VistaSubpanelProductos = Backbone.View.extend({
     e.preventDefault;
     $("#subsubpanel").html("");
     var vistaSubpanelModificacionProducto = new VistaSubpanelModificacionProducto();
-  },
-  mostrarSubpanelBorrarProducto: function(e) {
-    e.preventDefault;
-    $("#subsubpanel").html("");
-    var vistaSubpanelBorrarProducto = new VistaSubpanelModificacionProducto();
   }
 });
 
@@ -1251,7 +1545,8 @@ function actualizarCategorias() {
     success: function(){
       console.log('acceso a la BD: recuperando categorías');
     },
-    error: function(){
+    error: function(model, response){
+      console.log(response);
       console.log('error: categorias no importadas');
     }
   }).then(function(response) {

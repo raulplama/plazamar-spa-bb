@@ -275,10 +275,26 @@ input:focus:invalid {
   margin-top: 10px;
 }
 
-#mensajeCategorias {
+#info,
+#mensajeCategorias,
+#mensajeProducto {
   margin-top: 30px;
   color: orange;
   font-size: 1.1em;
+}
+
+#mensajeProducto,
+#subpanelProductos {
+  float: right;
+}
+
+.izq {
+  float: left;
+}
+
+#seleccionar {
+  width: 450px;
+  height: 36px;
 }
 
 /* end of container */

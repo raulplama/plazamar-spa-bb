@@ -400,43 +400,103 @@
       <form class="pure-form">
         <div class='pure-u-3-8'>
           <fieldset class="pure-group">
-            <input type="text" class="pure-input-1" placeholder="id">
-            <input type="text" class="pure-input-1" placeholder="título">
-            <input type="text" class="pure-input-1" placeholder="autor">
-            <input type="text" class="pure-input-1" placeholder="editorial">
-            <input type="text" class="pure-input-1" placeholder="precio">
+            <input id='id' type="text" class="pure-input-1 black" placeholder="id">
+            <input id='titulo' type="text" class="pure-input-1 black" placeholder="título">
+            <input id='autor' type="text" class="pure-input-1 black" placeholder="autor">
+            <input id='editorial' type="text" class="pure-input-1 black" placeholder="editorial">
+            <input id='isbn' type="text" class="pure-input-1 black" placeholder="isbn">
+            <input id='precio' type="text" class="pure-input-1 black" placeholder="precio">
           </fieldset>
         </div>
         <div class='pure-u-3-8'>
           <fieldset class="pure-group">
-            <input type="text" class="pure-input-1" placeholder="isbn">
-            <input type="text" class="pure-input-1" placeholder="categoria">
-            <input type="text" class="pure-input-1" placeholder="¿tiene descuento?: 'true'/'false'">
-            <input type="text" class="pure-input-1" placeholder="descuento: porcentaje">
-            <input type='file' class="pure-input-1" accept=".png">
+            <label for="categoria">categoria</label>
+            <select id="categoria" class="black">
+            </select>
+            </br>
+            <label for="tieneDescuento">¿tiene descuento?</label>
+            <select id="tieneDescuento" class="black">
+              <option>false</option>
+              <option>true</option>
+            </select>
+            <input id='descuento' type="text" class="pure-input-1 black" placeholder="descuento: porcentaje">
+            <input id='file' type='file' class="pure-input-1" accept=".png">
           </fieldset>
           <button id="altaProducto" class="button-large pure-button pure-button-primary">dar de alta el producto</button>
         </div>
+        <div id='mensajeProducto'>
+        </div>
       </form>
+      <div id='info'>
+      </div>
     </script>
-    <!--Plantilla con el subpanel de alta de producto para el administrador -->
+    <!--Plantilla con el subpanel de modificación de producto para el administrador -->
     <script type='text/template' id='subPanelModificacionProducto'>
       <form class="pure-form pure-form-stacked">
         <fieldset>
           <legend>localizar producto</legend>
-          <div>
-            <label for="selecCategoria">seleccionar categoría</label>
-              <select id="selecCategoria" class="black">
-                <option>arquitectura</option>
-                <option>medicina</option>
-                <option>música</option>
-              </select>
-              <button class="pure-button pure-button-primary">seleccionar</button>
+          <div id='seleccionDeCategorias' class='pure-u-1-4'>
+            <label for="categoria">seleccionar categoría</label>
+            <select id="categoria" class="black">
+            </select>
+            <button id='buscarProductos' class="pure-button pure-button-primary">seleccionar</button>
           </div>
-          <div id="subpanelProductos">
+          <div id="subpanelProductos" class='pure-u-3-4'>
+          </div>
+          <div id='mensajeProducto'>
           </div>
         </fieldset>
       </form>
+    </script>
+    <!-- plantilla con el subpanel de detalle de producto seleccionado por el admin en la modificacion o borrado de productos -->
+    <script type='text/template' id='subPanelDetalleProducto'>
+      <div>
+        <form class="pure-form pure-form-stacked">
+            <fieldset>
+
+                <label for="id">id</label>
+                <input id='id' type="text" class="pure-input-2-3 black" placeholder="id" value='<%= id %>' disabled>
+
+                <label for="titulo">titulo</label>
+                <input id='titulo' type="text" class="pure-input-2-3 black" placeholder="título" value='<%= titulo %>'>
+
+                <label for="autor">autor</label>
+                <input id='autor' type="text" class="pure-input-2-3 black" placeholder="autor" value='<%= autor %>'>
+
+                <label for="editorial">editorial</label>
+                <input id='editorial' type="text" class="pure-input-2-3 black" placeholder="editorial" value='<%= editorial %>'>
+
+                <label for="isbn">isbn</label>
+                <input id='isbn' type="text" class="pure-input-2-3 black" placeholder="isbn" value='<%= isbn %>'>
+
+                <label for="precio">precio</label>
+                <input id='precio' type="text" class="pure-input-2-3 black" placeholder="precio" value='<%= precio %>'>
+
+                <label for="categorias">categoria</label>
+                <div id='seleccionar'>
+                  <select id="categorias" class="black izq">
+                  </select>
+                </div>
+
+                <label for="tieneDescuento">¿tiene descuento?</label>
+                <select id="tieneDescuento" class="black" value='<%= tieneDescuento %>'>
+                  <option>false</option>
+                  <option>true</option>
+                </select>
+
+                <label for="descuento">descuento</label>
+                <input id='descuento' type="text" class="pure-input-2-3 black" placeholder="descuento: porcentaje" value='<%= descuento %>'>
+
+                <label for="file">imagen</label>
+                <input id='file' type='file' class="pure-input-2-3" accept=".png">
+
+
+                <button id="modificarProducto" class="button-large pure-button pure-button-primary">modificar</button>
+                <button id="borrarProducto" class="button-large pure-button pure-button-primary">borrar</button>
+
+            </fieldset>
+        </form>
+      </div>
     </script>
     <!-- plantilla con los divs genéricos del container -->
     <script type='text/template' id='divsContainer'>
