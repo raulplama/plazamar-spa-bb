@@ -845,6 +845,7 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
     e.preventDefault;
     // limpiamos la zona de info
     $("#mensajeProducto").html('');
+    $("#info").html('');
     // recogemos los datos introducidos
     var idProducto = $("#id").val();
     var tituloProducto = $("#titulo").val();
