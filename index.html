@@ -33,9 +33,13 @@
       </section>
       <section class="pure-u-1-3">
         <h1 id="store-title">Catálogo de libros</h1>
-        <form name="buscador" id="buscador" action="search" method="post">
+        <form name="buscador" id="buscador" action="#" method="post">
           <input type="text" id="buscador-input" name="buscador" placeholder="buscar en el catálogo">
         </form>
+        <div>
+          <img id='iconoCarga' class='oculto' src="img/ajax-loader.gif" alt='iconoCarga'>
+        </div>
+        <div id="resultados-busqueda"></div>
       </section>
       <section class="pure-u-1-3">
         <div id="icons">
@@ -63,6 +67,7 @@
       <div class='pure-u-1-4' id='menu_categorias'><ul class='centrado borde' id='categorias'></ul></div>
       <div class='pure-u-1-2' id='contenido'><ul id='productos'></ul></div>
       <div class='pure-u-1-4' id='carrito'></div>
+      <div class='pure-u-1-2 oculto' id='infoPortada'></div>
     </div>
     <footer class="pure-g borde">
       <section class="pure-u-1-3"><a href="#quienesSomos">quienes somos</a></section>
@@ -85,6 +90,7 @@
         <h3 class="subtitulo_detalle">Autor: <%= autor %></h3>
         <h3 class="subtitulo_detalle">Editorial: <%= editorial %></h3>
         <h3 class="subtitulo_detalle" id='precio'>Precio: <%= precio %> € </h3>
+        <button class="button margen_izq" id='comprar'>comprar</button>
         <br/>
         <h3 class="resenya">Reseña:</h3>
         <p class="paragraph">
@@ -498,12 +504,109 @@
         </form>
       </div>
     </script>
+    <!-- Plantilla con el subpanel de usuarios para el administrador-->
+    <script type='text/template' id='subPanelUsuarios'>
+      <form class="pure-form">
+        <fieldset>
+          <legend>usuarios</legend>
+          <div class='pure-g'>
+            <div class="pure-u-1-8">
+              <button id="botonAltaUsuario" class="pure-button">nuevo</button>
+              <button id="botonModificacionUsuario" class="pure-button margen-sup">modificar</button>
+              <button id="botonBorrarUsuario" class="pure-button margen-sup">borrar</button>
+            </div>
+            <div id="subsubpanel" class='pure-u-7-8'>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </script>
+    <!--Plantilla con el subpanel de alta de usuario para el administrador -->
+    <script type='text/template' id='subPanelAltaUsuario'>
+      <form class="pure-form">
+        <div class='pure-u-3-8'>
+          <fieldset class="pure-group">
+            <input id='id' type="text" class="pure-input-1 black" placeholder="id">
+            <input id='usuario' type="text" class="pure-input-1 black" placeholder="usuario">
+            <input id='password' type="password" class="pure-input-1 black" placeholder="password">
+            <input id='email' type="text" class="pure-input-1 black" placeholder="email">
+            <label for="tipo">tipo de usuario</label>
+            <select id="tipo" class="black">
+              <option>usuario</option>
+              <option>admin</option>
+            </select>
+            <button id="altaUsuario" class="button-large pure-button pure-button-primary">dar de alta al usuario</button>
+          </fieldset>
+        </div>
+        <div id='mensajeUsuario'>
+        </div>
+      </form>
+      <div id='info'>
+      </div>
+    </script>
+    <!--Plantilla con el subpanel de modificación de usuarios para el administrador -->
+    <script type='text/template' id='subPanelModificacionUsuario'>
+      <form class="pure-form pure-form-stacked">
+        <fieldset>
+          <legend>Modificación o borrado de usuarios</legend>
+          <div id='seleccionDeTipoUsuario' class='pure-u-1-4'>
+            <label for="tipo">seleccionar tipo de usuario</label>
+            <select id="tipo" class="black">
+              <option>usuario</option>
+              <option>admin</option>
+            </select>
+            <button id='buscarUsuarios' class="pure-button pure-button-primary">seleccionar</button>
+          </div>
+          <div id="subpanelUsuarios" class='pure-u-3-4'>
+          </div>
+          <div id='mensajeUsuario'>
+          </div>
+        </fieldset>
+      </form>
+    </script>
+    <!-- plantilla con el subpanel de detalle de usuario seleccionado por el admin en la modificacion o borrado de usuarios -->
+    <script type='text/template' id='subPanelDetalleUsuario'>
+      <div>
+        <form class="pure-form pure-form-stacked">
+          <fieldset>
+
+            <label for="id">id</label>
+            <input id='id' type="text" class="pure-input-2-3 black" placeholder="id" value='<%= id %>' disabled>
+
+            <label for="usuario">usuario</label>
+            <input id='usuario' type="text" class="pure-input-2-3 black" placeholder="usuario" value='<%= usuario %>'>
+
+            <label for="email">email</label>
+            <input id='email' type="text" class="pure-input-2-3 black" placeholder="email" value='<%= email %>'>
+
+            <label for="tipo">tipo</label>
+            <div id='tipo'>
+              <select id="tipo" class="black izq">
+                <option>usuario</option>
+                <option>admin</option>
+              </select>
+            </div>
+            <br><br><br><br>
+
+            <button id="modificarUsuario" class="button-large pure-button pure-button-primary">modificar</button>
+            <button id="borrarUsuario" class="button-large pure-button pure-button-primary">borrar</button>
+
+          </fieldset>
+        </form>
+      </div>
+    </script>
     <!-- plantilla con los divs genéricos del container -->
     <script type='text/template' id='divsContainer'>
       <div class='pure-u-1-4' id='menu_categorias'><ul class='centrado borde' id='categorias'></ul></div>
       <div class='pure-u-1-2' id='contenido'><ul id='productos'></ul></div>
       <div class='pure-u-1-4' id='carrito'></div>
     </script>
+    <!-- Plantilla de la lista de la compra -->
+    <script type="text/template" id="listaDeLaCompra">
+      <li><a href="#catalogo/<%= id %>"><img class='item' id="<%= isbn %>" src="<%= imagen %>" alt="<%= titulo %>" width="110" height="110" data-isbn="<%= isbn %>"/></a></li>
+    </script>
+
+
 
     <!-- scripts con la lógica de la página -->
     <script type="text/javascript" src="js/App.js"></script>

@@ -83,6 +83,12 @@ h1 {
   padding-top: 10%;
 }
 
+#iconoCarga {
+  position: relative;
+  top: -25px;
+  left: -25px;
+}
+
 #buscador-input {
   border-color: orange;
   border-radius: 1em;
@@ -92,6 +98,10 @@ h1 {
   height: 25px;
   color: black;
   font-family: Candara;
+}
+
+.oculto {
+  display: none;
 }
 
 #icons {
@@ -154,6 +164,15 @@ h1 {
   height: 700px;
 }
 
+#infoPortada {
+  height: 50px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 12px;
+  background-color: rgba(255, 165, 0, 0.7);
+}
+
 #categorias {
   width: 150px;
   margin-left: auto;
@@ -179,6 +198,10 @@ h1 {
   margin-left: 235px;
   margin-bottom: 5px;
   font-size: 1em;
+}
+
+.margen_izq {
+  margin-left: 235px;
 }
 
 .resenya {
@@ -284,7 +307,8 @@ input:focus:invalid {
 }
 
 #mensajeProducto,
-#subpanelProductos {
+#subpanelProductos,
+#subpanelUsuarios {
   float: right;
 }
 

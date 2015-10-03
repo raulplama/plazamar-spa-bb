@@ -36,6 +36,7 @@ var Producto = Backbone.Model.extend({
 var Usuario = Backbone.Model.extend({
   url: '/plazamar-spa-bb/api.php/usuario',
   defaults: {
+    id: '',
     usuario: '',
     email: '',
     password: '',
@@ -122,12 +123,10 @@ var ListaDePerfiles = Backbone.Collection.extend({
 var VistaCategoria = Backbone.View.extend({
   el: ('#categorias'),
   template: _.template($('#listado_categorias').html()),
-
   initialize: function() {
     this.render();
   },
   render: function() {
-    console.log('renderizando modelo');
     this.$el.append(this.template(this.model));
     return this;
   }
@@ -136,28 +135,23 @@ var VistaCategoria = Backbone.View.extend({
 var VistaMenuCategorias = Backbone.View.extend({
   el: ("#categorias"),
   initialize: function() {
-    console.log(this.collection);
     this.render();
   },
   render: function() {
-    console.log('renderizando colección');
     this.collection.forEach(this.addUnaCategoria, this);
     return this;
   },
   addUnaCategoria: function(modelo, index, collection) {
-    console.log(collection);
-    console.log('procesando modelo ' + index);
     var vistaCategoria = new VistaCategoria({model: modelo});
   }
 });
 
 var VistaProducto = Backbone.View.extend({
-  //el: $("#productos"),
   template: _.template($("#listado_productos").html()),
   initialize: function() {
     this.render();
   },
-  render: function(eventName) {
+  render: function() {
     this.$el.append(this.template(this.model));
     return this;
   }
@@ -179,13 +173,26 @@ var VistaListaDeProductos = Backbone.View.extend({
 var VistaDetalleDeProducto = Backbone.View.extend({
   el: $("#contenido"),
   template: _.template($("#detalle_de_producto").html()),
+  events: {
+    'click #comprar' : 'comprarProducto'
+  },
   initialize: function() {
-    console.log('aplicando vista detalle de producto')
+    console.log('aplicando vista detalle de producto');
     this.render();
   },
   render: function() {
      this.$el.append(this.template(this.model));
     return this;
+  },
+  comprarProducto: function(e) {
+    e.preventDefault;
+    console.log('producto añadido a la lista de la compra');
+    var productosEnLaListaDeLaCompra = sessionStorage.getItem('productosCompra');
+    if (productosEnLaListaDeLaCompra !== null) {
+      sessionStorage.setItem('productosCompra', productosEnLaListaDeLaCompra + ',' + this.model.id);
+    } else {
+      sessionStorage.setItem('productosCompra', this.model.id);
+    }
   }
 });
 
@@ -576,7 +583,7 @@ var VistaPanelAdministracion = Backbone.View.extend({
   events: {
     'click #botonCategorias' : 'mostrarSubpanelCategorias',
     'click #botonProductos' : 'mostrarSubpanelProductos',
-    'click #botonUsuarios' : 'mostrarSubpanelUsuarioas'
+    'click #botonUsuarios' : 'mostrarSubpanelUsuarios'
   },
   mostrarSubpanelCategorias: function(e) {
     e.preventDefault();
@@ -587,6 +594,11 @@ var VistaPanelAdministracion = Backbone.View.extend({
     e.preventDefault();
     $("#subpaneles").html("");
     var vistaSubpanelProductos = new VistaSubpanelProductos();
+  },
+  mostrarSubpanelUsuarios: function(e) {
+    e.preventDefault();
+    $("#subpaneles").html("");
+    var vistaSubpanelUsuarios = new VistaSubpanelUsuarios();
   }
 });
 
@@ -792,6 +804,7 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
   initialize: function() {
     this.render();
     this.completarDesplegableCategorias();
+    $('#info').html("");
     this.infoTotalProductosEnBD();
     this.infoUltimoIDenBD();
   },
@@ -819,7 +832,7 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
     productosTotales.fetch({
       data: $.param({ total: 'totalProductos' }),
       success: function(model, response) {
-        $('#info').append("<span>número total de artículos en la BD: " + response + "</span></br>")
+        $('#info').append("<span>número total de artículos en la BD: " + response + "</span></br>");
       },
       error: function(model, response) {
         console.log(response);
@@ -831,7 +844,7 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
     ultimoProducto.fetch({
       data: $.param({ ultimoProductoEnBD: 'ultimoProductoEnBD' }),
       success: function(model, response) {
-        $('#info').append("<span>ID del último producto: " + response[0].id + "</span>")
+        $('#info').append("<span>ID del último producto: " + response[0].id + "</span>");
       },
       error: function(model, response) {
         console.log(response);
@@ -1137,6 +1150,333 @@ var VistaSubpanelProductos = Backbone.View.extend({
   }
 });
 
+var VistaSubpanelAltaUsuario = Backbone.View.extend({
+  el: ('#subsubpanel'),
+  template: _.template($('#subPanelAltaUsuario').html()),
+  initialize: function() {
+    this.render();
+    this.infoTotalUsuariosEnBD();
+    this.infoUltimoIDUsuarioenBD();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  },
+  infoTotalUsuariosEnBD : function() {
+    var usuariosTotales = new ListaDeUsuarios();
+    usuariosTotales.fetch({
+      data: $.param({ total: 'totalUsuarios' }),
+      success: function(model, response) {
+        $('#info').append("<span>número total de usuarios en la BD: " + response + "</span></br>");
+      },
+      error: function(model, response) {
+        console.log(response);
+      }
+    })
+  },
+  infoUltimoIDUsuarioenBD: function() {
+    var ultimoUsuario = new ListaDeUsuarios();
+    ultimoUsuario.fetch({
+      data: $.param({ ultimoUsuarioEnBD: 'ultimoUsuarioEnBD' }),
+      success: function(model, response) {
+        console.log(response);
+        $('#info').append("<span>ID del último usuario: " + response[0].id + "</span>");
+      },
+      error: function(model, response) {
+        console.log(response);
+      }
+    });
+  },
+  events: {
+    'click #altaUsuario' : 'altaUsuarioEnBD'
+  },
+  altaUsuarioEnBD: function(e) {
+    e.preventDefault;
+    // limpiamos la zona de info
+    $("#mensajeUsuario").html('');
+    // recogemos los datos introducidos
+    var idUsuario = $("#id").val();
+    var nickusuario = $("#usuario").val();
+    var contra = $("#password").val();
+    var mail = $("#email").val();
+    var tipo = $("#tipo").val();
+    // validamos los datos y los pasamos a la BD
+    if (idUsuario !== '' && nickusuario !== '' && contra !== '' && mail !== '' && tipo !== '') {
+      // crear modelo producto
+      var nuevoUsuario = new Usuario({
+        id: idUsuario,
+        usuario: nickusuario,
+        password: contra,
+        email: mail,
+        type: tipo
+      });
+      // comprobar si existe en la BD
+      nuevoUsuario.fetch({
+        data: $.param({ identificador: idUsuario })
+      }).then(function(response) {
+        if (response === 'false') {
+            // no existe el usuario, procedemos a grabar los datos en la BD
+            nuevoUsuario.save({},{
+              success: function(model, response) {
+                // informamos al admin
+                $('#mensajeUsuario').html('creado nuevo usuario en la BD: ' + nickusuario);
+                $('#info').html("");
+                // crear un perfil vacío para el nuevo usuario y grabarlo en la BD
+                var perfilNuevoUsuario = new Perfil({
+                  id: idUsuario,
+                  usuario: nickusuario,
+                  email: mail
+                });
+                perfilNuevoUsuario.save();
+              },
+              error: function() {
+                // informamos
+                $('#mensajeUsuario').html('no ha podido crearse o ya exite el usuario en la BD');
+              }
+            });
+          } else {
+            // el producto (id) existe, lo notificamos
+            $('#mensajeUsuario').html('error: el nuevo usuario ya existe en la BD');
+          }
+      });
+    } else {
+      // los campos están vacíos, lo notificamos
+      $('#mensajeUsuario').html('error: se deben rellenar todos los campos');
+    }
+    // limpiamos los campos de texto
+    $('input').val('');
+  }
+});
+
+var VistaDetalleDeUsuarioAdministrador = Backbone.View.extend({
+  el: ('#subpanelUsuarios'),
+  template: _.template($('#subPanelDetalleUsuario').html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.html(this.template(this.model.toJSON()));
+    return this;
+  },
+  events: {
+    'click #modificarUsuario' : 'modificarUsuarioEnBD',
+    'click #borrarUsuario' : 'borrarUsuarioEnBD'
+  },
+  modificarUsuarioEnBD: function(e) {
+    e.preventDefault;
+    // recogemos los datos del usuario
+    var id = $("#id").val();
+    var nickusuario = $("#usuario").val();
+    var mail = $("#email").val();
+    var tipo = $("#tipo").val();
+    // limpiamos todo los subsubpaneles
+    $("#subpanelUsuarios").html('');
+    $("#mensajeUsuario").html('');
+    // validamos los datos, creamos el modelo y lo actualizamos en la BD
+    if (id !== '' && nickusuario !== '' && mail !== '' && tipo !== '') {
+      var usuarioModificar = new Usuario();
+      usuarioModificar.fetch({
+        data: $.param({ identificador: id }),
+        success: function(model, response) {
+          usuarioModificar.save({
+            id: id,
+            usuario: nickusuario,
+            email: mail,
+            type: tipo
+            }, {
+            url: '/plazamar-spa-bb/api.php/usuario',
+            patch: true,
+            beforeSend: function(xhr) {
+              xhr.setRequestHeader('X-HTTP-Method-Override', 'put');
+            },
+            success: function(model, response) {
+              // informamos al admin
+              $('#mensajeUsuario').html('usuario modificado en la BD');
+              // modificamos el perfil acorde con los nuevos datos del usuario
+              var perfilUsuario = new Perfil();
+              perfilUsuario.fetch({
+                data: $.param({ identificador: id }),
+                success: function() {
+                  console.log('test');
+                },
+                error: function() {
+                  console.log('error');
+                }
+              }).then(function (response) {
+                console.log(response);
+                perfilUsuario.save({
+                  id: response.id,
+                  usuario: nickusuario,
+                  email: mail,
+                  nombre: response.nombre,
+                  apellidos: response.apellidos,
+                  direccion: response.direccion,
+                  localidad: response.localidad,
+                  provincia: response.provincia
+                  }, {
+                  url: '/plazamar-spa-bb/api.php/perfil',
+                  patch: true,
+                  beforeSend: function(xhr) {
+                    xhr.setRequestHeader('X-HTTP-Method-Override', 'put');
+                  },
+                  success: function(model, response) {
+                    console.log('perfil ok')
+                  },
+                  error: function(model, response) {
+                    console.log('perfil error')
+                  }
+                });
+              });
+            },
+            error: function() {
+              // informamos al admin
+              $('#mensajeUsuario').html('error: no ha podido modificarse el usuario en la BD');
+            }
+          });
+        }
+      })
+    } else {
+      // los campos están vacíos, lo notificamos
+      $('#mensajeUsuario').html('error: deben rellenarse todos los campos');
+    }
+  },
+  borrarUsuarioEnBD: function(e) {
+    e.preventDefault;
+    // recogemos el producto
+    var id = $("#id").val();
+    // limpiamos todo los subsubpaneles
+    $("#subpanelUsuarios").html('');
+    $("#mensajeUsuario").html('');
+    // borramos el modelo de la bd
+    var usuarioSelecc = new Usuario();
+    usuarioSelecc.fetch({
+      data: $.param({ identificador: id }),
+      success: function(model, response) {
+        // borramos al usuario
+        usuarioSelecc.fetch({
+          data: $.param({ identificador: id }),
+          patch: true,
+          beforeSend: function(xhr) {
+            xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
+          },
+          success: function(model, response) {
+            $('#mensajeUsuario').append('usuario borrado de la BD');
+            // borramos también el perfil del usuario
+            var perfilUsuario = new Perfil();
+            perfilUsuario.fetch({
+              data: $.param({ identificador: id }),
+              success: function(model, response) {
+                console.log('ok');
+                perfilUsuario.fetch({
+                  data: $.param({ identificador: id }),
+                  patch: true,
+                  beforeSend: function(xhr) {
+                    xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
+                  },
+                  error: function(model, response) {
+                    console.log(response);
+                  }
+                });
+              }
+            });
+          },
+          error: function(model, response) {
+            $('#mensajeUsuario').append('error: usuario no borrado de la BD');
+          }
+        })
+      }
+    });
+  }
+})
+
+var VistaSubpanelModificacionUsuario = Backbone.View.extend({
+  el: ('#subsubpanel'),
+  template: _.template($('#subPanelModificacionUsuario').html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  },
+  events: {
+    'click #buscarUsuarios' : 'buscarUsuariosPorTipo',
+    'click .user' : 'seleccionarUsuario'
+  },
+  buscarUsuariosPorTipo: function(e) {
+    e.preventDefault;
+    // limpiamos todo los subsubpaneles
+    $("#subpanelUsuarios").html('');
+    $("#mensajeUsuario").html('');
+    // recogemos los datos introducidos
+    var tipo = $("#tipo").val();
+    // recogemos los productos de la categoria desde la bd
+    var usuariosTipo = new ListaDeUsuarios();
+    usuariosTipo.fetch({
+      data: $.param({ tipo: tipo, ordenar: 'si' }),
+      success: function(collection, response) {
+        if (response.length === 0) {
+          $("#listaUsuarios").remove();
+          // info para el admin
+          $('#mensajeUsuario').html('no existen usuarios de ese tipo');
+        } else {
+          // creamos la lista de usuarios con los datos de la bd
+          $("#listaUsuarios").remove();
+          $("#subpanelUsuarios").append("<ul id='listaUsuarios'></ul>");
+          _.each(response, function(element, index, list) {
+            var usuario = element.usuario;
+            $("#listaUsuarios").append("<li class='user'>" + usuario + "</li>");
+          });
+        }
+      }
+    });
+  },
+  seleccionarUsuario: function(e) {
+    e.preventDefault;
+    // obtener el titulo del elemento pulsado
+    var usuario = e.target.innerHTML;
+    // limpiamos todo los subsubpaneles
+    $("#subpanelUsuarios").html('');
+    $("#mensajeUsuario").html('');
+    // recuperamos el modelo
+    var usuarioSeleccionado = new Usuario();
+    usuarioSeleccionado.fetch({
+      data: $.param({ usuario: usuario }),
+      success: function(model, response) {
+        // mostramos en el subpanel los detalles del producto
+      var vistaDetallesDelUsuario = new VistaDetalleDeUsuarioAdministrador({model: usuarioSeleccionado});
+      }
+    })
+  }
+});
+
+var VistaSubpanelUsuarios = Backbone.View.extend({
+  el: ('#subpaneles'),
+  template: _.template($('#subPanelUsuarios').html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template());
+    return this;
+  },
+  events: {
+    'click #botonAltaUsuario' : 'mostrarSubpanelAltaUsuario',
+    'click #botonModificacionUsuario' : 'mostrarSubpanelModificacionUsuario',
+    'click #botonBorrarUsuario' : 'mostrarSubpanelModificacionUsuario'
+  },
+  mostrarSubpanelAltaUsuario: function(e) {
+    e.preventDefault;
+    $("#subsubpanel").html("");
+    var vistaSubpanelAltaUsuario = new VistaSubpanelAltaUsuario();
+  },
+  mostrarSubpanelModificacionUsuario: function(e) {
+    e.preventDefault;
+    $("#subsubpanel").html("");
+    var vistaSubpanelModificacionUsuario = new VistaSubpanelModificacionUsuario();
+  }
+});
+
 var VistaDivsContainer = Backbone.View.extend({
   el: ('#container'),
   template: _.template($('#divsContainer').html()),
@@ -1147,7 +1487,34 @@ var VistaDivsContainer = Backbone.View.extend({
     this.$el.append(this.template());
     return this;
   }
-})
+});
+
+var VistaProductoAComprar = Backbone.View.extend({
+  el: $('#productos'),
+  template: _.template($("#listaDeLaCompra").html()),
+  initialize: function() {
+    this.render();
+  },
+  render: function() {
+    this.$el.append(this.template(this.model.toJSON));
+    return this;
+  }
+});
+
+var VistaListaDeLaCompra = Backbone.View.extend({
+  initialize: function() {
+    console.log(this.collection.models);
+    this.render();
+  },
+  render: function() {
+    this.collection.models.forEach(this.addUnProductoAComprar, this);
+    return this;
+  },
+  addUnProductoAComprar: function(data) {
+    console.log(data.attributes);
+    var vistaProductoAComprar = new VistaProductoAComprar({model: data.attributes});
+  }
+});
 
 // ROUTER
 
@@ -1170,7 +1537,8 @@ var Router = Backbone.Router.extend({
     "errorRegistro"         : "infoErrorRegistro",
     "perfil"                : "accesoAlPerfil",
     "infoRegPerfilOk"       : "infoRegPerfilOk",
-    "infoRegPerfilError"    : "infoRegPerfilError"
+    "infoRegPerfilError"    : "infoRegPerfilError",
+    "carrito"               : "carritoDeLaCompra"
    },
   initialize: function() {
     console.log('aplicando router');
@@ -1185,15 +1553,14 @@ var Router = Backbone.Router.extend({
       $('#titular').html('<h1>' + '¡ Bienvenido ! estos son algunos productos de nuestro catálogo' + '</h1>');
       seleccionarProductosDeInicio();
     }
+    busquedaProductos();
   },
   mostrarProductosCategoria: function(categoria) {
-    console.log('página de la categoria ' + categoria);
     $('#titular').html('<h1>' + 'libros de ' + categoria + '</h1>'); // cambiamos el titular de la página (pte poner la descripción de la BD)
     actualizarCategorias(); // redibujamos el menú de las categorías
     mostrarProductosCategoria(categoria); // mostramos los productos de la categoria
   },
   mostrarProducto: function(id) {
-    console.log('página del producto: ' + id);
     $('#titular').html('<h1>detalle de producto</h1>'); // cambiamos el titular
     actualizarCategorias(); // redibujamos el menú de las categorías
     mostrarDetalleDeProducto(id); // mostramos el detalle de producto
@@ -1297,10 +1664,144 @@ var Router = Backbone.Router.extend({
     actualizarCategorias();
     mostrarInfoRegistroPerfil();
     $('#infoPerfil').html('perfil no actualizado, la contraseña no coincide');
+  },
+  carritoDeLaCompra: function() {
+    $('#titular').html('<h1>' + 'carrito de la compra' + '</h1>');
+    actualizarCategorias();
+    mostrarProductosParaComprar();
   }
 });
 
 // FUNCIONES
+
+// función que muestra la vista con los productos listos para comprar
+
+function mostrarProductosParaComprar() {
+  // recogemos los productos seleccionados y los integramos en una colección, que pasamos a una vista
+  if (sessionStorage.getItem('productosCompra')) {
+    $("#productos").html('');
+    var stringProductosSeleccionados = sessionStorage.getItem('productosCompra');
+    var arrayProductosSeleccionados = stringProductosSeleccionados.split(',');
+    var listaDeProductosAComprar = new ListaDeProductos();
+    /*_.each(arrayProductosSeleccionados, function(element) {
+      var productoAComprar = new Producto();
+      productoAComprar.fetch({
+        data: $.param({ identificador: element })
+      });
+      listaDeProductosAComprar.push(productoAComprar);
+    });*/
+    arrayProductosSeleccionados.forEach(function(value, index, array) {
+      var productoAComprar = new Producto();
+      productoAComprar.fetch({
+        data: $.param({ identificador: value })
+      });
+      listaDeProductosAComprar.add(productoAComprar);
+    console.log(listaDeProductosAComprar);
+    var vistaListaDeLaCompra = new VistaListaDeLaCompra({ collection: listaDeProductosAComprar });
+    });
+  } else {
+    $("#productos").html("<p class='centrado'>No hay productos en el carro de la compra</p>");
+  }
+}
+
+// función que muestra la información de los productos pasando el ratón por encima
+
+function infoProducto() {
+  $('.item').hover(
+    function() {
+      var isbnABuscar = $(".item").data("isbn");
+      if (isbnABuscar !== '') {
+          $('#infoPortada').show();
+          }
+          $.ajax({
+              type: "GET",
+              url: "/plazamar-spa-bb/api.php/producto",
+              data: "isbn=" + $(this).data("isbn"),
+              timeout: 3000,
+              success: function(response){
+                var json = JSON.parse(response);
+                var html = '<p>titulo: ' + json.titulo + ', autor: ' +
+                  json.autor + ', editorial: ' + json.editorial +
+                  ', precio: ' + json.precio + '€ </p>'
+                $("#infoPortada").html(html);
+              },
+              error: function() {
+                  $("#infoPortada").html("<p>parece que no hay conexión a la base de datos</p>");
+                }
+        });
+    },
+    function() {
+      $('#infoPortada').hide();
+    }
+  );
+  $('.item').click(function() {
+    $('#infoPortada').hide();
+  });
+}
+
+// funcionalidad de la barra de busqueda
+
+function busquedaProductos() {
+
+  $("#buscador-input").blur(function(){
+    $('#resultados-busqueda').hide();
+  });
+
+  function search() {
+    var busqueda = $("#buscador-input").val();
+
+    if(busqueda !== '') {
+      $.ajax({
+        type: "GET",
+        url: "/plazamar-spa-bb/api.php/productos",
+        data: "buscar=" + busqueda,
+        timeout: 3000,
+        beforeSend: function() {
+          $('#iconoCarga').show();
+        },
+        success: function(response){
+          $('#iconoCarga').hide();
+          console.log(response);
+          $("#resultados-busqueda").html(response);
+        },
+        error: function() {
+          $('#iconoCarga').hide();
+          $("#resultados-busqueda").html("<p>parece que no hay conexión con la base de datos</p>");
+        }
+      });
+    }
+  }
+
+  $("#buscador-input").on("keyup", function(e) {
+    // Set Timeout
+    clearTimeout($.data(this, 'timer'));
+
+    // Set Search String
+    var search_string = $(this).val();
+
+    // Do Search
+    if (search_string !== '') {
+      $('#resultados-busqueda').show();
+        $(this).data('timer', setTimeout(search, 500));
+    } else {
+      $('#resultados-busqueda').hide();
+    }
+  });
+
+}
+
+// función que anima los productos mostrados en pantalla
+
+function animarProductos() {
+  $(".item").hover(
+    function() {
+      $(this).addClass("tossing");
+    },
+    function() {
+      $(this).removeClass("tossing");
+    }
+  );
+}
 
 // función que configura el panel de administración de productos y categorías para el admin
 
@@ -1479,9 +1980,6 @@ function mostrarDetalleDeProducto(id) {
 
   producto.fetch({
     data: $.param({ identificador: id }), // incluimos una query string en la url con el id del producto seleccionado
-    success: function(){
-      console.log('acceso a la BD: recuperando producto de la BD');
-    },
     error: function(){
       console.log('error: producto no recuperado');
     }
@@ -1525,6 +2023,8 @@ function mostrarProductosCategoria(categoria) {
     }
   }).then(function(response) {
     var vistaListaDeProductos = new VistaListaDeProductos({collection: response});
+    animarProductos();
+    infoProducto();
   })
 
 }
@@ -1543,11 +2043,7 @@ function actualizarCategorias() {
   // recogemos las categorias de la BD e instanciamos la vista con la colección recuperada
 
   listaDeCategorias.fetch({
-    success: function(){
-      console.log('acceso a la BD: recuperando categorías');
-    },
     error: function(model, response){
-      console.log(response);
       console.log('error: categorias no importadas');
     }
   }).then(function(response) {
@@ -1577,14 +2073,13 @@ function seleccionarProductosDeInicio() {
   // sincronizamos con la BD y mostramos la vista
 
   seleccionProductosPaginaInicio.fetch({
-    wait: true,
-    success: function(){
-      console.log('acceso a la BD: recuperando selección de productos');
-    },
     error: function(){
       console.log('error: productos no recuperados');
     }
   }).then(function(response) {
     var vistaListaDeProductos = new VistaListaDeProductos({collection: response});
+    animarProductos();
+    infoProducto();
   })
+
 }

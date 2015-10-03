@@ -41,7 +41,7 @@ $app->get('/productosInicio', function () {
   while(count($ids) < 12) {
     for ($i = 0; $i < 12; $i++) {
       do {
-        $cursor = $collection->find()->skip(mt_rand(0, $collection->count()))->getNext();
+        $cursor = $collection->find()->skip(mt_rand(0, $collection->count()-1))->getNext();
         $obj_producto = json_encode($cursor);
         $array_producto = json_decode($obj_producto, true);
         $id_producto = $array_producto['id'];
@@ -71,6 +71,7 @@ $app->get('/productos', function () use ($app) {
   $ordenar = $req->get('ordenar');
   $total = $req->get('total');
   $ultimoProductoEnBD = $req->get('ultimoProductoEnBD');
+  $buscar = $req->get('buscar');
 
   // recoger los productos y enviarlos de vuelta a BAckbone
 
@@ -85,6 +86,7 @@ $app->get('/productos', function () use ($app) {
     } else if ($ultimoProductoEnBD) {
       $cursor = $collection->find()->sort(array('id' => -1))->limit(1);
     }
+
     $datos = [];
     foreach ($cursor as $producto) {
       array_push($datos, $producto);
@@ -95,6 +97,22 @@ $app->get('/productos', function () use ($app) {
   if ($total) {
     $totalProductosEnBD = $collection->count();
     echo json_encode($totalProductosEnBD);
+  }
+
+  if ($buscar) {
+    $collection->ensureIndex(
+      array(
+        'titulo' => 'text',
+        'autor' => 'text'
+      )
+    );
+    $result = $collection->find(array('$text' => array('$search' => $buscar)),
+      array('titulo' => 1, 'autor' => 1, 'editorial' => 1))->limit(12);
+    $datos = [];
+    foreach ($result as $producto) {
+      array_push($datos, $producto);
+    }
+    echo json_encode($result);
   }
 
 });
@@ -120,6 +138,52 @@ $app->delete('/productos', function () use ($app) {
 
 });
 
+$app->get('/usuarios', function () use ($app) {
+
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->usuarios;
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+
+  $tipo = $req->get('tipo');
+  $ordenar = $req->get('ordenar');
+  $total = $req->get('total');
+  $ultimoUsuarioEnBD = $req->get('ultimoUsuarioEnBD');
+
+  // recoger los productos y enviarlos de vuelta a BAckbone
+  if ($tipo || $ordenar || $ultimoUsuarioEnBD) {
+
+    if ($tipo && $ordenar === 'si') {
+      $cursor = $collection->find(array('type' => $tipo))->sort(array("usuario" => 1));
+    } else if ($tipo && !$ordenar) {
+      $cursor = $collection->find(array('type' => $tipo));
+    } else if ($ultimoUsuarioEnBD) {
+      $cursor = $collection->find()->sort(array('id' => -1))->limit(1);
+    }
+
+    $datos = [];
+    foreach ($cursor as $usuario) {
+      array_push($datos, $usuario);
+    }
+    echo json_encode($datos);
+
+  }
+
+
+  if ($total) {
+    $totalUsuariosEnBD = $collection->count();
+    echo json_encode($totalUsuariosEnBD);
+  }
+
+});
+
+
+
 
 $app->get('/producto', function () use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -133,24 +197,34 @@ $app->get('/producto', function () use ($app) {
   $req = $app->request();
   $id = $req->get('identificador');
   $titulo = $req->get('titulo');
+  $isbn = $req->get('isbn');
 
   // recoger los productos y enviarlos de vuelta a BAckbone
 
-  if ($id) {
-    $cursor = $collection->find(array('id' => $id));
-  } else if ($titulo) {
-    $cursor = $collection->find(array('titulo' => $titulo));
-  }
+  if ($id || $titulo) {
+    if ($id) {
+      $cursor = $collection->find(array('id' => $id));
+    } else if ($titulo) {
+      $cursor = $collection->find(array('titulo' => $titulo));
+    }
 
-  $datos = [];
-  foreach ($cursor as $producto) {
-    array_push($datos, $producto);
-  }
+    $datos = [];
+    foreach ($cursor as $producto) {
+      array_push($datos, $producto);
+    }
 
-  if (count($datos) > 0) {
+    if (count($datos) > 0) {
+      echo json_encode($datos[0]);
+    } else {
+      echo json_encode('false');
+    }
+  } else if ($isbn) {
+    $cursor = $collection->find(array('isbn' => $isbn));
+    $datos = [];
+    foreach ($cursor as $producto) {
+      array_push($datos, $producto);
+    }
     echo json_encode($datos[0]);
-  } else {
-    echo json_encode('false');
   }
 
 });
@@ -256,7 +330,9 @@ $app->get('/usuario', function () use ($app) {
   // recoger la query string de la url pasada por backbone
 
   $req = $app->request();
+
   $usuario = $req->get('usuario');
+  $identificador = $req->get('identificador');
 
   // conectar con la BD y seleccionar la colección
 
@@ -266,16 +342,27 @@ $app->get('/usuario', function () use ($app) {
 
   // Buscamos el usuario en la BD y lo enviamos de vuelta a BAckbone o retornamos false
 
-  $cursor = $collection->find(array('usuario' => $usuario));
-  $datos = [];
-  foreach ($cursor as $producto) {
-    array_push($datos, $producto);
-  }
-  if (count($datos) === 0) {
-    $info = "false";
-    echo json_encode($info);
+  if ($req !== '') {
+    if ($usuario) {
+      $cursor = $collection->find(array('usuario' => $usuario));
+    } else if ($identificador) {
+      $cursor = $collection->find(array('id' => $identificador));
+    }
+
+    $datos = [];
+    foreach ($cursor as $usuario) {
+      array_push($datos, $usuario);
+    }
+
+    if (count($datos) === 0) {
+      $info = "false";
+      echo json_encode($info);
+    } else {
+      echo json_encode($datos[0]);
+    }
+
   } else {
-    echo json_encode($datos[0]);
+    echo json_encode('false');
   }
 
 });
@@ -291,15 +378,25 @@ $app->post('/usuario', function() use ($app) {
   // recuperar los datos enviados por backbone
 
   $request = $app->request()->getBody();
-  $datos = json_decode($request);
+  $datos = json_decode($request, true);
+
+  $datosAGrabar = [
+    'id' => $datos['id'],
+    'usuario' => $datos['usuario'],
+    'password' => $datos['password'],
+    'email' => $datos['email'],
+    'type' => $datos['type']
+  ];
 
   // grabar los datos en mongodb
 
-  $collection->save($datos);
+  $collection->save($datosAGrabar);
 
-  echo json_encode($datos);
+  echo json_encode($datosAGrabar);
 
 });
+
+
 
 
 $app->put('/usuario', function() use ($app) {
@@ -315,21 +412,42 @@ $app->put('/usuario', function() use ($app) {
   $datos = json_decode($request, true);
 
   $nuevosDatos = [
+    'id' => $datos['id'],
     'usuario' => $datos['usuario'],
-    'password' => $datos['password'],
     'email' => $datos['email'],
     'type' => $datos['type']
   ];
 
   // establecemos la clave de búsqueda en la BD
 
-  $claveBusqueda = [ 'usuario' => $datos['usuario'] ];
+  $claveBusqueda = [ 'id' => $datos['id'] ];
 
   // grabar los datos en mongodb
 
   $collection->update($claveBusqueda, $nuevosDatos);
 
   echo json_encode($datos);
+
+});
+
+$app->delete('/usuario', function () use ($app) {
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $id = $req->get('identificador');
+
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->usuarios;
+
+  // Buscamos el categoria en la BD y lo enviamos de vuelta a BAckbone o retornamos false
+
+  $cursor = $collection->remove(array('id' => $id));
+
+  echo json_encode('usuario borrado');
 
 });
 
@@ -357,20 +475,27 @@ $app->post('/perfil', function() use ($app) {
 
 $app->get('/perfil', function () use ($app) {
 
-  // recoger la query string de la url pasada por backbone
-
-  $req = $app->request();
-  $usuario = $req->get('usuario');
-
   // conectar con la BD y seleccionar la colección
 
   $mongo = new MongoClient();
   $database = $mongo->plazamar;
   $collection = $database->perfiles;
 
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+
+  $usuario = $req->get('usuario');
+  $identificador = $req->get('identificador');
+
   // Buscamos el perfil en la BD y lo enviamos de vuelta a BAckbone o retornamos false
 
-  $cursor = $collection->find(array('usuario' => $usuario));
+  if ($usuario) {
+    $cursor = $collection->find(array('usuario' => $usuario));
+  } else if ($identificador) {
+    $cursor = $collection->find(array('id' => $identificador));
+  }
+
   $datos = [];
   foreach ($cursor as $producto) {
     array_push($datos, $producto);
@@ -399,6 +524,7 @@ $app->put('/perfil', function() use ($app) {
   $datos = json_decode($request, true);
 
   $nuevosDatos = [
+    'id' => $datos['id'],
     'usuario' => $datos['usuario'],
     'nombre' => $datos['nombre'],
     'apellidos' => $datos['apellidos'],
@@ -410,7 +536,7 @@ $app->put('/perfil', function() use ($app) {
 
   // establecemos la clave de búsqueda en la BD
 
-  $claveBusqueda = [ 'usuario' => $datos['usuario'] ];
+  $claveBusqueda = [ 'id' => $datos['id'] ];
 
   // grabar los datos en mongodb
 
@@ -419,6 +545,32 @@ $app->put('/perfil', function() use ($app) {
   echo json_encode($datos);
 
 });
+
+
+$app->delete('/perfil', function () use ($app) {
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $id = $req->get('identificador');
+
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->perfiles;
+
+  // Buscamos el categoria en la BD y lo enviamos de vuelta a BAckbone o retornamos false
+
+  $cursor = $collection->remove(array('id' => $id));
+
+  echo json_encode('perfil borrado');
+
+});
+
+
+
+
 
 $app->get('/categoria', function () use ($app) {
 

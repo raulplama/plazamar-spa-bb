@@ -33,35 +33,9 @@
 	to {transform: rotate(360deg);}
 }
 
-/* perspective and animation of it*/
-
-.perspective1 {
-	-webkit-transform: perspective( 800px ) rotateX( -25deg );
-	-ms-transform: perspective( 800px ) rotateX( -25deg );
-	-moz-transform: perspective( 800px ) rotateX( -25deg );
-}
-
-.perspective2 {
-	-webkit-transform: perspective( 800px ) rotateX( 25deg );
-	-ms-transform: perspective( 800px ) rotateX( 25deg );
-	-moz-transform: perspective( 800px ) rotateX( 25deg );
-}
-
-.perspective1:hover {
-	-webkit-transform: perspective( 0px ) rotateX( 0deg );
-	-ms-transform: perspective( 0px ) rotateX( 0deg );
-	-moz-transform: perspective( 0px ) rotateX( 0deg );
-}
-
-.perspective2:hover {
-	-webkit-transform: perspective( 0px ) rotateX( 0deg );
-	-ms-transform: perspective( 0px ) rotateX( 0deg );
-	-moz-transform: perspective( 0px ) rotateX( 0deg );
-}
-
 /* animación de las portadas */
 
-.tossing{
+.tossing {
 	animation-name: tossing;
 	-webkit-animation-name: tossing;
 
@@ -99,12 +73,4 @@
 .no_efectos {
 	animation-name: none;
 	-webkit-animation-name: none;
-}
-
-
-
-/* animación de rotulos */
-
-.resaltar {
-	text-shadow: 0px 0px 5px white;
 }
