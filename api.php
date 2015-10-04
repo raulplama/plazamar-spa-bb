@@ -152,19 +152,19 @@ $app->get('/usuarios', function () use ($app) {
 
   $tipo = $req->get('tipo');
   $ordenar = $req->get('ordenar');
-  $total = $req->get('total');
-  $ultimoUsuarioEnBD = $req->get('ultimoUsuarioEnBD');
+  //$total = $req->get('total');
+  //$ultimoUsuarioEnBD = $req->get('ultimoUsuarioEnBD');
 
   // recoger los productos y enviarlos de vuelta a BAckbone
-  if ($tipo || $ordenar || $ultimoUsuarioEnBD) {
 
+  //if ($tipo || $ordenar || $ultimoUsuarioEnBD) {
     if ($tipo && $ordenar === 'si') {
       $cursor = $collection->find(array('type' => $tipo))->sort(array("usuario" => 1));
     } else if ($tipo && !$ordenar) {
       $cursor = $collection->find(array('type' => $tipo));
-    } else if ($ultimoUsuarioEnBD) {
+    } /*else if ($ultimoUsuarioEnBD) {
       $cursor = $collection->find()->sort(array('id' => -1))->limit(1);
-    }
+    }*/
 
     $datos = [];
     foreach ($cursor as $usuario) {
@@ -172,13 +172,13 @@ $app->get('/usuarios', function () use ($app) {
     }
     echo json_encode($datos);
 
-  }
+  //}
 
-
+  /*
   if ($total) {
     $totalUsuariosEnBD = $collection->count();
     echo json_encode($totalUsuariosEnBD);
-  }
+  }*/
 
 });
 
@@ -342,7 +342,7 @@ $app->get('/usuario', function () use ($app) {
 
   // Buscamos el usuario en la BD y lo enviamos de vuelta a BAckbone o retornamos false
 
-  if ($req !== '') {
+
     if ($usuario) {
       $cursor = $collection->find(array('usuario' => $usuario));
     } else if ($identificador) {
@@ -354,6 +354,7 @@ $app->get('/usuario', function () use ($app) {
       array_push($datos, $usuario);
     }
 
+
     if (count($datos) === 0) {
       $info = "false";
       echo json_encode($info);
@@ -361,9 +362,8 @@ $app->get('/usuario', function () use ($app) {
       echo json_encode($datos[0]);
     }
 
-  } else {
     echo json_encode('false');
-  }
+
 
 });
 
@@ -380,8 +380,16 @@ $app->post('/usuario', function() use ($app) {
   $request = $app->request()->getBody();
   $datos = json_decode($request, true);
 
+  // buscamos el último id de la colección y le añadimos uno
+  $cursor = $collection->find()->sort(array("id" => -1))->limit(1);
+  foreach ($cursor as $doc) {
+    $ultimoUsuario = json_encode($doc);
+    $ultimoUsuario = json_decode($ultimoUsuario, true);
+    $idUltimoUsuario = $ultimoUsuario['id'];
+  }
+
   $datosAGrabar = [
-    'id' => $datos['id'],
+    'id' => $idUltimoUsuario + 1,
     'usuario' => $datos['usuario'],
     'password' => $datos['password'],
     'email' => $datos['email'],
@@ -462,13 +470,32 @@ $app->post('/perfil', function() use ($app) {
   // recuperar los datos enviados por backbone
 
   $request = $app->request()->getBody();
-  $datos = json_decode($request);
+  $datos = json_decode($request, true);
+
+  // buscamos el último id de la colección y le añadimos uno
+  $cursor = $collection->find()->sort(array("id" => -1))->limit(1);
+  foreach ($cursor as $doc) {
+    $ultimoUsuario = json_encode($doc);
+    $ultimoUsuario = json_decode($ultimoUsuario, true);
+    $idUltimoUsuario = $ultimoUsuario['id'];
+  }
+
+  $nuevosDatos = [
+    'id' => $idUltimoUsuario + 1,
+    'usuario' => $datos['usuario'],
+    'email' => $datos['email'],
+    'nombre' => $datos['nombre'],
+    'apellidos' => $datos['apellidos'],
+    'direccion' => $datos['direccion'],
+    'localidad' => $datos['localidad'],
+    'provincia' => $datos['provincia']
+  ];
 
   // grabar los datos en mongodb
 
-  $collection->save($datos);
+  $collection->save($nuevosDatos);
 
-  echo json_encode($datos);
+  echo json_encode($nuevosDatos);
 
 });
 

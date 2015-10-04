@@ -428,21 +428,19 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
         nuevoUsuario.save({}, {
           success : function(model, response) {
             console.log('ok');
-            console.log(response);
+            // crear un perfil vacío para el nuevo usuario y grabarlo en la BD
+            var perfilNuevoUsuario = new Perfil({
+              usuario: nuevoNombreUsuario,
+              email: nuevoEmail
+            });
+            perfilNuevoUsuario.save();
+            // redirigir a la página de info registro ok
+            window.location.href = '#okRegistroUsuario';
           },
           error : function(model, response) {
             console.log('error');
-            console.log(response);
           }
         })
-        // crear un perfil vacío para el nuevo usuario y grabarlo en la BD
-        var perfilNuevoUsuario = new Perfil({
-          usuario: nuevoNombreUsuario,
-          email: nuevoEmail
-        });
-        perfilNuevoUsuario.save();
-        // redirigir a la página de info registro ok
-        window.location.href = '#okRegistroUsuario';
       } else {
         // tenemos un usuario con ese nommbre
         console.log('ya existe un usuario con ese nickname');
@@ -1155,13 +1153,13 @@ var VistaSubpanelAltaUsuario = Backbone.View.extend({
   template: _.template($('#subPanelAltaUsuario').html()),
   initialize: function() {
     this.render();
-    this.infoTotalUsuariosEnBD();
-    this.infoUltimoIDUsuarioenBD();
+    //this.infoTotalUsuariosEnBD();
+    //this.infoUltimoIDUsuarioenBD();
   },
   render: function() {
     this.$el.append(this.template());
     return this;
-  },
+  },/*
   infoTotalUsuariosEnBD : function() {
     var usuariosTotales = new ListaDeUsuarios();
     usuariosTotales.fetch({
@@ -1186,7 +1184,7 @@ var VistaSubpanelAltaUsuario = Backbone.View.extend({
         console.log(response);
       }
     });
-  },
+  },*/
   events: {
     'click #altaUsuario' : 'altaUsuarioEnBD'
   },
@@ -1195,16 +1193,14 @@ var VistaSubpanelAltaUsuario = Backbone.View.extend({
     // limpiamos la zona de info
     $("#mensajeUsuario").html('');
     // recogemos los datos introducidos
-    var idUsuario = $("#id").val();
     var nickusuario = $("#usuario").val();
     var contra = $("#password").val();
     var mail = $("#email").val();
     var tipo = $("#tipo").val();
     // validamos los datos y los pasamos a la BD
-    if (idUsuario !== '' && nickusuario !== '' && contra !== '' && mail !== '' && tipo !== '') {
+    if (nickusuario !== '' && contra !== '' && mail !== '' && tipo !== '') {
       // crear modelo producto
       var nuevoUsuario = new Usuario({
-        id: idUsuario,
         usuario: nickusuario,
         password: contra,
         email: mail,
@@ -1212,7 +1208,7 @@ var VistaSubpanelAltaUsuario = Backbone.View.extend({
       });
       // comprobar si existe en la BD
       nuevoUsuario.fetch({
-        data: $.param({ identificador: idUsuario })
+        data: $.param({ usuario: nickusuario })
       }).then(function(response) {
         if (response === 'false') {
             // no existe el usuario, procedemos a grabar los datos en la BD
@@ -1220,10 +1216,8 @@ var VistaSubpanelAltaUsuario = Backbone.View.extend({
               success: function(model, response) {
                 // informamos al admin
                 $('#mensajeUsuario').html('creado nuevo usuario en la BD: ' + nickusuario);
-                $('#info').html("");
                 // crear un perfil vacío para el nuevo usuario y grabarlo en la BD
                 var perfilNuevoUsuario = new Perfil({
-                  id: idUsuario,
                   usuario: nickusuario,
                   email: mail
                 });
