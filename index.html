@@ -80,7 +80,7 @@
     </script>
     <!-- Plantilla con los productos de la página de inicio -->
     <script type="text/template" id="listado_productos">
-      <li><a href="#catalogo/<%= id %>"><img class='item' id="<%= isbn %>" src="<%= imagen %>" alt="<%= titulo %>" width="110" height="110" data-isbn="<%= isbn %>"/></a></li>
+      <li><a href="#catalogo/<%= _id.$id %>"><img class='item' id="<%= isbn %>" src="<%= imagen %>" alt="<%= titulo %>" width="110" height="110" data-isbn="<%= isbn %>"/></a></li>
     </script>
     <!-- Plantilla de detalle de producto -->
     <script type="text/template" id="detalle_de_producto">
@@ -403,10 +403,9 @@
     </script>
     <!--Plantilla con el subpanel de alta de producto para el administrador -->
     <script type='text/template' id='subPanelAltaProducto'>
-      <form class="pure-form">
+      <form class="pure-form" method='POST' action='api.php/producto' enctype='multipart/form-data'>
         <div class='pure-u-3-8'>
           <fieldset class="pure-group">
-            <input id='id' type="text" class="pure-input-1 black" placeholder="id">
             <input id='titulo' type="text" class="pure-input-1 black" placeholder="título">
             <input id='autor' type="text" class="pure-input-1 black" placeholder="autor">
             <input id='editorial' type="text" class="pure-input-1 black" placeholder="editorial">
@@ -426,9 +425,9 @@
               <option>true</option>
             </select>
             <input id='descuento' type="text" class="pure-input-1 black" placeholder="descuento: porcentaje">
-            <input id='file' type='file' class="pure-input-1" accept=".png">
+            <input id='file' name='file' type='file' formenctype='multipart/form-data' class="pure-input-1" accept=".png">
           </fieldset>
-          <button id="altaProducto" class="button-large pure-button pure-button-primary">dar de alta el producto</button>
+          <input type='submit' id="altaProducto" class="button-large pure-button pure-button-primary" value='dar de alta el producto'>
         </div>
         <div id='mensajeProducto'>
         </div>
@@ -461,7 +460,7 @@
             <fieldset>
 
                 <label for="id">id</label>
-                <input id='id' type="text" class="pure-input-2-3 black" placeholder="id" value='<%= id %>' disabled>
+                <input id='id' type="text" class="pure-input-2-3 black" placeholder="id" value='<%= _id.$id %>' disabled>
 
                 <label for="titulo">titulo</label>
                 <input id='titulo' type="text" class="pure-input-2-3 black" placeholder="título" value='<%= titulo %>'>
@@ -602,7 +601,7 @@
     </script>
     <!-- Plantilla de la lista de la compra -->
     <script type="text/template" id="listaDeLaCompra">
-      <li><a href="#catalogo/<%= id %>"><img class='item' id="<%= isbn %>" src="<%= imagen %>" alt="<%= titulo %>" width="110" height="110" data-isbn="<%= isbn %>"/></a></li>
+      <li><a href="#catalogo/<%= _id.$id %>"><img class='item' id="<%= isbn %>" src="<%= imagen %>" alt="<%= titulo %>" width="110" height="110" data-isbn="<%= isbn %>"/></a></li>
     </script>
 
 

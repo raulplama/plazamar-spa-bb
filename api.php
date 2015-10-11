@@ -38,17 +38,15 @@ $app->get('/productosInicio', function () {
 
   // seleccionar aleatoriamente 12 productos del total existente en la BD
 
-  while(count($ids) < 12) {
-    for ($i = 0; $i < 12; $i++) {
-      do {
-        $cursor = $collection->find()->skip(mt_rand(0, $collection->count()-1))->getNext();
-        $obj_producto = json_encode($cursor);
-        $array_producto = json_decode($obj_producto, true);
-        $id_producto = $array_producto['id'];
-      } while (in_array($id_producto, $ids));
-      array_push($datos, $cursor);
-      array_push($ids, $id_producto);
-    }
+  for ($i = 0; $i < 12; $i++) {
+    do {
+      $cursor = $collection->find()->skip(mt_rand(0, $collection->count()-1))->getNext();
+      $obj_producto = json_encode($cursor);
+      $array_producto = json_decode($obj_producto, true);
+      $id_producto = $array_producto['_id'];
+    } while (in_array($id_producto, $ids));
+    array_push($datos, $cursor);
+    array_push($ids, $id_producto);
   }
 
   echo json_encode($datos);
@@ -70,8 +68,8 @@ $app->get('/productos', function () use ($app) {
   $descuento = $req->get('tieneDescuento');
   $ordenar = $req->get('ordenar');
   $total = $req->get('total');
-  $ultimoProductoEnBD = $req->get('ultimoProductoEnBD');
-  $buscar = $req->get('buscar');
+  //$ultimoProductoEnBD = $req->get('ultimoProductoEnBD');
+  //$buscar = $req->get('buscar');
 
   // recoger los productos y enviarlos de vuelta a BAckbone
 
@@ -83,9 +81,9 @@ $app->get('/productos', function () use ($app) {
       $cursor = $collection->find(array('categoria' => $categoria));
     } else if ($descuento) {
       $cursor = $collection->find(array('tieneDescuento' => 'true'));
-    } else if ($ultimoProductoEnBD) {
+    } /*else if ($ultimoProductoEnBD) {
       $cursor = $collection->find()->sort(array('id' => -1))->limit(1);
-    }
+    }*/
 
     $datos = [];
     foreach ($cursor as $producto) {
@@ -93,12 +91,12 @@ $app->get('/productos', function () use ($app) {
     }
     echo json_encode($datos);
   }
-
+  /*
   if ($total) {
     $totalProductosEnBD = $collection->count();
     echo json_encode($totalProductosEnBD);
-  }
-
+  }*/
+  /*
   if ($buscar) {
     $collection->ensureIndex(
       array(
@@ -113,7 +111,7 @@ $app->get('/productos', function () use ($app) {
       array_push($datos, $producto);
     }
     echo json_encode($result);
-  }
+  }*/
 
 });
 
@@ -152,33 +150,22 @@ $app->get('/usuarios', function () use ($app) {
 
   $tipo = $req->get('tipo');
   $ordenar = $req->get('ordenar');
-  //$total = $req->get('total');
-  //$ultimoUsuarioEnBD = $req->get('ultimoUsuarioEnBD');
 
   // recoger los productos y enviarlos de vuelta a BAckbone
 
-  //if ($tipo || $ordenar || $ultimoUsuarioEnBD) {
-    if ($tipo && $ordenar === 'si') {
-      $cursor = $collection->find(array('type' => $tipo))->sort(array("usuario" => 1));
-    } else if ($tipo && !$ordenar) {
-      $cursor = $collection->find(array('type' => $tipo));
-    } /*else if ($ultimoUsuarioEnBD) {
-      $cursor = $collection->find()->sort(array('id' => -1))->limit(1);
-    }*/
-
-    $datos = [];
-    foreach ($cursor as $usuario) {
-      array_push($datos, $usuario);
-    }
-    echo json_encode($datos);
-
-  //}
-
-  /*
-  if ($total) {
-    $totalUsuariosEnBD = $collection->count();
-    echo json_encode($totalUsuariosEnBD);
+  if ($tipo && $ordenar === 'si') {
+    $cursor = $collection->find(array('type' => $tipo))->sort(array("usuario" => 1));
+  } else if ($tipo && !$ordenar) {
+    $cursor = $collection->find(array('type' => $tipo));
+  } /*else if ($ultimoUsuarioEnBD) {
+    $cursor = $collection->find()->sort(array('id' => -1))->limit(1);
   }*/
+
+  $datos = [];
+  foreach ($cursor as $usuario) {
+    array_push($datos, $usuario);
+  }
+  echo json_encode($datos);
 
 });
 
@@ -201,30 +188,23 @@ $app->get('/producto', function () use ($app) {
 
   // recoger los productos y enviarlos de vuelta a BAckbone
 
-  if ($id || $titulo) {
-    if ($id) {
-      $cursor = $collection->find(array('id' => $id));
-    } else if ($titulo) {
-      $cursor = $collection->find(array('titulo' => $titulo));
-    }
-
-    $datos = [];
-    foreach ($cursor as $producto) {
-      array_push($datos, $producto);
-    }
-
-    if (count($datos) > 0) {
-      echo json_encode($datos[0]);
-    } else {
-      echo json_encode('false');
-    }
-  } else if ($isbn) {
+  if ($id) {
+    $cursor = $collection->find(array('_id' => new MongoID($id))); // utilizamos el id de mongo
+  } else if ($titulo) {
+    $cursor = $collection->find(array('titulo' => $titulo));
+  }  else if ($isbn) {
     $cursor = $collection->find(array('isbn' => $isbn));
-    $datos = [];
-    foreach ($cursor as $producto) {
-      array_push($datos, $producto);
-    }
+  }
+
+  $datos = [];
+  foreach ($cursor as $producto) {
+    array_push($datos, $producto);
+  }
+
+  if (count($datos) > 0) {
     echo json_encode($datos[0]);
+  } else {
+    echo json_encode('false');
   }
 
 });
@@ -239,11 +219,10 @@ $app->post('/producto', function() use ($app) {
 
   // recuperar los datos enviados por backbone
 
-  $request = $app->request()->getBody();
-  $body = json_decode($request, true);
+  $req = $app->request()->getBody();
+  $body = json_decode($req, true);
 
   $datos = [
-    'id' => $body['id'],
     'titulo' => $body['titulo'],
     'autor' => $body['autor'],
     'editorial' => $body['editorial'],
@@ -252,14 +231,20 @@ $app->post('/producto', function() use ($app) {
     'categoria' => $body['categoria'],
     'tieneDescuento' => $body['tieneDescuento'],
     'descuento' => $body['descuento'],
-    'imagen' => $body['imagen']
+    'imagen' => 'img/'.$body['imagen']
   ];
 
   // grabar los datos en mongodb
 
   $collection->save($datos);
 
-  echo json_encode($datos);
+  // grabar la imagen en el directorio destino
+
+  move_uploaded_file($body['archivo'], '/img/'.$body['imagen']);
+
+  // devolvemos un json
+
+  echo json_encode($body['archivo']);
 
 });
 
@@ -276,7 +261,6 @@ $app->put('/producto', function() use ($app) {
   $datos = json_decode($request, true);
 
   $nuevosDatos = [
-    'id' => $datos['id'],
     'titulo' => $datos['titulo'],
     'autor' => $datos['autor'],
     'editorial' => $datos['editorial'],
@@ -290,7 +274,7 @@ $app->put('/producto', function() use ($app) {
 
   // establecemos la clave de búsqueda en la BD
 
-  $claveBusqueda = [ 'id' => $datos['id'] ];
+  $claveBusqueda = [ '_id' => new MongoID($datos['id']) ];
 
   // grabar los datos en mongodb
 
@@ -315,9 +299,9 @@ $app->delete('/producto', function () use ($app) {
   $database = $mongo->plazamar;
   $collection = $database->productos;
 
-  // Buscamos el categoria en la BD y lo enviamos de vuelta a BAckbone o retornamos false
+  // Borramos el producto
 
-  $cursor = $collection->remove(array('id' => $id));
+  $cursor = $collection->remove(array('_id' => new MongoID($id)));
 
   echo json_encode('producto borrado');
 
@@ -343,27 +327,23 @@ $app->get('/usuario', function () use ($app) {
   // Buscamos el usuario en la BD y lo enviamos de vuelta a BAckbone o retornamos false
 
 
-    if ($usuario) {
-      $cursor = $collection->find(array('usuario' => $usuario));
-    } else if ($identificador) {
-      $cursor = $collection->find(array('id' => $identificador));
-    }
+  if ($usuario) {
+    $cursor = $collection->find(array('usuario' => $usuario));
+  } else if ($identificador) {
+    $cursor = $collection->find(array('id' => $identificador));
+  }
 
-    $datos = [];
-    foreach ($cursor as $usuario) {
-      array_push($datos, $usuario);
-    }
+  $datos = [];
+  foreach ($cursor as $usuario) {
+    array_push($datos, $usuario);
+  }
 
-
-    if (count($datos) === 0) {
-      $info = "false";
-      echo json_encode($info);
-    } else {
-      echo json_encode($datos[0]);
-    }
-
-    echo json_encode('false');
-
+  if (count($datos) === 0) {
+    $info = "false";
+    echo json_encode($info);
+  } else {
+    echo json_encode($datos[0]);
+  }
 
 });
 
@@ -702,6 +682,8 @@ $app->delete('/categoria', function () use ($app) {
   echo json_encode('categoria borrada');
 
 });
+
+
 
 // Run app
 

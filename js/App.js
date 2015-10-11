@@ -89,7 +89,7 @@ var Perfil = Backbone.Model.extend({
     localidad: '',
     provincia: ''
   },
-  idAttribute: "_id",
+  idAttribute: "_id"
 })
 
 // COLECCIONES
@@ -181,18 +181,14 @@ var VistaDetalleDeProducto = Backbone.View.extend({
     this.render();
   },
   render: function() {
-     this.$el.append(this.template(this.model));
+    this.$el.append(this.template(this.model));
     return this;
   },
   comprarProducto: function(e) {
-    e.preventDefault;
-    console.log('producto añadido a la lista de la compra');
-    var productosEnLaListaDeLaCompra = sessionStorage.getItem('productosCompra');
-    if (productosEnLaListaDeLaCompra !== null) {
-      sessionStorage.setItem('productosCompra', productosEnLaListaDeLaCompra + ',' + this.model.id);
-    } else {
-      sessionStorage.setItem('productosCompra', this.model.id);
-    }
+    e.preventDefault();
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // pte de implementar
+    ////////////////////////////////////////////////////////////////////////////////////////////////
   }
 });
 
@@ -633,7 +629,7 @@ var VistaSubpanelCategorias = Backbone.View.extend({
     'click #botonBorrarCategoria' : 'borrarCategoriaEnBD',
   },
   altaCategoriaEnBD: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // limpiamos la zona de info
     $("#mensajeCategorias").html('');
     // recogemos los datos introducidos
@@ -803,8 +799,6 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
     this.render();
     this.completarDesplegableCategorias();
     $('#info').html("");
-    this.infoTotalProductosEnBD();
-    this.infoUltimoIDenBD();
   },
   render: function() {
     this.$el.append(this.template());
@@ -825,40 +819,15 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
       }
     });
   },
-  infoTotalProductosEnBD : function() {
-    var productosTotales = new ListaDeProductos();
-    productosTotales.fetch({
-      data: $.param({ total: 'totalProductos' }),
-      success: function(model, response) {
-        $('#info').append("<span>número total de artículos en la BD: " + response + "</span></br>");
-      },
-      error: function(model, response) {
-        console.log(response);
-      }
-    })
-  },
-  infoUltimoIDenBD: function() {
-    var ultimoProducto = new ListaDeProductos();
-    ultimoProducto.fetch({
-      data: $.param({ ultimoProductoEnBD: 'ultimoProductoEnBD' }),
-      success: function(model, response) {
-        $('#info').append("<span>ID del último producto: " + response[0].id + "</span>");
-      },
-      error: function(model, response) {
-        console.log(response);
-      }
-    });
-  },
   events: {
-    'click #altaProducto' : 'altaProductoEnBD',
+    'submit' : 'altaProductoEnBD',
   },
   altaProductoEnBD: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // limpiamos la zona de info
     $("#mensajeProducto").html('');
     $("#info").html('');
     // recogemos los datos introducidos
-    var idProducto = $("#id").val();
     var tituloProducto = $("#titulo").val();
     var autorProducto = $("#autor").val();
     var editorialProducto = $("#editorial").val();
@@ -868,17 +837,17 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
     var tieneDescuentoProducto = $("#tieneDescuento").val();
     var descuentoProducto = $("#descuento").val();
     if ($('#file')[0].files[0]) {
-      var archivoImagenProducto = $('#file')[0].files[0].name;
+      var archivoImagenProducto = $('#file')[0].files[0];
+      var nombreArchivoImagenProducto = $('#file')[0].files[0].name;
     } else {
       $('#mensajeProducto').html('error: selecciona un archivo de imagen para el producto');
     }
     // validamos los datos y los pasamos a la BD
-    if (idProducto !== '' && tituloProducto !== '' && autorProducto !== '' && editorialProducto !== '' &&
+    if (tituloProducto !== '' && autorProducto !== '' && editorialProducto !== '' &&
       precioProducto !== '' && isbnProducto !== '' && categoriaProducto !== '' && tieneDescuentoProducto !== '' &&
-      descuentoProducto !== '' && archivoImagenProducto !== '') {
+      descuentoProducto !== '' && nombreArchivoImagenProducto !== '') {
       // crear modelo producto
       var nuevoProducto = new Producto({
-        id: idProducto,
         titulo: tituloProducto,
         autor: autorProducto,
         editorial: editorialProducto,
@@ -887,22 +856,27 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
         categoria: categoriaProducto,
         tieneDescuento: tieneDescuentoProducto,
         descuento: descuentoProducto,
-        imagen: archivoImagenProducto
+        imagen: nombreArchivoImagenProducto,
+        archivo: archivoImagenProducto
       });
+      console.log(archivoImagenProducto);
       // comprobar si existe en la BD
       nuevoProducto.fetch({
-        data: $.param({ identificador: idProducto }),
+        data: $.param({ isbn: isbnProducto }),
         success: function(model, response) {
           if (response === 'false') {
             // no existe el producto (id), procedemos a grabar los datos en la BD
             nuevoProducto.save({},{
               success: function(model, response) {
                 // informamos al admin
-                $('#mensajeProducto').html('creado nuevo producto en la BD: ' + tituloProducto + ' con id: ' + idProducto);
+                $('#mensajeProducto').html('creado nuevo producto en la BD: ' + tituloProducto);
+                console.log(response);
+                console.log(model);
               },
-              error: function() {
+              error: function(model, response) {
                 // informamos
-                $('#mensajeProducto').html('no ha podido crearse o ya exite el producto (id) en la BD');
+                $('#mensajeProducto').html('no ha podido crearse el producto en la BD');
+                console.log(model);
               }
             });
           } else {
@@ -952,7 +926,7 @@ var VistaDetalleDeProductoAdministrador = Backbone.View.extend({
     'click #borrarProducto' : 'borrarProductoEnBD'
   },
   modificarProductoEnBD: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // recogemos los datos del producto
     var id = $("#id").val();
     var titulo = $("#titulo").val();
@@ -1013,7 +987,7 @@ var VistaDetalleDeProductoAdministrador = Backbone.View.extend({
     }
   },
   borrarProductoEnBD: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // recogemos el producto
     var id = $("#id").val();
     // limpiamos todo los subsubpaneles
@@ -1039,6 +1013,9 @@ var VistaDetalleDeProductoAdministrador = Backbone.View.extend({
             console.log(response);
           }
         })
+      },
+      error: function(model, response) {
+        console.log(response);
       }
     });
   }
@@ -1075,7 +1052,7 @@ var VistaSubpanelModificacionProducto = Backbone.View.extend({
     'click .prod' : 'seleccionarProducto'
   },
   buscarProductosCategoria: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // limpiamos todo los subsubpaneles
     $("#subpanelProductos").html('');
     $("#mensajeProducto").html('');
@@ -1103,7 +1080,7 @@ var VistaSubpanelModificacionProducto = Backbone.View.extend({
     });
   },
   seleccionarProducto: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // obtener el titulo del elemento pulsado
     var titulo = e.target.innerHTML;
     // limpiamos todo los subsubpaneles
@@ -1137,12 +1114,12 @@ var VistaSubpanelProductos = Backbone.View.extend({
         'click #botonBorrarProducto' : 'mostrarSubpanelModificacionProducto'
   },
   mostrarSubpanelAltaProducto: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     $("#subsubpanel").html("");
     var vistaSubpanelAltaProducto = new VistaSubpanelAltaProducto();
   },
   mostrarSubpanelModificacionProducto: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     $("#subsubpanel").html("");
     var vistaSubpanelModificacionProducto = new VistaSubpanelModificacionProducto();
   }
@@ -1189,7 +1166,7 @@ var VistaSubpanelAltaUsuario = Backbone.View.extend({
     'click #altaUsuario' : 'altaUsuarioEnBD'
   },
   altaUsuarioEnBD: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // limpiamos la zona de info
     $("#mensajeUsuario").html('');
     // recogemos los datos introducidos
@@ -1257,7 +1234,7 @@ var VistaDetalleDeUsuarioAdministrador = Backbone.View.extend({
     'click #borrarUsuario' : 'borrarUsuarioEnBD'
   },
   modificarUsuarioEnBD: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // recogemos los datos del usuario
     var id = $("#id").val();
     var nickusuario = $("#usuario").val();
@@ -1335,7 +1312,7 @@ var VistaDetalleDeUsuarioAdministrador = Backbone.View.extend({
     }
   },
   borrarUsuarioEnBD: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // recogemos el producto
     var id = $("#id").val();
     // limpiamos todo los subsubpaneles
@@ -1398,7 +1375,7 @@ var VistaSubpanelModificacionUsuario = Backbone.View.extend({
     'click .user' : 'seleccionarUsuario'
   },
   buscarUsuariosPorTipo: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // limpiamos todo los subsubpaneles
     $("#subpanelUsuarios").html('');
     $("#mensajeUsuario").html('');
@@ -1426,7 +1403,7 @@ var VistaSubpanelModificacionUsuario = Backbone.View.extend({
     });
   },
   seleccionarUsuario: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     // obtener el titulo del elemento pulsado
     var usuario = e.target.innerHTML;
     // limpiamos todo los subsubpaneles
@@ -1460,12 +1437,12 @@ var VistaSubpanelUsuarios = Backbone.View.extend({
     'click #botonBorrarUsuario' : 'mostrarSubpanelModificacionUsuario'
   },
   mostrarSubpanelAltaUsuario: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     $("#subsubpanel").html("");
     var vistaSubpanelAltaUsuario = new VistaSubpanelAltaUsuario();
   },
   mostrarSubpanelModificacionUsuario: function(e) {
-    e.preventDefault;
+    e.preventDefault();
     $("#subsubpanel").html("");
     var vistaSubpanelModificacionUsuario = new VistaSubpanelModificacionUsuario();
   }
@@ -1671,31 +1648,9 @@ var Router = Backbone.Router.extend({
 // función que muestra la vista con los productos listos para comprar
 
 function mostrarProductosParaComprar() {
-  // recogemos los productos seleccionados y los integramos en una colección, que pasamos a una vista
-  if (sessionStorage.getItem('productosCompra')) {
-    $("#productos").html('');
-    var stringProductosSeleccionados = sessionStorage.getItem('productosCompra');
-    var arrayProductosSeleccionados = stringProductosSeleccionados.split(',');
-    var listaDeProductosAComprar = new ListaDeProductos();
-    /*_.each(arrayProductosSeleccionados, function(element) {
-      var productoAComprar = new Producto();
-      productoAComprar.fetch({
-        data: $.param({ identificador: element })
-      });
-      listaDeProductosAComprar.push(productoAComprar);
-    });*/
-    arrayProductosSeleccionados.forEach(function(value, index, array) {
-      var productoAComprar = new Producto();
-      productoAComprar.fetch({
-        data: $.param({ identificador: value })
-      });
-      listaDeProductosAComprar.add(productoAComprar);
-    console.log(listaDeProductosAComprar);
-    var vistaListaDeLaCompra = new VistaListaDeLaCompra({ collection: listaDeProductosAComprar });
-    });
-  } else {
-    $("#productos").html("<p class='centrado'>No hay productos en el carro de la compra</p>");
-  }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
+  //pte de implementar
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 // función que muestra la información de los productos pasando el ratón por encima
@@ -2075,5 +2030,4 @@ function seleccionarProductosDeInicio() {
     animarProductos();
     infoProducto();
   })
-
 }
