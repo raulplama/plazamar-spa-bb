@@ -92,6 +92,15 @@ var Perfil = Backbone.Model.extend({
   idAttribute: "_id"
 })
 
+var Sesion = Backbone.Model.extend({
+  url: '/plazamar-spa-bb/api.php/sesion',
+  defaults: {
+    usuario: null,
+    tipo: 'usuario',
+  },
+  idAttribute: '_id'
+})
+
 // COLECCIONES
 
 var ListaDeCategorias = Backbone.Collection.extend({
@@ -319,37 +328,45 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
 
     usuarioAcceso.fetch({
       data: $.param({ usuario: usuario }), // incluimos una query string en la url con el identificador introducido en el formulario
-      success: function(){
+      success: function(model, response){
         console.log('acceso a la BD: recuperando usuario');
+        if (response.valueOf() === 'false') {
+          // no existe el usuario
+          console.log('el usuario no existe');
+          window.location.href = '#errorEnAcceso';
+        } else {
+          // tenemos un usuario, comprobamos las contraseñas
+          var contrasenya = response.password;
+          if (password.valueOf() === contrasenya.valueOf()) {
+            // obtenemos el tipo de usuario de que se trata
+            var tipoUsuario = response.type;
+            // abrimos una sesión para este usuario
+            var sesionUsuario = new Sesion({
+              usuario: usuario,
+              tipo: tipoUsuario
+            });
+            sesionUsuario.save({},{
+              success: function(model, response) {
+                console.log('sesion creada');
+                window.location.href = '#accesoCorrecto';
+              },
+              error: function(model, response) {
+                console.log('error en la conexion');
+              }
+            })
+            // guardamos en la sessionStorage su nombre de usuario para futuras consultas
+            sessionStorage.setItem('usuario', usuario);
+          } else {
+            // no coinciden las contraseñas
+            console.log('las contraseñas no coinciden');
+            window.location.href = '#errorEnAcceso'
+          }
+        }
       },
       error: function(){
         console.log('error: usuario no recuperado');
       }
-    }).then(function(response) {
-      console.log(response);
-      if (response.valueOf() === 'false') {
-        // no existe el usuario
-        console.log('el usuario no existe');
-        window.location.href = '#errorEnAcceso';
-      } else {
-        // tenemos un usuario, comprobamos las contraseñas
-        var contrasenya = usuarioAcceso.get('password');
-        if (password.valueOf() === contrasenya.valueOf()) {
-          // grabamos en sesión el nombre de usuario
-          sessionStorage.setItem('usuario', usuario);
-          // comprobamos el tipo de usuario de que se trata
-          var tipoUsuario = usuarioAcceso.get('type');
-          if (tipoUsuario.valueOf() === 'admin') {
-            sessionStorage.setItem('tipoUsuario', 'admin');
-          }
-          window.location.href = '#accesoCorrecto';
-        } else {
-          // no coinciden las contraseñas
-          console.log('las contraseñas no coinciden');
-          window.location.href = '#errorEnAcceso'
-        }
-      }
-    })
+    });
   },
   formularioRegistro: function(e) {
     e.preventDefault();
@@ -859,7 +876,6 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
         imagen: nombreArchivoImagenProducto,
         archivo: archivoImagenProducto
       });
-      console.log(archivoImagenProducto);
       // comprobar si existe en la BD
       nuevoProducto.fetch({
         data: $.param({ isbn: isbnProducto }),
@@ -870,8 +886,28 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
               success: function(model, response) {
                 // informamos al admin
                 $('#mensajeProducto').html('creado nuevo producto en la BD: ' + tituloProducto);
-                console.log(response);
-                console.log(model);
+                console.log('producto creado');
+                // AHORA SUBIMOS EL ARCHIVO DE IMAGEN MEDIANTE PETICION AJAX:
+                // Create a new FormData object.
+                var formData = new FormData();
+                // añdimos el archivo al objeto formdata
+                formData.append('archivo', archivoImagenProducto, nombreArchivoImagenProducto);
+                // Set up the request.
+                var xhr = new XMLHttpRequest();
+                // Open the connection.
+                xhr.open('POST', 'api.php/archivoImagen', true);
+                 // Send the Data.
+                xhr.send(formData);
+                // Set up a handler for when the request finishes.
+                xhr.onload = function (evento) {
+                  if (xhr.status === 200) {
+                    // File uploaded.
+                    console.log('archivo subido');
+                    console.log(evento.currentTarget.response);
+                  } else {
+                    console.log('error en la subida del archivo');
+                  }
+                };
               },
               error: function(model, response) {
                 // informamos
@@ -1517,13 +1553,26 @@ var Router = Backbone.Router.extend({
   index: function() {
     console.log('página del index');
     actualizarCategorias();
-    if (sessionStorage.getItem('sesionActiva') === 'true') {
-      window.location.href = '#accesoCorrecto'; // redireccionamos a la página de inicio personalizada
-    } else {
-      $('#sesion').html('<a href="#formAcceso">acceder</a>'); // modificamos el enlace de 'logout' por 'acceder'
-      $('#titular').html('<h1>' + '¡ Bienvenido ! estos son algunos productos de nuestro catálogo' + '</h1>');
-      seleccionarProductosDeInicio();
-    }
+    // comprobamos si el usuario ha logeado o no
+    var usuarioSesion = sessionStorage.getItem('usuario');
+    var userSession = new Sesion({usuario: usuarioSesion});
+    userSession.fetch({
+      data: $.param({ comprobarSesionUsuario: usuarioSesion }),
+      success: function(model, response) {
+        if (response !== 'false') {
+          window.location.href = '#accesoCorrecto'; // redireccionamos a la página de inicio personalizada
+        } else {
+          $('#sesion').html('<a href="#formAcceso">acceder</a>'); // modificamos el enlace de 'logout' por 'acceder'
+          $('#titular').html('<h1>' + '¡ Bienvenido ! estos son algunos productos de nuestro catálogo' + '</h1>');
+          seleccionarProductosDeInicio();
+        }
+      },
+      error: function(model, response) {
+        console.log('error');
+        console.log(response);
+        console.log(model);
+      }
+    });
     busquedaProductos();
   },
   mostrarProductosCategoria: function(categoria) {
@@ -1580,28 +1629,47 @@ var Router = Backbone.Router.extend({
   },
   accesoCorrecto: function() {
     console.log('pagina de inicio de usuario registrado');
-    if (sessionStorage.getItem('tipoUsuario') === 'admin') {
-      $('#titular').html('<h1>' + 'panel de administración' + '</h1>');
-      mostrarTablaDeAdministracion();
-    } else {
-      $('#titular').html('<h1>' + 'hola cliente, los siguientes productos tienen descuento' + '</h1>'); // completar con el nombre de usuario
-      actualizarCategorias();
-      mostrarProductosConDescuento();
-    }
+    var usuario = sessionStorage.getItem('usuario');
+    // hacemos una consulta a la bd para saber si el usuario es admin o no
+    var sessionUser = new Sesion({ usuario: usuario });
+    sessionUser.fetch({
+      data: $.param({ comprobarSesionUsuario: usuario }),
+      success: function(model, response) {
+        console.log('usuario registrado');
+        console.log(response);
+        if (response[0].tipo === 'admin') {
+          $('#titular').html('<h1>' + 'panel de administración' + '</h1>');
+          mostrarTablaDeAdministracion();
+        } else {
+          $('#titular').html('<h1>' + 'hola cliente, los siguientes productos tienen descuento' + '</h1>'); // completar con el nombre de usuario
+          actualizarCategorias();
+          mostrarProductosConDescuento();
+        }
+      },
+      error: function(model, response) {
+        console.log('error');
+      }
+    })
     $('#sesion').html('<a href="#logout">cerrar sesión</a>'); // modificamos el enlace de 'acceso' por otro de 'cerrar sesión'
-    sessionStorage.setItem('sesionActiva', 'true'); // guardamos estos datos en la sessionstore del navegador
   },
   logout: function() {
     console.log('cerrando sesión');
-    if (sessionStorage.getItem('tipoUsuario') === 'admin') {
-      $("#container").html("");
-      sessionStorage.setItem('tipoUsuario' , 'false');
-      sessionStorage.setItem('sesionActiva', 'false');
-      var vistaDivsContainer = new VistaDivsContainer();
-    } else {
-      sessionStorage.setItem('sesionActiva', 'false'); // eliminamos el dato de sesión del sessionstore en el navegador
-      $('#contenido').html("<ul id='productos'></ul>"); // borramos el contenido mostrado (necesario si estamos en la vista 'detalle de producto')
-    }
+    var usuario = sessionStorage.getItem('usuario');
+    var sesionUsuario = new Sesion({ usuario: usuario });
+    // borramos la sesion del usuario de la bd
+    sesionUsuario.fetch({
+      data: $.param({ usuario: usuario }),
+      patch: true,
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
+      },
+      success: function(model, response) {
+        sessionStorage.setItem('usuario', '');
+        $("#container").html("");
+        var vistaDivsContainer = new VistaDivsContainer();
+        $('#contenido').html("<ul id='productos'></ul>"); // borramos el contenido mostrado (necesario si estamos en la vista 'detalle de producto')
+      }
+    })
     window.location.href = '#index'; // redireccionamos a la página de inicio sin sesión
   },
   infoNuevoUsuario: function() {
@@ -1773,38 +1841,48 @@ function mostrarPerfilDeUsuario() {
   $("#contenido").html(""); // limpiamos la pantalla
   $("#container").removeClass('containerNormal');
   $("#container").addClass('containerAmpliado');
+  // comprobamos si hay una sesion abierta para el usuario
+  var usuario =  sessionStorage.getItem('usuario');
+  var sesionUsuario = new Sesion({ usuario: usuario });
+  sesionUsuario.fetch({
+    data: $.param({ comprobarSesionUsuario: usuario }),
+    success: function(model, response) {
+      if (response !== 'false') {
+        // mostramos la plantilla
+        var vistaPerfilDeUsuario = new VistaPerfilDeUsuario();
 
-  if (sessionStorage.getItem('sesionActiva') === 'true') {
-    var vistaPerfilDeUsuario = new VistaPerfilDeUsuario(); // mostramos la plantilla
+        // rellenamos los campos con los datos de que disponemos en la BD
 
-    // rellenamos los campos con los datos de que disponemos en la BD
+        var nickname = sessionStorage.getItem('usuario');
 
-    var nickname = sessionStorage.getItem('usuario');
+        var user = new Usuario();
+        var perfilUsuario = new Perfil();
 
-    var user = new Usuario();
-    var perfilUsuario = new Perfil();
+        user.fetch({ data: $.param({ usuario: nickname}) }).then(function(response) {
+          var email = response.email;
+          $('#email').val(email);
+        });
 
-    user.fetch({ data: $.param({ usuario: nickname}) }).then(function(response) {
-      var email = response.email;
-      $('#email').val(email);
-    });
-
-    perfilUsuario.fetch({ data: $.param({ usuario: nickname}) }).then(function(response) {
-      var nombre = response.nombre;
-      var apellidos = response.apellidos;
-      var direccion = response.direccion;
-      var localidad = response.localidad;
-      var provincia = response.provincia;
-      $('#nombre').val(nombre);
-      $('#apellidos').val(apellidos);
-      $('#direccion').val(direccion);
-      $('#localidad').val(localidad);
-      $('#provincia').val(provincia);
-    });
-
-  } else {
-    window.location.href="#formRegistro"; // redireccionamos al formulario de registro
-  }
+        perfilUsuario.fetch({ data: $.param({ usuario: nickname}) }).then(function(response) {
+          var nombre = response.nombre;
+          var apellidos = response.apellidos;
+          var direccion = response.direccion;
+          var localidad = response.localidad;
+          var provincia = response.provincia;
+          $('#nombre').val(nombre);
+          $('#apellidos').val(apellidos);
+          $('#direccion').val(direccion);
+          $('#localidad').val(localidad);
+          $('#provincia').val(provincia);
+        });
+      } else {
+        window.location.href="#formRegistro"; // redireccionamos al formulario de registro
+      }
+    },
+    error: function(model, response) {
+      console.log('error');
+    }
+  });
 }
 
 // función que muestra el ok en el registro de un nuevo usuario
@@ -1934,18 +2012,31 @@ function mostrarDetalleDeProducto(id) {
     }
   }).then(function(response) {
     var vistaDetalleDeProducto = new VistaDetalleDeProducto({model: response});
-    if (sessionStorage.getItem('sesionActiva') === 'true') {
-      if (producto.get('tieneDescuento') === 'true') {
-        $('#precio').addClass('tachado'); // tachamos el precio sin descuento
-         // añadimos el nuevo precio
-        var nuevoPrecio = producto.get('precio') * ( (100 - producto.get('descuento')) / 100);
-        var nuevoHtml = '<br>' +
-                        '<h3 class="subtitulo_detalle" id="precioConDescuento">Precio con descuento: ' +
-                        nuevoPrecio +
-                        ' €</h3>';
-        $('#precio').after(nuevoHtml);
+    // comprobamos si hay una sesion abierta para el usuario
+    var usuario = sessionStorage.getItem('usuario');
+    var sesionUsuario = new Sesion({ usuario: usuario });
+    sesionUsuario.fetch({
+      data: $.param({ comprobarSesionUsuario: usuario }),
+      success: function(model, response) {
+        if (response !== 'false') {
+          if (producto.get('tieneDescuento') === 'true') {
+            $('#precio').addClass('tachado'); // tachamos el precio sin descuento
+             // añadimos el nuevo precio
+            var nuevoPrecio = producto.get('precio') * ( (100 - producto.get('descuento')) / 100);
+            var nuevoHtml = '<br>' +
+                            '<h3 class="subtitulo_detalle" id="precioConDescuento">Precio con descuento: ' +
+                            nuevoPrecio +
+                            ' €</h3>';
+            $('#precio').after(nuevoHtml);
+          }
+        } else {
+
+        }
+      },
+      error: function(model, response) {
+        console.log('error');
       }
-    }
+    });
   })
 }
 

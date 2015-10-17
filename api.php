@@ -1,5 +1,8 @@
 <?php
 
+// iniciamos una sesión
+session_start();
+
 require 'Slim/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
 
@@ -7,7 +10,6 @@ require 'Slim/Slim/Slim.php';
 // instanciar el framework Slim
 
 $app = new \Slim\Slim();;
-
 
 // definir las rutas
 
@@ -238,15 +240,31 @@ $app->post('/producto', function() use ($app) {
 
   $collection->save($datos);
 
-  // grabar la imagen en el directorio destino
-
-  move_uploaded_file($body['archivo'], '/img/'.$body['imagen']);
-
   // devolvemos un json
 
-  echo json_encode($body['archivo']);
+  echo json_encode($datos);
 
 });
+
+
+// PENDIENTE DE SOLUCIONAR CÓMO RECOGER EL ARCHIVO SUBIDO
+
+$app->post('/archivoImagen', function() use ($app) {
+
+  //$req = $app->request();
+  //$archivo = $req->get('archivo');
+
+  $request = $app->request()->getBody();
+  $datos = json_decode($request, true);
+
+  // guardamos el archivo subido
+  //move_uploaded_file($imagen, "img/archivo.png");
+
+  echo json_encode($datos);
+
+});
+
+//////////////////////////////////////////////////////////
 
 $app->put('/producto', function() use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -324,25 +342,26 @@ $app->get('/usuario', function () use ($app) {
   $database = $mongo->plazamar;
   $collection = $database->usuarios;
 
-  // Buscamos el usuario en la BD y lo enviamos de vuelta a BAckbone o retornamos false
 
 
-  if ($usuario) {
-    $cursor = $collection->find(array('usuario' => $usuario));
-  } else if ($identificador) {
-    $cursor = $collection->find(array('id' => $identificador));
-  }
+  if ($usuario || $identificador) {
+    if ($usuario) {
+      $cursor = $collection->find(array('usuario' => $usuario));
+    } else if ($identificador) {
+      $cursor = $collection->find(array('id' => $identificador));
+    }
 
-  $datos = [];
-  foreach ($cursor as $usuario) {
-    array_push($datos, $usuario);
-  }
+    $datos = [];
+    foreach ($cursor as $usuario) {
+      array_push($datos, $usuario);
+    }
 
-  if (count($datos) === 0) {
-    $info = "false";
-    echo json_encode($info);
-  } else {
-    echo json_encode($datos[0]);
+    if (count($datos) === 0) {
+      $info = "false";
+      echo json_encode($info);
+    } else {
+      echo json_encode($datos[0]);
+    }
   }
 
 });
@@ -684,6 +703,85 @@ $app->delete('/categoria', function () use ($app) {
 });
 
 
+$app->get('/sesion', function () use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->sesiones;
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $usuario = $req->get('comprobarSesionUsuario');
+
+  // Buscamos si hay una sesion abierta para este usuario en la BD
+
+  $cursor = $collection->find(array('usuario' => $usuario));
+
+  $datos = [];
+  foreach ($cursor as $usuario) {
+    array_push($datos, $usuario);
+  }
+  if (count($datos) === 0) {
+    echo json_encode('false');
+  } else {
+    echo json_encode($datos);
+  }
+
+});
+
+
+
+$app->post('/sesion', function () use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->sesiones;
+
+  // recuperar los datos enviados por backbone
+
+  $request = $app->request()->getBody();
+  $body = json_decode($request, true);
+
+  $datos = [
+    'usuario' => $body['usuario'],
+    'tipo' => $body['tipo']
+  ];
+
+  // grabar los datos en mongodb
+
+  $collection->save($datos);
+
+  // guardar los datos en las variables de sesion
+
+  $_SESSION['usuario'] = $datos['usuario'];
+  $_SESSION['tipo'] = $datos['tipo'];
+
+  echo json_encode($datos);
+});
+
+$app->delete('/sesion', function () use ($app) {
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $usuario = $req->get('usuario');
+
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->sesiones;
+
+  // Buscamos el categoria en la BD y lo enviamos de vuelta a BAckbone o retornamos false
+
+  $cursor = $collection->remove(array('usuario' => $usuario));
+
+  echo json_encode('sesion borrada');
+
+});
 
 // Run app
 

@@ -403,7 +403,7 @@
     </script>
     <!--Plantilla con el subpanel de alta de producto para el administrador -->
     <script type='text/template' id='subPanelAltaProducto'>
-      <form class="pure-form" method='POST' action='api.php/producto' enctype='multipart/form-data'>
+      <form class="pure-form" method="POST" action="api.php/producto" enctype="multipart/form-data">
         <div class='pure-u-3-8'>
           <fieldset class="pure-group">
             <input id='titulo' type="text" class="pure-input-1 black" placeholder="título">
@@ -425,7 +425,7 @@
               <option>true</option>
             </select>
             <input id='descuento' type="text" class="pure-input-1 black" placeholder="descuento: porcentaje">
-            <input id='file' name='file' type='file' formenctype='multipart/form-data' class="pure-input-1" accept=".png">
+            <input id='file' name="imagen" type="file" class="pure-input-1" accept=".png">
           </fieldset>
           <input type='submit' id="altaProducto" class="button-large pure-button pure-button-primary" value='dar de alta el producto'>
         </div>
