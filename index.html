@@ -13,8 +13,8 @@
     <link rel="stylesheet" type="text/css" href="css/vendor/normalize.css"/>
     <link rel="stylesheet" type="text/css" href="css/vendor/pure-min.css" media="screen"/>
     <!-- custom css-->
-    <link rel="stylesheet" type="text/css" href="css/cssTransforms.css"/>
     <link rel="stylesheet" type="text/css" href="css/styles.css"/>
+    <link rel="stylesheet" type="text/css" href="css/cssTransforms.css"/>
     <!-- js frameworks-->
     <script type="text/javascript" src="js/vendor/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="js/vendor/underscore-min.js"></script>
@@ -24,14 +24,14 @@
   <body>
     <!-- contenido común a todas las vistas -->
     <header class='pure-g'>
-      <section class="pure-u-1-3">
+      <section id='seccion-logo' class="pure-u-1">
         <div id="logo">
           <a href="" class="rotation"><img src="img/logo_tienda.png" alt="logo plazamar" width="100"></a>
           <h1 id="name">plazamar</h1>
           <p id="phrase">selected books</p>
         </div>
       </section>
-      <section class="pure-u-1-3">
+      <section id='seccion-buscador' class="pure-u-1">
         <h1 id="store-title">Catálogo de libros</h1>
         <form name="buscador" id="buscador" action="#" method="post">
           <input type="text" id="buscador-input" name="buscador" placeholder="buscar en el catálogo">
@@ -41,7 +41,7 @@
         </div>
         <div id="resultados-busqueda"></div>
       </section>
-      <section class="pure-u-1-3">
+      <section id='seccion-acceso' class="pure-u-1">
         <div id="icons">
           <ul>
             <li><a href="#"><img src="img/facebook.png" alt="link facebook" width="35" height="35" ></a></li>
@@ -50,6 +50,7 @@
             <li><a href="#"><img src="img/rss.png" alt="link rss" width="35" height="35" ></a></li>
           </ul>
         </div>
+        <nav id='icono-menu'><a href="#"><img src="img/menu.png" alt="menu" width="50" height="50" ></a></nav>
         <nav id="little-box" class="borde">
           <ul>
               <li id='sesion'><a href="#formAcceso">acceder</a></li>
@@ -64,15 +65,15 @@
       <h1>¡ Bienvenido ! estos son algunos productos de nuestro catálogo</h1>
     </div>
     <div class="pure-g containerNormal" id="container">
-      <div class='pure-u-1-4' id='menu_categorias'><ul class='centrado borde' id='categorias'></ul></div>
-      <div class='pure-u-1-2' id='contenido'><ul id='productos'></ul></div>
-      <div class='pure-u-1-4' id='carrito'></div>
-      <div class='pure-u-1-2 oculto' id='infoPortada'></div>
+      <div class='pure-u-1' id='menu_categorias'><ul class='centrado borde' id='categorias'></ul></div>
+      <div class='pure-u-1' id='contenido'><ul id='productos'></ul></div>
+      <div class='pure-u-1' id='carrito'></div>
+      <div class='pure-u-1 oculto' id='infoPortada'></div>
     </div>
-    <footer class="pure-g borde">
-      <section class="pure-u-1-3"><a href="#quienesSomos">quienes somos</a></section>
-      <section class="pure-u-1-3"><a href='#atencionAlCliente'>atención al cliente</a></section>
-      <section class="pure-u-1-3"><a href='#legal/1'>aspectos legales</a></section>
+    <footer id='footer' class="pure-g">
+      <section class="pure-u-1 ancho-1-3"><a href="#quienesSomos">quienes somos</a></section>
+      <section class="pure-u-1 ancho-1-3"><a href='#atencionAlCliente'>atención al cliente</a></section>
+      <section class="pure-u-1 ancho-1-3"><a href='#legal/1'>aspectos legales</a></section>
     </footer>
     <!-- Plantilla (template) del menú de categorías -->
     <script type="text/template" id="listado_categorias">
@@ -403,7 +404,7 @@
     </script>
     <!--Plantilla con el subpanel de alta de producto para el administrador -->
     <script type='text/template' id='subPanelAltaProducto'>
-      <form class="pure-form" method="POST" action="api.php/producto" enctype="multipart/form-data">
+      <form class="pure-form" method='POST' action='api.php/producto' enctype='multipart/form-data'>
         <div class='pure-u-3-8'>
           <fieldset class="pure-group">
             <input id='titulo' type="text" class="pure-input-1 black" placeholder="título">
@@ -425,7 +426,8 @@
               <option>true</option>
             </select>
             <input id='descuento' type="text" class="pure-input-1 black" placeholder="descuento: porcentaje">
-            <input id='file' name="imagen" type="file" class="pure-input-1" accept=".png">
+            <input type="hidden" name="MAX_FILE_SIZE" value="200000" />
+            <input id='file' name='file' type='file' formenctype='multipart/form-data' class="pure-input-1" accept=".png">
           </fieldset>
           <input type='submit' id="altaProducto" class="button-large pure-button pure-button-primary" value='dar de alta el producto'>
         </div>
