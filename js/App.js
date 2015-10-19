@@ -355,7 +355,7 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
               }
             })
             // guardamos en una cookie el nombre del usuario para futuras consultas
-            // maxima edad = por defecto la sesion (cierre del navegador)
+            // maxima edad de la cookie: por defecto la sesion (cierre del navegador)
             document.cookie = "usuario=" + usuario;
           } else {
             // no coinciden las contraseñas
