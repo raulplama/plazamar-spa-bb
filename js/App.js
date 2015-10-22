@@ -1804,7 +1804,7 @@ function busquedaProductos() {
     // Do Search
     if (search_string !== '') {
       $('#resultados-busqueda').show();
-        $(this).data('timer', setTimeout(search, 500));
+      $(this).data('timer', setTimeout(search, 500));
     } else {
       $('#resultados-busqueda').hide();
     }

@@ -70,12 +70,11 @@ $app->get('/productos', function () use ($app) {
   $descuento = $req->get('tieneDescuento');
   $ordenar = $req->get('ordenar');
   $total = $req->get('total');
-  //$ultimoProductoEnBD = $req->get('ultimoProductoEnBD');
-  //$buscar = $req->get('buscar');
+  $buscar = $req->get('buscar');
 
   // recoger los productos y enviarlos de vuelta a BAckbone
 
-  if ($categoria || $descuento || $ordenar || $ultimoProductoEnBD) {
+  if ($categoria || $descuento || $ordenar) {
 
     if ($categoria && $ordenar === 'si') {
       $cursor = $collection->find(array('categoria' => $categoria))->sort(array("titulo" => 1));
@@ -83,9 +82,7 @@ $app->get('/productos', function () use ($app) {
       $cursor = $collection->find(array('categoria' => $categoria));
     } else if ($descuento) {
       $cursor = $collection->find(array('tieneDescuento' => 'true'));
-    } /*else if ($ultimoProductoEnBD) {
-      $cursor = $collection->find()->sort(array('id' => -1))->limit(1);
-    }*/
+    }
 
     $datos = [];
     foreach ($cursor as $producto) {
@@ -93,27 +90,15 @@ $app->get('/productos', function () use ($app) {
     }
     echo json_encode($datos);
   }
-  /*
-  if ($total) {
-    $totalProductosEnBD = $collection->count();
-    echo json_encode($totalProductosEnBD);
-  }*/
-  /*
+
   if ($buscar) {
-    $collection->ensureIndex(
-      array(
-        'titulo' => 'text',
-        'autor' => 'text'
-      )
-    );
-    $result = $collection->find(array('$text' => array('$search' => $buscar)),
-      array('titulo' => 1, 'autor' => 1, 'editorial' => 1))->limit(12);
+    $result = $collection->find(array('titulo' => $buscar, 'autor' => $buscar, 'editorial' => $buscar), array('titulo'));
     $datos = [];
     foreach ($result as $producto) {
       array_push($datos, $producto);
     }
-    echo json_encode($result);
-  }*/
+    echo json_encode($datos);
+  }
 
 });
 
