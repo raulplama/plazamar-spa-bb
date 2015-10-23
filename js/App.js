@@ -90,16 +90,26 @@ var Perfil = Backbone.Model.extend({
     provincia: ''
   },
   idAttribute: "_id"
-})
+});
 
 var Sesion = Backbone.Model.extend({
   url: '/plazamar-spa-bb/api.php/sesion',
   defaults: {
-    usuario: null,
+    usuario: 'anonimo',
     tipo: 'usuario',
   },
   idAttribute: '_id'
-})
+});
+
+var CarroCompra = Backbone.Model.extend({
+  url: '/plazamar-spa-bb/api.php/carroCompra',
+  defaults: {
+    usuario: 'anonimo',
+    idAnonimo: '0',
+    producto: '0'
+  },
+  idAttribute: '_id'
+});
 
 // COLECCIONES
 
@@ -195,9 +205,93 @@ var VistaDetalleDeProducto = Backbone.View.extend({
   },
   comprarProducto: function(e) {
     e.preventDefault();
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // pte de implementar
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //obtenemos el id del producto
+    var idProducto = this.model.id;
+    // obtenemos el nombre de usuario de la sesión o null en su defecto (usuario sin registrar)
+    // abrimos un registro en la bd con un array de productos que vaya seleccionando
+    var usuario = docCookies.getItem('usuario'),
+        idAnonimo = docCookies.getItem('idAnonimo');
+    if (usuario !== null) {
+      var carritoUsuario = new CarroCompra();
+      carritoUsuario.set({
+        usuario: usuario,
+        idAnonimo: idAnonimo,
+        producto: idProducto
+      });
+      // vemos si ya hay un carrito para el usuario o es el primer registro (update o post)
+      carritoUsuario.fetch({
+        data: $.param({ usuario: usuario }),
+        success: function(model, response) {
+          if (response === 'false') {
+            // hacemos un post con el primer producto
+            carritoUsuario.save({},{
+              success: function(model, response) {
+                console.log('producto añadido');
+                // redireccionamos al listado del carro de la compra
+                window.location.href = '#carrito';
+              },
+              error: function(model, response) {
+                console.log('error en la conexion');
+              }
+            })
+          } else {
+            // hacemos un update con el nuevo producto
+            carritoUsuario.save({},{
+              patch: true,
+              beforeSend: function(xhr) {
+                xhr.setRequestHeader('X-HTTP-Method-Override', 'put');
+              },
+              success: function(model, response) {
+                console.log('otro producto añadido');
+                console.log(response);
+                // redireccionamos al listado del carro de la compra
+                window.location.href = '#carrito';
+              },
+              error: function(model, response) {
+                console.log('error en la conexion');
+              }
+            })
+          }
+        },
+        error: function(model, response) {
+          console.log('error en la conexión');
+        }
+      });
+    } else {
+      // asignamos un usuario genérico y lo registramos en una cookie
+      var sesionUsuarioAnonimo = new CarroCompra();
+      sesionUsuarioAnonimo.fetch({
+        data: $.param({ usuario: 'anonimo' }),
+        success: function(model, response) {
+          //console.log(response);
+          var numUsuarioAnonimo = parseInt(response) + 1;
+          //console.log(numUsuarioAnonimo);
+          docCookies.setItem('usuario', 'anonimo');
+          docCookies.setItem('idAnonimo', numUsuarioAnonimo);
+          // añadimos el producto a su carrito
+          // hacemos un post con el primer producto (si ya tiene uno, entonces entra por el if y hace un update)
+          var carritoAnonimo = new CarroCompra();
+          carritoAnonimo.set({
+            usuario: 'anonimo',
+            idAnonimo: numUsuarioAnonimo,
+            producto: idProducto
+          });
+          carritoAnonimo.save({},{
+            success: function(model, response) {
+              console.log('producto añadido');
+              // redireccionamos al listado del carro de la compra
+              window.location.href = '#carrito';
+            },
+            error: function(model, response) {
+              console.log('error en la conexion');
+            }
+          })
+        },
+        error: function(model, response) {
+          console.log('error en la conexion');
+        }
+      });
+    }
   }
 });
 
@@ -1639,7 +1733,7 @@ var Router = Backbone.Router.extend({
       data: $.param({ comprobarSesionUsuario: usuario }),
       success: function(model, response) {
         console.log('usuario registrado');
-        console.log(response);
+        //console.log(response);
         if (response[0].tipo === 'admin') {
           $('#titular').html('<h1>' + 'panel de administración' + '</h1>');
           mostrarTablaDeAdministracion();
@@ -1669,13 +1763,30 @@ var Router = Backbone.Router.extend({
         xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
       },
       success: function(model, response) {
-        sessionStorage.setItem('usuario', '');
         $("#container").html("");
         var vistaDivsContainer = new VistaDivsContainer();
         $('#contenido').html("<ul id='productos'></ul>"); // borramos el contenido mostrado (necesario si estamos en la vista 'detalle de producto')
       }
     })
-    window.location.href = '#index'; // redireccionamos a la página de inicio sin sesión
+    // borramos la lista de la compra del usuario en caso de que la hubiera iniciado
+    var carritoUsuario = new CarroCompra();
+    carritoUsuario.fetch({
+      data: $.param({ usuario: usuario }),
+      patch: true,
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
+      },
+      success: function(model, response) {
+        console.log('carrito de la compra borrado');
+      },
+      error: function(model, response) {
+        console.log('error en la conexión');
+      }
+    });
+    // borramos la cookie con el nombre del usuario
+    docCookies.removeItem('usuario');
+    // redireccionamos a la página de inicio sin sesión
+    window.location.href = '#index';
   },
   infoNuevoUsuario: function() {
     console.log('registro realizado correctamente');
@@ -1929,7 +2040,6 @@ function mostrarProductosConDescuento() {
   }).then(function(response) {
     var vistaListaDeProductos = new VistaListaDeProductos({collection: response});
   })
-  console.log(productosConDescuento);
 }
 
 // función que muestra el error de credenciales incorrectas para el acceso a la tienda
@@ -2127,6 +2237,8 @@ function seleccionarProductosDeInicio() {
     infoProducto();
   })
 }
+
+// framework para gestión de cookies
 
 /*\
 |*|

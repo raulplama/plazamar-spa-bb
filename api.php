@@ -739,11 +739,6 @@ $app->post('/sesion', function () use ($app) {
 
   $collection->save($datos);
 
-  // guardar los datos en las variables de sesion
-
-  $_SESSION['usuario'] = $datos['usuario'];
-  $_SESSION['tipo'] = $datos['tipo'];
-
   echo json_encode($datos);
 });
 
@@ -765,6 +760,179 @@ $app->delete('/sesion', function () use ($app) {
   $cursor = $collection->remove(array('usuario' => $usuario));
 
   echo json_encode('sesion borrada');
+
+});
+
+$app->get('/carroCompra', function () use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->carritosCompra;
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $usuario = $req->get('usuario');
+
+  if ($usuario === 'anonimo') {
+
+    // primero vemos si hay alguna sesión de usuario anónimo abierta
+    // las que haya las introducimos en un array
+
+    $cursor = $collection->find(array('usuario' => 'anonimo'));
+
+    $anonimos = [];
+    foreach ($cursor as $doc) {
+      $usuariosAnonimos = json_encode($doc);
+      $usuariosAnonimos = json_decode($usuariosAnonimos, true);
+      $idAnonimo = (int)$usuariosAnonimos['idAnonimo'];
+      array_push($anonimos, $idAnonimo);
+    }
+
+    // contamos el numero de usuarios anónimos con sesión
+
+    $numUsuariosAnonimosEnSesion = count($anonimos);
+
+    // devolvemos la cuenta
+    echo json_encode($numUsuariosAnonimosEnSesion);
+
+  } else {
+
+    // Buscamos si hay un carrito abierto para este usuario en la BD
+
+    $cursor = $collection->find(array('usuario' => $usuario));
+
+    $datos = [];
+    foreach ($cursor as $usuario) {
+      array_push($datos, $usuario);
+    }
+    if (count($datos) === 0) {
+      echo json_encode('false');
+    } else {
+      echo json_encode($datos);
+    }
+
+  }
+
+});
+
+$app->post('/carroCompra', function () use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->carritosCompra;
+
+  // recuperar los datos enviados por backbone
+
+  $request = $app->request()->getBody();
+  $body = json_decode($request, true);
+
+  $datos = [
+    'usuario' => $body['usuario'],
+    'idAnonimo' => (int)$body['idAnonimo'],
+    'idsProductos' => $body['producto']
+  ];
+
+  // grabar los datos en mongodb
+
+  $collection->save($datos);
+
+  echo json_encode($datos);
+});
+
+$app->put('/carroCompra', function() use ($app) {
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->carritosCompra;
+
+  // recuperar los datos enviados por backbone
+
+  $request = $app->request()->getBody();
+  $datos = json_decode($request, true);
+
+  // recupero los productos existentes en el carrito del usuario y le añado el actual
+
+  if ($datos['usuario'] === 'anonimo') {
+
+    //$cursor = $collection->find(array('usuario' => $datos['usuario']));
+    $carritoUsuario = $collection->findOne(array(
+        'usuario' => 'anonimo',
+        'idAnonimo' => (int)$datos['idAnonimo']
+        ));
+
+    $idsProductos = $carritoUsuario['idsProductos'];
+
+
+    $listaDeProductos = $idsProductos.','.$datos['producto'];
+
+    $nuevosDatos = [
+      'usuario' => $datos['usuario'],
+      'idAnonimo' => (int)$datos['idAnonimo'],
+      'idsProductos' => $listaDeProductos
+    ];
+
+    // establecemos la clave de búsqueda en la BD
+
+    $claveBusqueda = [ 'usuario' => 'anonimo', 'idAnonimo' => (int)$datos['idAnonimo'] ];
+
+    // grabar los datos en mongodb
+
+    $collection->update($claveBusqueda, $nuevosDatos);
+
+    echo json_encode($listaDeProductos);
+
+  } else {
+
+    $cursor = $collection->find(array('usuario' => $datos['usuario']));
+
+    foreach ($cursor as $doc) {
+      $productos = json_encode($doc);
+      $productos = json_decode($productos, true);
+      $idsProductos = $productos['idsProductos'];
+    }
+
+    $listaDeProductos = $idsProductos.','.$datos['producto'];
+
+    $nuevosDatos = [
+      'usuario' => $datos['usuario'],
+      'idsProductos' => $listaDeProductos
+    ];
+
+    // establecemos la clave de búsqueda en la BD
+
+    $claveBusqueda = [ 'usuario' => $datos['usuario'] ];
+
+    // grabar los datos en mongodb
+
+    $collection->update($claveBusqueda, $nuevosDatos);
+
+    echo json_encode($listaDeProductos);
+  }
+
+});
+
+$app->delete('/carroCompra', function () use ($app) {
+
+  // recoger la query string de la url pasada por backbone
+
+  $req = $app->request();
+  $usuario = $req->get('usuario');
+
+  // conectar con la BD y seleccionar la colección
+
+  $mongo = new MongoClient();
+  $database = $mongo->plazamar;
+  $collection = $database->carritosCompra;
+
+  // borramos el carro de la compra del usuario registrado
+
+  $cursor = $collection->remove(array('usuario' => $usuario));
+
+  echo json_encode('carrito borrado');
 
 });
 
