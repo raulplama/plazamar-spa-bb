@@ -169,18 +169,21 @@ $app->get('/producto', function () use ($app) {
   // recoger la query string de la url pasada por backbone
 
   $req = $app->request();
-  $id = $req->get('identificador');
+  $_id = $req->get('identificador');
   $titulo = $req->get('titulo');
   $isbn = $req->get('isbn');
+  $id = $req->get('idProducto');
 
   // recoger los productos y enviarlos de vuelta a BAckbone
 
-  if ($id) {
-    $cursor = $collection->find(array('_id' => new MongoID($id))); // utilizamos el id de mongo
+  if ($_id) {
+    $cursor = $collection->find(array('_id' => new MongoID($_id))); // utilizamos el id de mongo
   } else if ($titulo) {
     $cursor = $collection->find(array('titulo' => $titulo));
   }  else if ($isbn) {
     $cursor = $collection->find(array('isbn' => $isbn));
+  } else if ($id) {
+    $cursor = $collection->find(array('id' => $id));
   }
 
   $datos = [];
@@ -774,8 +777,10 @@ $app->get('/carroCompra', function () use ($app) {
 
   $req = $app->request();
   $usuario = $req->get('usuario');
+  $carritoUsuario = $req->get('carritoUsuario');
+  $idAnonimo = $req->get('idAnonimo');
 
-  if ($usuario === 'anonimo') {
+  if ($usuario && $usuario === 'anonimo') {
 
     // primero vemos si hay alguna sesión de usuario anónimo abierta
     // las que haya las introducimos en un array
@@ -794,10 +799,10 @@ $app->get('/carroCompra', function () use ($app) {
 
     $numUsuariosAnonimosEnSesion = count($anonimos);
 
-    // devolvemos la cuenta
+    // devolvemos la cuenta de usuarios anonimos
     echo json_encode($numUsuariosAnonimosEnSesion);
 
-  } else {
+  } else if ($usuario && $usuario !== 'anonimo') {
 
     // Buscamos si hay un carrito abierto para este usuario en la BD
 
@@ -812,6 +817,18 @@ $app->get('/carroCompra', function () use ($app) {
     } else {
       echo json_encode($datos);
     }
+
+  } else if ($carritoUsuario) {
+
+    if (!$idAnonimo) {
+      // recuperamos el carrito del usuario
+      $carrito = $collection->findOne(array('usuario' => $carritoUsuario));
+    } else {
+      $carrito = $collection->findOne(array('usuario' => $carritoUsuario, 'idAnonimo' => (int)$idAnonimo));
+    }
+
+    // devolvemos los datos del carrito
+    echo json_encode($carrito);
 
   }
 

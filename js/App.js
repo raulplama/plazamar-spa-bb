@@ -1592,29 +1592,13 @@ var VistaDivsContainer = Backbone.View.extend({
 });
 
 var VistaProductoAComprar = Backbone.View.extend({
-  el: $('#productos'),
   template: _.template($("#listaDeLaCompra").html()),
   initialize: function() {
     this.render();
   },
   render: function() {
-    this.$el.append(this.template(this.model.toJSON));
+    this.$el.append(this.template(this.model));
     return this;
-  }
-});
-
-var VistaListaDeLaCompra = Backbone.View.extend({
-  initialize: function() {
-    console.log(this.collection.models);
-    this.render();
-  },
-  render: function() {
-    this.collection.models.forEach(this.addUnProductoAComprar, this);
-    return this;
-  },
-  addUnProductoAComprar: function(data) {
-    console.log(data.attributes);
-    var vistaProductoAComprar = new VistaProductoAComprar({model: data.attributes});
   }
 });
 
@@ -1832,9 +1816,51 @@ var Router = Backbone.Router.extend({
 // función que muestra la vista con los productos listos para comprar
 
 function mostrarProductosParaComprar() {
-  //////////////////////////////////////////////////////////////////////////////////////////////////////
-  //pte de implementar
-  //////////////////////////////////////////////////////////////////////////////////////////////////////
+  $("#contenido").html("<ul id='productos'></ul>"); // limpiamos la pantalla
+  $("#container").removeClass('containerNormal');
+  $("#container").addClass('containerAmpliado');
+  // comprobamos si hay una carrito con productos
+  var usuario =  docCookies.getItem('usuario');
+  var idAnonimo = docCookies.getItem('idAnonimo');
+  if (usuario !== null) {
+    var carritoUsuario = new CarroCompra();
+    carritoUsuario.fetch({
+      data: $.param({ carritoUsuario: usuario, idAnonimo: idAnonimo }),
+      success: function(model, response) {
+        if (response === 'false') {
+          $("#contenido").html("El carro de la compra está vacío");
+        } else {
+          // console.log(response);
+          // obtenemos los productos seleccionados
+          listaDeProductosSeleccionados = response.idsProductos;
+          // pasamos los productos de string a array
+          arrayProductos = listaDeProductosSeleccionados.split(',');
+          // console.log(arrayProductos);
+          // por cada producto recogemos sus datos de la bd y los incorporamos a la colección
+          _.each(arrayProductos, function(element, index, list) {
+            var producto = new Producto();
+            producto.fetch({
+              data: $.param({ idProducto: element }),
+              success: function(model, response) {
+                //console.log('producto ' + element + ' añadido');
+                //console.log(response);
+                // instanciamos una vista de producto y le pasamos el modelo
+                var vistaProductoAComprar = new VistaProductoAComprar({el: $('#productos'), model: response});
+              },
+              error: function(model, response) {
+                console.log('error conexion');
+              }
+            });
+          });
+        }
+      },
+      error: function(model, response) {
+        console.log('error de conexion');
+      }
+    });
+  } else {
+    $("#contenido").html("El carro de la compra está vacío");
+  }
 }
 
 // función que muestra la información de los productos pasando el ratón por encima
