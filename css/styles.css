@@ -453,6 +453,11 @@ h1 {
     width: 50%;
   }
 
+  #botonGoogle {
+    width: 120px;
+    margin: auto;
+  }
+
   #carrito {
     width: 25%
   }

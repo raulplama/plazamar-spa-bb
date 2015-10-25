@@ -131,6 +131,10 @@ var Router = Backbone.Router.extend({
     console.log('cerrando sesión');
     // leemos el nombre del usuario de la cokkie almacenada
     var usuario = docCookies.getItem('usuario');
+    // si se ha logado con google salimos
+    if (docCookies.getItem('gtoken')) {
+      signOut();
+    }
     // creamos un modelo de sesión para ese usuario
     var sesionUsuario = new Sesion({ usuario: usuario });
     // borramos la sesion del usuario de la bd

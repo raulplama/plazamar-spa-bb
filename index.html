@@ -6,6 +6,10 @@
     <meta name="description" content="online book store">
     <meta name="author" content="Raúl Plaza Marcos">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!-- google sign in -->
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="474530029771-43fpuc6nsqnqv8ckulacomfbm6kt4von.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <!-- icon -->
     <link rel="shortcut icon" href="favicon.ico">
     <!-- css frameworks-->
@@ -212,7 +216,7 @@
     </script>
     <!-- Plantilla con el formulario de acceso -->
     <script type="text/template" id='formularioDeAcceso'>
-      <div class='cuadro_texto margenSuperior'>
+      <div>
         <form id='login' name='log-in' action='#acceso' method='POST'>
           <div class='centrado'>
             <label class='etiqueta' for='usuario'>usuario</label>
@@ -234,6 +238,11 @@
             <button type="button" class="button" id="registrar">registrarse</button>
           </div>
         </form>
+      </div>
+      <div class='centrado margenSuperior'>o accede con tu cuenta de google sin necesidad de registrarte
+        <div id='botonGoogle'>
+          <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+        </div>
       </div>
     </script>
     <!-- Plantilla con el formulario de registro (INCLUYE VALIDACIÓN HTML5)-->
@@ -619,11 +628,12 @@
     <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminAltaUsuario.js"></script>
     <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminDetalleProducto.js"></script>
     <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminDetalleUsuario.js"></script>
-    <script type="text/javascript" src="js/Vistas/vistaSubpanelModificacionProducto.js"></script>
-    <script type="text/javascript" src="js/Vistas/vistaSubpanelModificacionUsuario.js"></script>
+    <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminModificacionProducto.js"></script>
+    <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminModificacionUsuario.js"></script>
     <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminProductos.js"></script>
     <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminUsuarios.js"></script>
 
+    <script type="text/javascript" src="js/google.js"></script>
     <script type="text/javascript" src="js/vendor/frameworkCookies.js"></script>
     <script type="text/javascript" src="js/funcionesRooter.js"></script>
     <script type="text/javascript" src="js/Rooter.js"></script>
