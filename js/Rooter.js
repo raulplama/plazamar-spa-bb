@@ -134,6 +134,8 @@ var Router = Backbone.Router.extend({
     // si se ha logado con google salimos
     if (docCookies.getItem('gtoken')) {
       signOut();
+      // borramos la cookie con el token de google
+      docCookies.removeItem('gtoken');
     }
     // creamos un modelo de sesión para ese usuario
     var sesionUsuario = new Sesion({ usuario: usuario });

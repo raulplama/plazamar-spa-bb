@@ -1,5 +1,6 @@
 function onSignIn(googleUser) {
   window.location.href = '#accesoCorrecto'; // redireccionamos a la página de inicio personalizada
+
   // Useful data for your client-side scripts:
   var profile = googleUser.getBasicProfile();
   console.log("ID: " + profile.getId()); // Don't send this directly to your server!
