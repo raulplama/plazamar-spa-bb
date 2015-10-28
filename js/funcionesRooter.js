@@ -340,31 +340,48 @@ function mostrarDetalleDeProducto(id) {
     }
   }).then(function(response) {
     var vistaDetalleDeProducto = new VistaDetalleDeProducto({model: response});
-    // comprobamos si hay una sesion abierta para el usuario
+    // comprobamos si hay una sesion abierta para el usuario o si accede con su usuario de google
+    // en ambos casos accede a los productos con descuento
     var usuario = docCookies.getItem('usuario');
-    var sesionUsuario = new Sesion({ usuario: usuario });
-    sesionUsuario.fetch({
-      data: $.param({ comprobarSesionUsuario: usuario }),
-      success: function(model, response) {
-        if (response !== 'false') {
-          if (producto.get('tieneDescuento') === 'true') {
-            $('#precio').addClass('tachado'); // tachamos el precio sin descuento
-             // añadimos el nuevo precio
-            var nuevoPrecio = producto.get('precio') * ( (100 - producto.get('descuento')) / 100);
-            var nuevoHtml = '<br>' +
-                            '<h3 class="subtitulo_detalle" id="precioConDescuento">Precio con descuento: ' +
-                            nuevoPrecio +
-                            ' €</h3>';
-            $('#precio').after(nuevoHtml);
-          }
-        } else {
-
-        }
-      },
-      error: function(model, response) {
-        console.log('error');
+    var gtoken = docCookies.getItem('gtoken');
+    if (usuario && gtoken && usuario === gtoken) {
+      // es un usuario accediendo con google
+      if (producto.get('tieneDescuento') === 'true') {
+        $('#precio').addClass('tachado'); // tachamos el precio sin descuento
+         // añadimos el nuevo precio
+        var nuevoPrecio = producto.get('precio') * ( (100 - producto.get('descuento')) / 100);
+        var nuevoHtml = '<br>' +
+                        '<h3 class="subtitulo_detalle" id="precioConDescuento">Precio con descuento: ' +
+                        nuevoPrecio +
+                        ' €</h3>';
+        $('#precio').after(nuevoHtml);
       }
-    });
+    } else {
+      // no accede con google, comprobamos si está registrado en la tienda
+      var sesionUsuario = new Sesion({ usuario: usuario });
+      sesionUsuario.fetch({
+        data: $.param({ comprobarSesionUsuario: usuario }),
+        success: function(model, response) {
+          if (response !== 'false') {
+            if (producto.get('tieneDescuento') === 'true') {
+              $('#precio').addClass('tachado'); // tachamos el precio sin descuento
+               // añadimos el nuevo precio
+              var nuevoPrecio = producto.get('precio') * ( (100 - producto.get('descuento')) / 100);
+              var nuevoHtml = '<br>' +
+                              '<h3 class="subtitulo_detalle" id="precioConDescuento">Precio con descuento: ' +
+                              nuevoPrecio +
+                              ' €</h3>';
+              $('#precio').after(nuevoHtml);
+            }
+          } else {
+
+          }
+        },
+        error: function(model, response) {
+          console.log('error');
+        }
+      });
+    }
   })
 }
 
