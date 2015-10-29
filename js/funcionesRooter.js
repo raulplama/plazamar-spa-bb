@@ -182,17 +182,15 @@ function mostrarPerfilDeUsuario() {
 
         // rellenamos los campos con los datos de que disponemos en la BD
 
-        var nickname = sessionStorage.getItem('usuario');
-
         var user = new Usuario();
         var perfilUsuario = new Perfil();
 
-        user.fetch({ data: $.param({ usuario: nickname}) }).then(function(response) {
+        user.fetch({ data: $.param({ usuario: usuario}) }).then(function(response) {
           var email = response.email;
           $('#email').val(email);
         });
 
-        perfilUsuario.fetch({ data: $.param({ usuario: nickname}) }).then(function(response) {
+        perfilUsuario.fetch({ data: $.param({ usuario: usuario}) }).then(function(response) {
           var nombre = response.nombre;
           var apellidos = response.apellidos;
           var direccion = response.direccion;

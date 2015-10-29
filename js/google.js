@@ -12,6 +12,7 @@ function onSignIn(googleUser) {
   var id_token = googleUser.getAuthResponse().id_token;
   console.log("ID Token: " + id_token);
 
+  // creamos unas cookies para trabajar con 'sesiones',
   // asignamos el token de google como nombre de usuario
   docCookies.setItem('usuario', id_token);
   docCookies.setItem('gtoken', id_token);
