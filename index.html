@@ -283,6 +283,16 @@
     </script>
     <!-- Plantilla con el formulario de perfil de usuario (INCLUYE VALIDACIÓN HTML5)-->
     <script type="text/template" id='formularioPerfilUsuario'>
+      <div>obten tus datos directamente de tu perfil de google+</div>
+      <div id="gConnect" class="button">
+        <button class="g-signin"
+            data-scope="email"
+            data-clientid="474530029771-43fpuc6nsqnqv8ckulacomfbm6kt4von.apps.googleusercontent.com"
+            data-callback="onSignInCallback"
+            data-theme="dark"
+            data-cookiepolicy="single_host_origin">
+        </button>
+      </div>
       <div id='contenedorFormRegistro' class='cuadro_perfil margenSuperior'>
         <form id='formPerfilUsuario' name='formPerfilUsuario' action='#regPerfilUsuario' method='POST'>
           <div class='centrado'>
@@ -635,9 +645,9 @@
     <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminProductos.js"></script>
     <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminUsuarios.js"></script>
 
-    <!-- Google+ and login and +1 button -->
+    <!-- Google+ and glogin and g+1 button -->
     <script type="text/javascript" src="js/google.js"></script>
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://apis.google.com/js/client:platform.js" async defer></script>
 
     <script type="text/javascript" src="js/vendor/frameworkCookies.js"></script>
     <script type="text/javascript" src="js/funcionesRooter.js"></script>
