@@ -131,43 +131,48 @@ var Router = Backbone.Router.extend({
     console.log('cerrando sesión');
     // leemos el nombre del usuario de la cokkie almacenada
     var usuario = docCookies.getItem('usuario');
-    // si se ha logado con google salimos
+    // comprobamos si se ha logado con google o facebook para gestionar el logout
     if (docCookies.getItem('gtoken')) {
       signOut();
       // borramos la cookie con el token de google
       docCookies.removeItem('gtoken');
+    } else if (docCookies.getItem('fbtoken')) {
+      fbLogout();
+      // borramos la cookie con el token de facebook
+      docCookies.removeItem('fbtoken');
+    } else {
+      // creamos un modelo de sesión para ese usuario
+      var sesionUsuario = new Sesion({ usuario: usuario });
+      // borramos la sesion del usuario de la bd
+      sesionUsuario.fetch({
+        data: $.param({ usuario: usuario }),
+        patch: true,
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
+        },
+        success: function(model, response) {
+          $("#container").html("");
+          var vistaDivsContainer = new VistaDivsContainer();
+          $('#contenido').html("<ul id='productos'></ul>"); // borramos el contenido mostrado (necesario si estamos en la vista 'detalle de producto')
+        }
+      })
+      // borramos la lista de la compra del usuario en caso de que la hubiera iniciado
+      var carritoUsuario = new CarroCompra();
+      carritoUsuario.fetch({
+        data: $.param({ usuario: usuario }),
+        patch: true,
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
+        },
+        success: function(model, response) {
+          console.log('carrito de la compra borrado');
+        },
+        error: function(model, response) {
+          console.log('error en la conexión');
+        }
+      });
     }
-    // creamos un modelo de sesión para ese usuario
-    var sesionUsuario = new Sesion({ usuario: usuario });
-    // borramos la sesion del usuario de la bd
-    sesionUsuario.fetch({
-      data: $.param({ usuario: usuario }),
-      patch: true,
-      beforeSend: function(xhr) {
-        xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
-      },
-      success: function(model, response) {
-        $("#container").html("");
-        var vistaDivsContainer = new VistaDivsContainer();
-        $('#contenido').html("<ul id='productos'></ul>"); // borramos el contenido mostrado (necesario si estamos en la vista 'detalle de producto')
-      }
-    })
-    // borramos la lista de la compra del usuario en caso de que la hubiera iniciado
-    var carritoUsuario = new CarroCompra();
-    carritoUsuario.fetch({
-      data: $.param({ usuario: usuario }),
-      patch: true,
-      beforeSend: function(xhr) {
-        xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
-      },
-      success: function(model, response) {
-        console.log('carrito de la compra borrado');
-      },
-      error: function(model, response) {
-        console.log('error en la conexión');
-      }
-    });
-    // borramos la cookie con el nombre del usuario
+    // borramos la cookie con el nombre o id del usuario
     docCookies.removeItem('usuario');
     // redireccionamos a la página de inicio sin sesión
     window.location.href = '#index';

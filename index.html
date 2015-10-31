@@ -9,7 +9,6 @@
     <!-- google sign in -->
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="474530029771-43fpuc6nsqnqv8ckulacomfbm6kt4von.apps.googleusercontent.com">
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <!-- icon -->
     <link rel="shortcut icon" href="favicon.ico">
     <!-- css frameworks-->
@@ -26,6 +25,7 @@
 
   </head>
   <body>
+    <div id="fb-root"></div>
     <!-- contenido común a todas las vistas -->
     <header class='pure-g'>
       <section id='seccion-logo' class="pure-u-1">
@@ -96,8 +96,14 @@
         <h3 class="subtitulo_detalle">Editorial: <%= editorial %></h3>
         <h3 class="subtitulo_detalle" id='precio'>Precio: <%= precio %> € </h3>
         <button class="button margen_izq" id='comprar'>comprar</button>
+        <br><br><br><br><br><br>
         <div class="g-plusone" data-size="medium"></div>
-        <br/>
+        <div
+          class="fb-like"
+          data-share="true"
+          data-width="450"
+          data-show-faces="true">
+        </div>
         <h3 class="resenya">Reseña:</h3>
         <p class="paragraph">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. In arcu dui,
@@ -240,10 +246,10 @@
           </div>
         </form>
       </div>
-      <div class='centrado margenSuperior'>o accede con tu cuenta de google sin necesidad de registrarte
-        <div id='botonGoogle'>
-          <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
-        </div>
+      <div class='margenSuperior'>o accede con tu cuenta de google o facebook
+        <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+        <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+        </fb:login-button>
       </div>
     </script>
     <!-- Plantilla con el formulario de registro (INCLUYE VALIDACIÓN HTML5)-->
@@ -648,6 +654,8 @@
     <!-- Google+ and glogin and g+1 button -->
     <script type="text/javascript" src="js/google.js"></script>
     <script src="https://apis.google.com/js/client:platform.js" async defer></script>
+    <!-- Facebook api -->
+    <script type="text/javascript" src="js/facebook.js"></script>
 
     <script type="text/javascript" src="js/vendor/frameworkCookies.js"></script>
     <script type="text/javascript" src="js/funcionesRooter.js"></script>
