@@ -12,7 +12,7 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
     return this;
   },
   onSubmit: function(e) {
-    console.log('enviando formulario');
+    //console.log('enviando formulario');
 
     e.preventDefault();
 
@@ -29,7 +29,7 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
     usuarioRegistro.fetch({
       data: $.param({ usuario: nuevoNombreUsuario }), // incluimos una query string en la url con el identificador introducido en el formulario
       success: function(){
-        console.log('accediendo a la BD');
+        //console.log('accediendo a la BD');
       },
       error: function(){
         console.log('error en la conexión con la BD');
@@ -37,7 +37,7 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
     }).then(function(response) {
       if (response.valueOf() === 'false') {
         // no existe el usuario
-        console.log('el usuario no existe');
+        //console.log('el usuario no existe');
         // validamos los datos introducidos
         usuarioRegistro.on("invalid", function(model, error) {
           $('#infoError').html('por favor, revisa los siguientes errores: ' + error);
@@ -51,7 +51,7 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
         // grabar el nuevo registro en la BD
         nuevoUsuario.save({}, {
           success : function(model, response) {
-            console.log('ok');
+            //console.log('ok');
             // crear un perfil vacío para el nuevo usuario y grabarlo en la BD
             var perfilNuevoUsuario = new Perfil({
               usuario: nuevoNombreUsuario,
@@ -67,7 +67,7 @@ var VistaFormularioDeRegistro = Backbone.View.extend({
         })
       } else {
         // tenemos un usuario con ese nommbre
-        console.log('ya existe un usuario con ese nickname');
+        //console.log('ya existe un usuario con ese nickname');
         window.location.href = '#errorRegistro';
       }
     })

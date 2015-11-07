@@ -9,9 +9,9 @@ var VistaSubpanelProductos = Backbone.View.extend({
     return this;
   },
   events: {
-        'click #botonAltaProducto' : 'mostrarSubpanelAltaProducto',
-        'click #botonModificacionProducto' : 'mostrarSubpanelModificacionProducto',
-        'click #botonBorrarProducto' : 'mostrarSubpanelModificacionProducto'
+    'click #botonAltaProducto' : 'mostrarSubpanelAltaProducto',
+    'click #botonModificacionProducto' : 'mostrarSubpanelModificacionProducto',
+    'click #botonBorrarProducto' : 'mostrarSubpanelModificacionProducto'
   },
   mostrarSubpanelAltaProducto: function(e) {
     e.preventDefault();

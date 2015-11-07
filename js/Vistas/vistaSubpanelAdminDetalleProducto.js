@@ -75,7 +75,6 @@ var VistaDetalleDeProductoAdministrador = Backbone.View.extend({
             success: function(model, response) {
               // informamos al admin
               $('#mensajeProducto').html('producto modificado en la BD');
-
             },
             error: function() {
               // informamos al admin
@@ -109,7 +108,7 @@ var VistaDetalleDeProductoAdministrador = Backbone.View.extend({
           },
           success: function(model, response) {
             $('#mensajeProducto').append('producto borrado de la BD');
-            console.log(response);
+            //console.log(response);
           },
           error: function(model, response) {
             $('#mensajeProducto').append('error: producto no borrado de la BD');

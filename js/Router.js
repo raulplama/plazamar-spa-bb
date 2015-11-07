@@ -21,10 +21,10 @@ var Router = Backbone.Router.extend({
     "carrito"               : "carritoDeLaCompra"
    },
   initialize: function() {
-    console.log('aplicando router');
+    //console.log('aplicando router');
   },
   index: function() {
-    console.log('página del index');
+    //console.log('página del index');
     actualizarCategorias();
     // comprobamos si el usuario ha logeado o no leyendo las cookies
     var usuarioSesion = docCookies.getItem('usuario');
@@ -53,56 +53,64 @@ var Router = Backbone.Router.extend({
     $('#titular').html('<h1>' + 'libros de ' + categoria + '</h1>'); // cambiamos el titular de la página (pte poner la descripción de la BD)
     actualizarCategorias(); // redibujamos el menú de las categorías
     mostrarProductosCategoria(categoria); // mostramos los productos de la categoria
+    // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
+    if (docCookies.getItem('usuario') !== 'anonimo') {
+      $('#sesion').html('<a href="#logout">cerrar sesión</a>');
+    };
   },
   mostrarProducto: function(id) {
     $('#titular').html('<h1>detalle de producto</h1>'); // cambiamos el titular
     actualizarCategorias(); // redibujamos el menú de las categorías
     mostrarDetalleDeProducto(id); // mostramos el detalle de producto
+    // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
+    if (docCookies.getItem('usuario') !== 'anonimo') {
+      $('#sesion').html('<a href="#logout">cerrar sesión</a>');
+    };
   },
   mostrarAyuda: function(page) {
-    console.log('página de ayuda número ' + page);
+    //console.log('página de ayuda número ' + page);
     $('#titular').html('<h1>' + 'ayuda' + '</h1>'); // cambiamos el titular de la página
     actualizarCategorias(); // redibujamos el menú de las categorías
     mostrarContenidoAyuda(page); // cambiamos el contenido existente por el de ayuda
   },
   quienesSomos: function() {
-    console.log('página quienes somos');
+    //console.log('página quienes somos');
     $('#titular').html('<h1>' + 'quienes somos' + '</h1>'); // cambiamos el titular de la página
     actualizarCategorias();
     mostrarContenidoQuienesSomos();
   },
   atencionAlCliente: function() {
-    console.log('página de atención al cliente');
+    //console.log('página de atención al cliente');
     $('#titular').html('<h1>' + 'atención al cliente' + '</h1>'); // cambiamos el titular de la página
     actualizarCategorias();
     mostrarContenidoAtencionAlCliente();
   },
   legal: function(page) {
-    console.log('página de los aspectos legales ' + page);
+    //console.log('página de los aspectos legales ' + page);
     $('#titular').html('<h1>' + 'aspectos legales' + '</h1>'); // cambiamos el titular de la página
     actualizarCategorias();
     mostrarContenidoLegal(page);
   },
   formAcceso: function() {
-    console.log('formulario de acceso a la tienda');
+    //console.log('formulario de acceso a la tienda');
     $('#titular').html('<h1>' + 'acceso a la tienda' + '</h1>'); // cambiamos el titular de la página
     actualizarCategorias();
     mostrarFormularioDeAcceso();
   },
   formRegistro: function() {
-    console.log('formulario de registro');
+    //console.log('formulario de registro');
     $('#titular').html('<h1>' + 'formulario de registro' + '</h1>');
     actualizarCategorias(); // mantemenos el menú de categorías por si quiere interrumpir el proceso de registro
     mostrarFormularioDeRegistro();
   },
   infoErrorAcceso: function() {
-    console.log('página de info error');
+    //console.log('página de info error');
     $('#titular').html('<h1>' + 'acceso a la tienda' + '</h1>');
     actualizarCategorias();
     mostrarInfoErrorAcceso();
   },
   accesoCorrecto: function() {
-    console.log('pagina de inicio de usuario registrado');
+    //console.log('pagina de inicio de usuario registrado');
     // obtenemos el usuario almacenado en la cookie
     var usuario = docCookies.getItem('usuario');
     // hacemos una consulta a la bd para saber si el usuario es admin o no
@@ -110,7 +118,7 @@ var Router = Backbone.Router.extend({
     sessionUser.fetch({
       data: $.param({ comprobarSesionUsuario: usuario }),
       success: function(model, response) {
-        console.log('usuario registrado');
+        //console.log('usuario registrado');
         //console.log(response);
         if (response[0].tipo === 'admin') {
           $('#titular').html('<h1>' + 'panel de administración' + '</h1>');
@@ -128,7 +136,7 @@ var Router = Backbone.Router.extend({
     $('#sesion').html('<a href="#logout">cerrar sesión</a>'); // modificamos el enlace de 'acceso' por otro de 'cerrar sesión'
   },
   logout: function() {
-    console.log('cerrando sesión');
+    //console.log('cerrando sesión');
     // leemos el nombre del usuario de la cokkie almacenada
     var usuario = docCookies.getItem('usuario');
     // comprobamos si se ha logado con google o facebook para gestionar el logout
@@ -178,32 +186,32 @@ var Router = Backbone.Router.extend({
     window.location.href = '#index';
   },
   infoNuevoUsuario: function() {
-    console.log('registro realizado correctamente');
+    //console.log('registro realizado correctamente');
     $('#titular').html('<h1>' + 'registro de usuario' + '</h1>');
     actualizarCategorias();
     mostrarInfoNuevoUsuario();
   },
   infoErrorRegistro: function() {
-    console.log('registro no realizado, el usuario ya existe');
+    //console.log('registro no realizado, el usuario ya existe');
     $('#titular').html('<h1>' + 'registro de usuario' + '</h1>');
     actualizarCategorias();
     mostrarInfoErrorRegistro();
   },
   accesoAlPerfil: function() {
-    console.log('accediendo al pefil de usuario');
+    //console.log('accediendo al pefil de usuario');
     $('#titular').html('<h1>' + 'perfil de usuario' + '</h1>');
     actualizarCategorias();
     mostrarPerfilDeUsuario();
   },
   infoRegPerfilOk: function() {
-    console.log('página de información de registro de perfil');
+    //console.log('página de información de registro de perfil');
     $('#titular').html('<h1>' + 'perfil de usuario' + '</h1>');
     actualizarCategorias();
     mostrarInfoRegistroPerfil();
     $('#infoPerfil').html('perfil actualizado correctamente');
   },
   infoRegPerfilError: function() {
-    console.log('página de información de registro de perfil');
+    //console.log('página de información de registro de perfil');
     $('#titular').html('<h1>' + 'perfil de usuario' + '</h1>');
     actualizarCategorias();
     mostrarInfoRegistroPerfil();

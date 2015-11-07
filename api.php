@@ -1,17 +1,15 @@
 <?php
 
-// iniciamos una sesión
-session_start();
-
 require 'Slim/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
 
 
-// instanciar el framework Slim
+// 1. instanciar el framework Slim
 
 $app = new \Slim\Slim();;
 
-// definir las rutas
+// 2. definir las rutas:
+//----------------------------------------------------------
 
 $app->get('/categorias', function () {
   $mongo = new MongoClient(); // conectamos con la BD
@@ -155,9 +153,6 @@ $app->get('/usuarios', function () use ($app) {
   echo json_encode($datos);
 
 });
-
-
-
 
 $app->get('/producto', function () use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -953,7 +948,9 @@ $app->delete('/carroCompra', function () use ($app) {
 
 });
 
-// Run app
+// -------------------------------- FIN DE LAS RUTAS
+
+// 3. Run app (hacemos funcionar la aplicación)
 
 $app->run();
 

@@ -416,15 +416,10 @@ function mostrarProductosCategoria(categoria) {
 
 function actualizarCategorias() {
   // limpiamos el menu para que no se vuelvan a añadir las categorias
-
   $('#categorias').html('');
-
   // instanciamos la colección de categorias
-
   var listaDeCategorias = new ListaDeCategorias();
-
   // recogemos las categorias de la BD e instanciamos la vista con la colección recuperada
-
   listaDeCategorias.fetch({
     error: function(model, response){
       console.log('error: categorias no importadas');

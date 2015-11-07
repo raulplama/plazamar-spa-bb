@@ -30,10 +30,10 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
     usuarioAcceso.fetch({
       data: $.param({ usuario: usuario }), // incluimos una query string en la url con el identificador introducido en el formulario
       success: function(model, response){
-        console.log('acceso a la BD: recuperando usuario');
+        //console.log('acceso a la BD: recuperando usuario');
         if (response.valueOf() === 'false') {
           // no existe el usuario
-          console.log('el usuario no existe');
+          //console.log('el usuario no existe');
           window.location.href = '#errorEnAcceso';
         } else {
           // tenemos un usuario, comprobamos las contraseñas
@@ -48,7 +48,7 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
             });
             sesionUsuario.save({},{
               success: function(model, response) {
-                console.log('sesion creada');
+                //console.log('sesion creada');
                 window.location.href = '#accesoCorrecto';
               },
               error: function(model, response) {
@@ -60,7 +60,7 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
             document.cookie = "usuario=" + usuario;
           } else {
             // no coinciden las contraseñas
-            console.log('las contraseñas no coinciden');
+            //console.log('las contraseñas no coinciden');
             window.location.href = '#errorEnAcceso'
           }
         }
@@ -72,7 +72,7 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
   },
   formularioRegistro: function(e) {
     e.preventDefault();
-    console.log('accediendo al fomulario de registro');
+    //console.log('accediendo al fomulario de registro');
     window.location.href = '#formRegistro';
   }
 });

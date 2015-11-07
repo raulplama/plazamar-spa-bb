@@ -5,7 +5,7 @@ var VistaDetalleDeProducto = Backbone.View.extend({
     'click #comprar' : 'comprarProducto'
   },
   initialize: function() {
-    console.log('aplicando vista detalle de producto');
+    //console.log('aplicando vista detalle de producto');
     this.render();
   },
   render: function() {
@@ -35,7 +35,7 @@ var VistaDetalleDeProducto = Backbone.View.extend({
             // hacemos un post con el primer producto
             carritoUsuario.save({},{
               success: function(model, response) {
-                console.log('producto añadido');
+                //console.log('producto añadido');
                 // redireccionamos al listado del carro de la compra
                 window.location.href = '#carrito';
               },
@@ -51,8 +51,8 @@ var VistaDetalleDeProducto = Backbone.View.extend({
                 xhr.setRequestHeader('X-HTTP-Method-Override', 'put');
               },
               success: function(model, response) {
-                console.log('otro producto añadido');
-                console.log(response);
+                //console.log('otro producto añadido');
+                //console.log(response);
                 // redireccionamos al listado del carro de la compra
                 window.location.href = '#carrito';
               },
@@ -87,7 +87,7 @@ var VistaDetalleDeProducto = Backbone.View.extend({
           });
           carritoAnonimo.save({},{
             success: function(model, response) {
-              console.log('producto añadido');
+              //console.log('producto añadido');
               // redireccionamos al listado del carro de la compra
               window.location.href = '#carrito';
             },

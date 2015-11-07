@@ -12,7 +12,7 @@ var VistaPerfilDeUsuario = Backbone.View.extend({
     return this;
   },
   onFormSubmit: function(e) {
-    console.log('actualizando perfil de usuario');
+    //console.log('actualizando perfil de usuario');
     e.preventDefault();
 
     // obtenemos los valores de los campos
@@ -45,9 +45,9 @@ var VistaPerfilDeUsuario = Backbone.View.extend({
         usuario.save(
           { email: email },
           { success: function(model, response) {
-              console.log('test ok')
-              console.log(model);
-              console.log(response);
+              //console.log('test ok')
+              //console.log(model);
+              //console.log(response);
             },
             error: function(model, response) {
               console.log('test error')
@@ -71,9 +71,9 @@ var VistaPerfilDeUsuario = Backbone.View.extend({
             provincia: provincia
           },
           { success: function(model, response) {
-              console.log('perfil ok')
-              console.log(model);
-              console.log(response);
+              //console.log('perfil ok')
+              //console.log(model);
+              //console.log(response);
             },
             error: function(model, response) {
               console.log('perfil error')
