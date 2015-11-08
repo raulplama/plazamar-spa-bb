@@ -108,7 +108,7 @@ function busquedaProductos() {
         success: function(response){
           $('#iconoCarga').hide();
           console.log(response);
-          $("#resultados-busqueda").html(response);
+          //$("#resultados-busqueda").html(response);
         },
         error: function() {
           $('#iconoCarga').hide();
@@ -399,7 +399,7 @@ function mostrarProductosCategoria(categoria) {
   productosCategoria.fetch({
     data: $.param({ categoria: categoria}), // incluimos una query string en la url con la categoria seleccionada
     success: function(){
-      console.log('acceso a la BD: recuperando productos de la categoria ' + categoria);
+      //console.log('acceso a la BD: recuperando productos de la categoria ' + categoria);
     },
     error: function(){
       console.log('error: productos no recuperados');

@@ -90,7 +90,7 @@ $app->get('/productos', function () use ($app) {
   }
 
   if ($buscar) {
-    $result = $collection->find(array('titulo' => $buscar, 'autor' => $buscar, 'editorial' => $buscar), array('titulo'));
+    $result = $collection->find(array('titulo' => $buscar), array('titulo'));
     $datos = [];
     foreach ($result as $producto) {
       array_push($datos, $producto);
@@ -240,6 +240,7 @@ $app->post('/archivoImagen', function() use ($app) {
   $request = $app->request()->getBody();
   $datos = json_decode($request, true);
 
+  var_dump($datos); exit;
   // guardamos el archivo subido
   //move_uploaded_file($imagen, "img/archivo.png");
 

@@ -54,7 +54,7 @@ var Router = Backbone.Router.extend({
     actualizarCategorias(); // redibujamos el menú de las categorías
     mostrarProductosCategoria(categoria); // mostramos los productos de la categoria
     // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
-    if (docCookies.getItem('usuario') !== 'anonimo') {
+    if (docCookies.getItem('usuario') && docCookies.getItem('usuario') !== 'anonimo') {
       $('#sesion').html('<a href="#logout">cerrar sesión</a>');
     };
   },
@@ -63,7 +63,7 @@ var Router = Backbone.Router.extend({
     actualizarCategorias(); // redibujamos el menú de las categorías
     mostrarDetalleDeProducto(id); // mostramos el detalle de producto
     // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
-    if (docCookies.getItem('usuario') !== 'anonimo') {
+    if (docCookies.getItem('usuario') && docCookies.getItem('usuario') !== 'anonimo') {
       $('#sesion').html('<a href="#logout">cerrar sesión</a>');
     };
   },

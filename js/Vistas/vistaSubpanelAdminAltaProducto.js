@@ -75,7 +75,7 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
               success: function(model, response) {
                 // informamos al admin
                 $('#mensajeProducto').html('creado nuevo producto en la BD: ' + tituloProducto);
-                console.log('producto creado');
+                //console.log('producto creado');
                 // AHORA SUBIMOS EL ARCHIVO DE IMAGEN MEDIANTE PETICION AJAX:
                 // Create a new FormData object.
                 var formData = new FormData();
@@ -91,8 +91,8 @@ var VistaSubpanelAltaProducto = Backbone.View.extend({
                 xhr.onload = function (evento) {
                   if (xhr.status === 200) {
                     // File uploaded.
-                    console.log('archivo subido');
-                    console.log(evento.currentTarget.response);
+                    //console.log('archivo subido');
+                    //console.log(evento.currentTarget.response);
                   } else {
                     console.log('error en la subida del archivo');
                   }
