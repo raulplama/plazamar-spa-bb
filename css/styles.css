@@ -226,8 +226,9 @@ h1 {
   }
 
   #seccion-buscador {
-    width: 33%;
+    display: inline-block;
     padding-top: 5%;
+    width: 33%;
   }
 
   #buscador, #store-title {
@@ -269,11 +270,13 @@ h1 {
   }
 
   #menu_categorias {
+    display: inline-block;
     width: 25%;
   }
 
   #contenido {
-    width: 75%;
+    display: inline-block;
+    width: 70%;
   }
 
   #infoPortada {
@@ -442,23 +445,28 @@ h1 {
 @media screen and (min-width: 64em) {
 
   #buscador-input {
+    display: inline-block;
     width: 75%;
   }
 
   #menu_categorias {
+    display: inline-block;
     width: 25%;
   }
 
   #contenido {
+    display: inline-block;
     width: 50%;
   }
 
   #carrito {
-    width: 25%
+    display: inline-block;
+    width: 20%
   }
 
   #infoPortada {
     width: 50%;
+    margin: auto;
   }
 
 }
