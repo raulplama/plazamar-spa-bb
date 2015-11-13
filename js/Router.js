@@ -72,24 +72,40 @@ var Router = Backbone.Router.extend({
     $('#titular').html('<h1>' + 'ayuda' + '</h1>'); // cambiamos el titular de la página
     actualizarCategorias(); // redibujamos el menú de las categorías
     mostrarContenidoAyuda(page); // cambiamos el contenido existente por el de ayuda
+    // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
+    if (docCookies.getItem('usuario') && docCookies.getItem('usuario') !== 'anonimo') {
+      $('#sesion').html('<a href="#logout">cerrar sesión</a>');
+    };
   },
   quienesSomos: function() {
     //console.log('página quienes somos');
     $('#titular').html('<h1>' + 'quienes somos' + '</h1>'); // cambiamos el titular de la página
     actualizarCategorias();
     mostrarContenidoQuienesSomos();
+    // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
+    if (docCookies.getItem('usuario') && docCookies.getItem('usuario') !== 'anonimo') {
+      $('#sesion').html('<a href="#logout">cerrar sesión</a>');
+    };
   },
   atencionAlCliente: function() {
     //console.log('página de atención al cliente');
     $('#titular').html('<h1>' + 'atención al cliente' + '</h1>'); // cambiamos el titular de la página
     actualizarCategorias();
     mostrarContenidoAtencionAlCliente();
+    // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
+    if (docCookies.getItem('usuario') && docCookies.getItem('usuario') !== 'anonimo') {
+      $('#sesion').html('<a href="#logout">cerrar sesión</a>');
+    };
   },
   legal: function(page) {
     //console.log('página de los aspectos legales ' + page);
     $('#titular').html('<h1>' + 'aspectos legales' + '</h1>'); // cambiamos el titular de la página
     actualizarCategorias();
     mostrarContenidoLegal(page);
+    // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
+    if (docCookies.getItem('usuario') && docCookies.getItem('usuario') !== 'anonimo') {
+      $('#sesion').html('<a href="#logout">cerrar sesión</a>');
+    };
   },
   formAcceso: function() {
     //console.log('formulario de acceso a la tienda');
@@ -202,6 +218,10 @@ var Router = Backbone.Router.extend({
     $('#titular').html('<h1>' + 'perfil de usuario' + '</h1>');
     actualizarCategorias();
     mostrarPerfilDeUsuario();
+    // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
+    if (docCookies.getItem('usuario') && docCookies.getItem('usuario') !== 'anonimo') {
+      $('#sesion').html('<a href="#logout">cerrar sesión</a>');
+    };
   },
   infoRegPerfilOk: function() {
     //console.log('página de información de registro de perfil');
@@ -209,6 +229,10 @@ var Router = Backbone.Router.extend({
     actualizarCategorias();
     mostrarInfoRegistroPerfil();
     $('#infoPerfil').html('perfil actualizado correctamente');
+    // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
+    if (docCookies.getItem('usuario') && docCookies.getItem('usuario') !== 'anonimo') {
+      $('#sesion').html('<a href="#logout">cerrar sesión</a>');
+    };
   },
   infoRegPerfilError: function() {
     //console.log('página de información de registro de perfil');
@@ -216,10 +240,18 @@ var Router = Backbone.Router.extend({
     actualizarCategorias();
     mostrarInfoRegistroPerfil();
     $('#infoPerfil').html('perfil no actualizado, la contraseña no coincide');
+    // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
+    if (docCookies.getItem('usuario') && docCookies.getItem('usuario') !== 'anonimo') {
+      $('#sesion').html('<a href="#logout">cerrar sesión</a>');
+    };
   },
   carritoDeLaCompra: function() {
     $('#titular').html('<h1>' + 'carrito de la compra' + '</h1>');
     actualizarCategorias();
     mostrarProductosParaComprar();
+    // controlamos si el usuario está registrado o no para cambiar el enlace de cerrar sesión
+    if (docCookies.getItem('usuario') && docCookies.getItem('usuario') !== 'anonimo') {
+      $('#sesion').html('<a href="#logout">cerrar sesión</a>');
+    };
   }
 });

@@ -22,10 +22,7 @@
     <script type="text/javascript" src="js/vendor/underscore-min.js"></script>
     <script type="text/javascript" src="js/vendor/backbone-min.js"></script>
     <!-- Google+ and glogin and g+1 button -->
-    <script type="text/javascript" src="js/google.js"></script>
-    <script src="https://apis.google.com/js/client:platform.js" async defer></script>
-    <!-- Facebook api -->
-    <script type="text/javascript" src="js/facebook.js"></script>
+    <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
 
   </head>
   <body>
@@ -261,7 +258,7 @@
           </div>
         </form>
       </div>
-      <div class='margenSuperior'>o accede con tu cuenta de google o facebook
+      <div id='login_terceros' class='margenSuperior'>o accede con tu cuenta de google o facebook
         <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
         <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
         </fb:login-button>
@@ -666,8 +663,8 @@
     <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminProductos.js"></script>
     <script type="text/javascript" src="js/Vistas/vistaSubpanelAdminUsuarios.js"></script>
 
-
-
+    <script type="text/javascript" src="js/facebook.js"></script>
+    <script type="text/javascript" src="js/google.js"></script>
     <script type="text/javascript" src="js/vendor/frameworkCookies.js"></script>
     <script type="text/javascript" src="js/funcionesRouter.js"></script>
     <script type="text/javascript" src="js/Router.js"></script>
