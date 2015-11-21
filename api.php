@@ -3,13 +3,19 @@
 require 'Slim/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
 
-
-// 1. instanciar el framework Slim
+/**********************************************************************************
+* 1. instanciar el framework Slim
+**********************************************************************************/
 
 $app = new \Slim\Slim();;
 
-// 2. definir las rutas:
-//----------------------------------------------------------
+/**********************************************************************************
+* 2. definir las rutas:
+***********************************************************************************/
+
+/*
+* Ruta para mostrar el menú de categorías
+*/
 
 $app->get('/categorias', function () {
   $mongo = new MongoClient(); // conectamos con la BD
@@ -27,6 +33,9 @@ $app->get('/categorias', function () {
   echo json_encode($data);
 });
 
+/*
+* Ruta para mostrar los productos en la portada de la aplicación
+*/
 
 $app->get('/productosInicio', function () {
   $mongo = new MongoClient();
@@ -52,6 +61,9 @@ $app->get('/productosInicio', function () {
   echo json_encode($datos);
 });
 
+/*
+* Ruta para mostrar los productos en las vistas con listado de productos
+*/
 
 $app->get('/productos', function () use ($app) {
 
@@ -67,7 +79,6 @@ $app->get('/productos', function () use ($app) {
   $categoria = $req->get('categoria');
   $descuento = $req->get('tieneDescuento');
   $ordenar = $req->get('ordenar');
-  $total = $req->get('total');
   $buscar = $req->get('buscar');
 
   // recoger los productos y enviarlos de vuelta a BAckbone
@@ -100,6 +111,10 @@ $app->get('/productos', function () use ($app) {
 
 });
 
+/*
+* Ruta para borrar productos desde el panel de administración
+*/
+
 $app->delete('/productos', function () use ($app) {
 
   // conectar con la BD y seleccionar la colección
@@ -120,6 +135,10 @@ $app->delete('/productos', function () use ($app) {
   echo json_encode('productos borrados');
 
 });
+
+/*
+* Ruta para obtener los usuarios de la aplicación desde el panel de administración
+*/
 
 $app->get('/usuarios', function () use ($app) {
 
@@ -142,9 +161,7 @@ $app->get('/usuarios', function () use ($app) {
     $cursor = $collection->find(array('type' => $tipo))->sort(array("usuario" => 1));
   } else if ($tipo && !$ordenar) {
     $cursor = $collection->find(array('type' => $tipo));
-  } /*else if ($ultimoUsuarioEnBD) {
-    $cursor = $collection->find()->sort(array('id' => -1))->limit(1);
-  }*/
+  }
 
   $datos = [];
   foreach ($cursor as $usuario) {
@@ -153,6 +170,10 @@ $app->get('/usuarios', function () use ($app) {
   echo json_encode($datos);
 
 });
+
+/*
+* Ruta para obtener un producto
+*/
 
 $app->get('/producto', function () use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -194,6 +215,9 @@ $app->get('/producto', function () use ($app) {
 
 });
 
+/*
+* Ruta para crear un producto en la base de datos desde el panel de administración
+*/
 
 $app->post('/producto', function() use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -230,7 +254,7 @@ $app->post('/producto', function() use ($app) {
 });
 
 
-// PENDIENTE DE SOLUCIONAR CÓMO RECOGER EL ARCHIVO SUBIDO
+// REVISAR: PENDIENTE DE SOLUCIONAR CÓMO RECOGER EL ARCHIVO SUBIDO (si es que ha sido subido)
 
 $app->post('/archivoImagen', function() use ($app) {
 
@@ -249,6 +273,10 @@ $app->post('/archivoImagen', function() use ($app) {
 });
 
 //////////////////////////////////////////////////////////
+
+/*
+* Ruta para actualizar un producto desde el panel de administración
+*/
 
 $app->put('/producto', function() use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -286,7 +314,9 @@ $app->put('/producto', function() use ($app) {
 
 });
 
-
+/*
+* Ruta para borrar un producto de la base de datos desde el panel de administración
+*/
 
 $app->delete('/producto', function () use ($app) {
 
@@ -309,7 +339,9 @@ $app->delete('/producto', function () use ($app) {
 
 });
 
-
+/*
+* Ruta para obtener los datos de un usuario desde el panel de administración
+*/
 
 $app->get('/usuario', function () use ($app) {
 
@@ -326,7 +358,7 @@ $app->get('/usuario', function () use ($app) {
   $database = $mongo->plazamar;
   $collection = $database->usuarios;
 
-
+  // obtener el usuario
 
   if ($usuario || $identificador) {
     if ($usuario) {
@@ -350,6 +382,9 @@ $app->get('/usuario', function () use ($app) {
 
 });
 
+/*
+* Ruta para crear un usuario en la base de datos
+*/
 
 $app->post('/usuario', function() use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -387,8 +422,9 @@ $app->post('/usuario', function() use ($app) {
 
 });
 
-
-
+/*
+* Ruta para actualizar un usuario
+*/
 
 $app->put('/usuario', function() use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -421,6 +457,10 @@ $app->put('/usuario', function() use ($app) {
 
 });
 
+/*
+* Ruta para borrar un usuario desde el panel de administración
+*/
+
 $app->delete('/usuario', function () use ($app) {
 
   // recoger la query string de la url pasada por backbone
@@ -442,6 +482,9 @@ $app->delete('/usuario', function () use ($app) {
 
 });
 
+/*
+* Ruta para crear un perfil de usuario en la base de datos
+*/
 
 $app->post('/perfil', function() use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -482,6 +525,9 @@ $app->post('/perfil', function() use ($app) {
 
 });
 
+/*
+* Ruta para obtener el perfil de un usuario
+*/
 
 $app->get('/perfil', function () use ($app) {
 
@@ -519,7 +565,9 @@ $app->get('/perfil', function () use ($app) {
 
 });
 
-
+/*
+* Ruta para actualizar un perfil de usuario
+*/
 
 $app->put('/perfil', function() use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -556,6 +604,9 @@ $app->put('/perfil', function() use ($app) {
 
 });
 
+/*
+* Ruta para borrar un perfil desde el panel de administración
+*/
 
 $app->delete('/perfil', function () use ($app) {
 
@@ -578,9 +629,9 @@ $app->delete('/perfil', function () use ($app) {
 
 });
 
-
-
-
+/*
+* Ruta para obtener una categoría desde el panel de administración
+*/
 
 $app->get('/categoria', function () use ($app) {
 
@@ -611,6 +662,10 @@ $app->get('/categoria', function () use ($app) {
 
 });
 
+/*
+* Ruta para crear una categoría desde el panel de administración
+*/
+
 $app->post('/categoria', function() use ($app) {
   // conectar con la BD y seleccionar la colección
 
@@ -635,6 +690,10 @@ $app->post('/categoria', function() use ($app) {
   echo json_encode($datos);
 
 });
+
+/*
+* Ruta para actualizar una categoría desde el panel de administración
+*/
 
 $app->put('/categoria/:nombre', function($nombre) use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -665,6 +724,10 @@ $app->put('/categoria/:nombre', function($nombre) use ($app) {
 
 });
 
+/*
+* Ruta para borrar una categoría desde el panel de administración
+*/
+
 $app->delete('/categoria', function () use ($app) {
 
   // recoger la query string de la url pasada por backbone
@@ -686,6 +749,9 @@ $app->delete('/categoria', function () use ($app) {
 
 });
 
+/*
+* Ruta Para obtener una sesión de usuario
+*/
 
 $app->get('/sesion', function () use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -715,7 +781,9 @@ $app->get('/sesion', function () use ($app) {
 
 });
 
-
+/*
+* Ruta para crear una sesión de usuario
+*/
 
 $app->post('/sesion', function () use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -741,6 +809,10 @@ $app->post('/sesion', function () use ($app) {
   echo json_encode($datos);
 });
 
+/*
+* Ruta para borrar una sesión de usuario
+*/
+
 $app->delete('/sesion', function () use ($app) {
 
   // recoger la query string de la url pasada por backbone
@@ -761,6 +833,10 @@ $app->delete('/sesion', function () use ($app) {
   echo json_encode('sesion borrada');
 
 });
+
+/*
+* Ruta para obtener el carro de la compra de un usuario
+*/
 
 $app->get('/carroCompra', function () use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -830,6 +906,10 @@ $app->get('/carroCompra', function () use ($app) {
 
 });
 
+/*
+* Ruta para crear un carro de la compra de un usuario
+*/
+
 $app->post('/carroCompra', function () use ($app) {
   // conectar con la BD y seleccionar la colección
 
@@ -854,6 +934,10 @@ $app->post('/carroCompra', function () use ($app) {
 
   echo json_encode($datos);
 });
+
+/*
+* Ruta para crear un carro de la compra
+*/
 
 $app->put('/carroCompra', function() use ($app) {
   // conectar con la BD y seleccionar la colección
@@ -928,6 +1012,10 @@ $app->put('/carroCompra', function() use ($app) {
 
 });
 
+/*
+* Ruta para borrar un carro de la compra de un usuario
+*/
+
 $app->delete('/carroCompra', function () use ($app) {
 
   // recoger la query string de la url pasada por backbone
@@ -949,9 +1037,10 @@ $app->delete('/carroCompra', function () use ($app) {
 
 });
 
-// -------------------------------- FIN DE LAS RUTAS
 
-// 3. Run app (hacemos funcionar la aplicación)
+/*******************************************************************************
+* 3. Run app (hacemos funcionar la aplicación)
+*******************************************************************************/
 
 $app->run();
 
