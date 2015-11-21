@@ -85,57 +85,6 @@ function infoProducto() {
   });
 }
 
-// funcionalidad de la barra de busqueda
-
-function busquedaProductos() {
-
-  $("#buscador-input").blur(function(){
-    $('#resultados-busqueda').hide();
-  });
-
-  function search() {
-    var busqueda = $("#buscador-input").val();
-
-    if(busqueda !== '') {
-      $.ajax({
-        type: "GET",
-        url: "/plazamar-spa-bb/api.php/productos",
-        data: "buscar=" + busqueda,
-        timeout: 3000,
-        beforeSend: function() {
-          $('#iconoCarga').show();
-        },
-        success: function(response){
-          $('#iconoCarga').hide();
-          console.log(response);
-          //$("#resultados-busqueda").html(response);
-        },
-        error: function() {
-          $('#iconoCarga').hide();
-          $("#resultados-busqueda").html("<p>parece que no hay conexión con la base de datos</p>");
-        }
-      });
-    }
-  }
-
-  $("#buscador-input").on("keyup", function(e) {
-    // Set Timeout
-    clearTimeout($.data(this, 'timer'));
-
-    // Set Search String
-    var search_string = $(this).val();
-
-    // Do Search
-    if (search_string !== '') {
-      $('#resultados-busqueda').show();
-      $(this).data('timer', setTimeout(search, 500));
-    } else {
-      $('#resultados-busqueda').hide();
-    }
-  });
-
-}
-
 // función que anima los productos mostrados en pantalla
 
 function animarProductos() {
