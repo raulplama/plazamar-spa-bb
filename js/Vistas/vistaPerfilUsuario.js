@@ -2,7 +2,7 @@ var VistaPerfilDeUsuario = Backbone.View.extend({
   el: ('#contenido'),
   template: _.template($('#formularioPerfilUsuario').html()),
   events: {
-        'submit': 'onFormSubmit' // evento lanzado al pulsar el botón type submit (acceder)
+        'click #registrarUsuario': 'onFormSubmit' // evento lanzado al pulsar el botón type submit (registrar)
   },
   initialize: function() {
     this.render();
@@ -27,64 +27,91 @@ var VistaPerfilDeUsuario = Backbone.View.extend({
 
     // buscamos el perfil del usuario y trabajamos a partir de el.
 
-    var nickname = sessionStorage.getItem('usuario');
+    var nickname = docCookies.getItem('usuario');
 
     var usuario = new Usuario();
-    usuario.fetch({ data: $.param({ usuario: nickname}) }).then(function(response) {
+    usuario.fetch({
+      data: $.param({ usuario: nickname}),
+      success: function(model, response) {
 
-      // validar los datos introducidos (email y contra) y mostrar el error en su caso
-      usuario.on("invalid", function(model, error) {
-        $('#infoError').html('por favor, revisa los siguientes errores: ' + error);
-      });
+        // validar los datos introducidos (email y contra) y mostrar el error en su caso
+        usuario.on("invalid", function(model, error) {
+          $('#infoError').html('por favor, revisa los siguientes errores: ' + error);
+        });
 
-      // comprobamos la contraseña y pasamos a grabar la info introducida en los campos
-      var contrasenyaCorrecta = usuario.get("password");
+        // comprobamos la contraseña y pasamos a grabar la info introducida en los campos
+        var contrasenyaCorrecta = model.get("password");
 
-      if (password.valueOf() === contrasenyaCorrecta.valueOf()) {
+        if (password.valueOf() === contrasenyaCorrecta.valueOf()) {
+          //console.log('aqui');
 
-        usuario.save(
-          { email: email },
-          { success: function(model, response) {
+          usuario.save({
+            id: response.id,
+            usuario: response.usuario,
+            password: contrasenyaCorrecta,
+            email: email,
+            type: response.type
+            },{
+            url: '/plazamar-spa-bb/api.php/usuario',
+            patch: true,
+            beforeSend: function(xhr) {
+              xhr.setRequestHeader('X-HTTP-Method-Override', 'put');
+            },
+            success: function(model, response) {
               //console.log('test ok')
               //console.log(model);
               //console.log(response);
             },
             error: function(model, response) {
-              console.log('test error')
-              console.log(model);
-              console.log(response);
-            }
-          });
-
-        var perfilUsuario = new Perfil();
-
-        perfilUsuario.fetch({
-          data: $.param({ usuario: nickname})
-        }).then(function (response) {
-          perfilUsuario.save(
-          {
-            nombre: nombre,
-            apellidos: apellidos,
-            email: email,
-            direccion: direccion,
-            localidad: localidad,
-            provincia: provincia
-          },
-          { success: function(model, response) {
-              //console.log('perfil ok')
+              console.log('error')
               //console.log(model);
               //console.log(response);
-            },
-            error: function(model, response) {
-              console.log('perfil error')
-              console.log(model);
-              console.log(response);
             }
           });
+
+          //console.log('aqui2');
+          var perfilUsuario = new Perfil();
+
+          perfilUsuario.fetch({
+            data: $.param({ usuario: nickname})
+          }).then(function (response) {
+            perfilUsuario.save(
+            {
+              id: response.id,
+              usuario: response.usuario,
+              nombre: nombre,
+              apellidos: apellidos,
+              email: email,
+              direccion: direccion,
+              localidad: localidad,
+              provincia: provincia
+            },
+            {
+              url: '/plazamar-spa-bb/api.php/perfil',
+              patch: true,
+              beforeSend: function(xhr) {
+                xhr.setRequestHeader('X-HTTP-Method-Override', 'put');
+              },
+              success: function(model, response) {
+                //console.log('perfil ok')
+                //console.log(model);
+                //console.log(response);
+              },
+              error: function(model, response) {
+                console.log('perfil error')
+                //console.log(model);
+                //console.log(response);
+              }
+            });
+          });
           window.location.href="#infoRegPerfilOk"; // redireccionamos a una página de info
-        });
-      } else {
-        window.location.href="#infoRegPerfilError"; // redireccionamos a una página de info
+        } else {
+          window.location.href="#infoRegPerfilError"; // redireccionamos a una página de info
+        }
+
+      },
+      error: function(model, response) {
+        console.log('error')
       }
 
     });

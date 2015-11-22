@@ -441,6 +441,7 @@ $app->put('/usuario', function() use ($app) {
   $nuevosDatos = [
     'id' => $datos['id'],
     'usuario' => $datos['usuario'],
+    'password' => $datos['password'],
     'email' => $datos['email'],
     'type' => $datos['type']
   ];
@@ -892,7 +893,7 @@ $app->get('/carroCompra', function () use ($app) {
 
   } else if ($carritoUsuario) {
 
-    if (!$idAnonimo) {
+    if ($carritoUsuario !== 'anonimo') {
       // recuperamos el carrito del usuario
       $carrito = $collection->findOne(array('usuario' => $carritoUsuario));
     } else {

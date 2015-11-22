@@ -47,7 +47,6 @@ var Router = Backbone.Router.extend({
         console.log(model);
       }
     });
-    busquedaProductos();
   },
   mostrarProductosCategoria: function(categoria) {
     $('#titular').html('<h1>' + 'libros de ' + categoria + '</h1>'); // cambiamos el titular de la página (pte poner la descripción de la BD)

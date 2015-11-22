@@ -17,7 +17,7 @@ function mostrarProductosParaComprar() {
         if (response === 'false') {
           $("#contenido").html("El carro de la compra está vacío");
         } else {
-          // console.log(response);
+          //console.log(response);
           // obtenemos los productos seleccionados
           listaDeProductosSeleccionados = response.idsProductos;
           // pasamos los productos de string a array
