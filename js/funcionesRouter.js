@@ -192,7 +192,7 @@ function mostrarProductosConDescuento() {
   productosConDescuento.fetch({
     data: $.param({ tieneDescuento: true}), // incluimos una query string en la url con la categoria seleccionada
     success: function(){
-      console.log('acceso a la BD: recuperando productos con descuento');
+      //console.log('acceso a la BD: recuperando productos con descuento');
     },
     error: function(){
       console.log('error: productos no recuperados');

@@ -254,25 +254,19 @@ $app->post('/producto', function() use ($app) {
 });
 
 
-// REVISAR: PENDIENTE DE SOLUCIONAR CÓMO RECOGER EL ARCHIVO SUBIDO (si es que ha sido subido)
+// alta de imagen de producto desde panel de administración (REVISAR)
 
 $app->post('/archivoImagen', function() use ($app) {
-
-  //$req = $app->request();
-  //$archivo = $req->get('archivo');
 
   $request = $app->request()->getBody();
   $datos = json_decode($request, true);
 
-  var_dump($datos); exit;
   // guardamos el archivo subido
-  //move_uploaded_file($imagen, "img/archivo.png");
+  move_uploaded_file($datos, "img/archivo.png");
 
   echo json_encode($datos);
 
 });
-
-//////////////////////////////////////////////////////////
 
 /*
 * Ruta para actualizar un producto desde el panel de administración
@@ -475,9 +469,9 @@ $app->delete('/usuario', function () use ($app) {
   $database = $mongo->plazamar;
   $collection = $database->usuarios;
 
-  // Buscamos el categoria en la BD y lo enviamos de vuelta a BAckbone o retornamos false
-
-  $cursor = $collection->remove(array('id' => $id));
+  // Borramos el usuario
+  //$collection->remove(array('id' => $id));
+  $cursor = $collection->remove(array('_id' => new MongoID($id)));
 
   echo json_encode('usuario borrado');
 
@@ -622,9 +616,10 @@ $app->delete('/perfil', function () use ($app) {
   $database = $mongo->plazamar;
   $collection = $database->perfiles;
 
-  // Buscamos el categoria en la BD y lo enviamos de vuelta a BAckbone o retornamos false
+  // borramos
 
-  $cursor = $collection->remove(array('id' => $id));
+  //$cursor = $collection->remove(array('id' => $id));
+  $cursor = $collection->remove(array('_id' => new MongoID($id)));
 
   echo json_encode('perfil borrado');
 

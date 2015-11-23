@@ -188,7 +188,7 @@ var Router = Backbone.Router.extend({
           xhr.setRequestHeader('X-HTTP-Method-Override', 'delete');
         },
         success: function(model, response) {
-          console.log('carrito de la compra borrado');
+          //console.log('carrito de la compra borrado');
         },
         error: function(model, response) {
           console.log('error en la conexión');

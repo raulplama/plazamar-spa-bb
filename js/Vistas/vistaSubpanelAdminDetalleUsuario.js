@@ -70,7 +70,7 @@ var VistaDetalleDeUsuarioAdministrador = Backbone.View.extend({
                     xhr.setRequestHeader('X-HTTP-Method-Override', 'put');
                   },
                   success: function(model, response) {
-                    console.log('perfil ok')
+                    //console.log('perfil ok')
                   },
                   error: function(model, response) {
                     console.log('perfil error')
@@ -98,7 +98,7 @@ var VistaDetalleDeUsuarioAdministrador = Backbone.View.extend({
     $("#subpanelUsuarios").html('');
     $("#mensajeUsuario").html('');
     // borramos el modelo de la bd
-    var usuarioSelecc = new Usuario();
+    var usuarioSelecc = new Usuario({ identificador: id });
     usuarioSelecc.fetch({
       data: $.param({ identificador: id }),
       success: function(model, response) {
@@ -116,7 +116,7 @@ var VistaDetalleDeUsuarioAdministrador = Backbone.View.extend({
             perfilUsuario.fetch({
               data: $.param({ identificador: id }),
               success: function(model, response) {
-                console.log('ok');
+                //console.log('ok');
                 perfilUsuario.fetch({
                   data: $.param({ identificador: id }),
                   patch: true,
