@@ -10,8 +10,7 @@ var VistaPanelAdministracion = Backbone.View.extend({
   },
   events: {
     'click #botonCategorias' : 'mostrarSubpanelCategorias',
-    'click #botonProductos' : 'mostrarSubpanelProductos',
-    'click #botonUsuarios' : 'mostrarSubpanelUsuarios'
+    'click #botonProductos' : 'mostrarSubpanelProductos'
   },
   mostrarSubpanelCategorias: function(e) {
     e.preventDefault();
@@ -22,10 +21,5 @@ var VistaPanelAdministracion = Backbone.View.extend({
     e.preventDefault();
     $("#subpaneles").html("");
     var vistaSubpanelProductos = new VistaSubpanelProductos();
-  },
-  mostrarSubpanelUsuarios: function(e) {
-    e.preventDefault();
-    $("#subpaneles").html("");
-    var vistaSubpanelUsuarios = new VistaSubpanelUsuarios();
   }
 });
