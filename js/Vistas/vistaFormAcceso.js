@@ -4,7 +4,7 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
     'formAcceso': _.template($('#formularioDeAcceso').html()),
   },
   events: {
-    'submit'           : 'onFormSubmit', // evento lanzado al pulsar el botón type submit (acceder)
+    'click #acceder'     : 'onFormSubmit', // evento lanzado al pulsar el botón type submit (acceder)
     'click #registrar' : 'formularioRegistro' // evento lanzado al pulsar el boton de tipo button (formulario registro)
   },
   initialize: function() {
@@ -17,7 +17,7 @@ var VistaFormularioDeAcceso = Backbone.View.extend({
   onFormSubmit: function(e) {
     e.preventDefault();
 
-    // obtenemos los valores de los campos
+    // obtenemos los valores de los camposs
 
     var usuario = this.$el.find('#usuario').val();
     var password = this.$el.find('#password').val();

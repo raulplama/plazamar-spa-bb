@@ -354,6 +354,10 @@ $app->get('/usuario', function () use ($app) {
 
   // obtener el usuario
 
+  if (!$usuario && !$identificador) {
+    echo json_encode('false');
+  }
+
   if ($usuario || $identificador) {
     if ($usuario) {
       $cursor = $collection->find(array('usuario' => $usuario));
