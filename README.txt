@@ -2,7 +2,7 @@
 # Requisitos: 
 -------------
 
-Instalación de la base de datos en mongoDB proporcionada.
+Requiere la instalación de una base de datos en mongoDB.
 
 ----------------------------------------------------------------------------
 # Errores y dificultades de la aplicación detectados pendientes de solución:
