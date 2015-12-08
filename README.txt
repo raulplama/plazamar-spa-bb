@@ -2,7 +2,13 @@
 # Requisitos: 
 -------------
 
-Requiere la instalación de una base de datos en mongoDB.
+1. Requiere la instalación de mongoDB.
+2. Como datos de la aplicación pueden usarse los proporcionados en la carpeta DB
+   en forma de JSON que han de ser importados a la base de datos creada con el 
+   nombre de 'plazamar' como colecciones.
+3. Además para la correcta comunicación entre api.php y mongoDB se ha de instalar
+   la extensión php correspondiente para mongo y activarla en php.ini (se pueden 
+   seguir las instrucciones buscando en el manual de php 'php.net')
 
 ----------------------------------------------------------------------------
 # Errores y dificultades de la aplicación detectados pendientes de solución:

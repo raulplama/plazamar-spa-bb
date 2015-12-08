@@ -1,0 +1,2 @@
+{id: 1, usuario: "raulplama", email: "raulplama@gmail.com", password: "secreto", type:"admin"}
+{id: 2, usuario: "pepito", email: "pepito@email.com", password: "secreto", type: "usuario"}
